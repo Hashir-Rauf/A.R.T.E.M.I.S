@@ -1,0 +1,1686 @@
+%% ==================================================================
+%%  A.R.T.E.M.I.S -- Raw Literature Review and Critical Analysis
+%%
+%%  This is the working (raw) version of the literature review. It is
+%%  organised for internal use by the project team. A polished,
+%%  paper-ready literature review will be derived from this document
+%%  at a later stage.
+%%
+%%  Build:  pdflatex -> biber -> pdflatex -> pdflatex
+%%  Backend: biblatex + biber
+%% ==================================================================
+
+\documentclass[11pt,a4paper]{report}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{titlesec}
+\usepackage{csquotes}
+\usepackage[hidelinks]{hyperref}
+
+\usepackage[backend=biber,style=numeric-comp,sorting=none,giveninits=true,maxbibnames=99]{biblatex}
+\addbibresource{references.bib}
+
+%% Line spacing fixed at 1.0 (single spacing) as requested.
+\linespread{1.0}
+
+%% List formatting: tight, no dangling items, consistent labels.
+\setlist[enumerate,1]{label=\arabic*., leftmargin=*, itemsep=0.3em, topsep=0.4em}
+\setlist[enumerate,2]{label=\alph*., leftmargin=*, itemsep=0.2em, topsep=0.3em}
+\setlist[itemize,1]{label=\textbullet, leftmargin=*, itemsep=0.3em, topsep=0.4em}
+\setlist[itemize,2]{label=--, leftmargin=*, itemsep=0.2em, topsep=0.3em}
+
+%% Numbered "part" headers within chapters, plus deep sectioning.
+\setcounter{secnumdepth}{4}
+\setcounter{tocdepth}{3}
+\titleformat{\paragraph}[hang]{\normalfont\normalsize\itshape}{\theparagraph}{1em}{}
+\titlespacing*{\paragraph}{0pt}{1.2em}{0.6em}
+
+\newcommand{\artemis}{A.R.T.E.M.I.S}
+
+\title{\artemis{}: Raw Literature Review and Critical Analysis\\[0.4em]
+\large Working Document (Internal)}
+\author{\artemis{} Project Team\\FAST-NUCES Final Year Project}
+\date{September 2026}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+%% ==================================================================
+\chapter{Purpose and Method of This Document}
+%% ==================================================================
+
+\section{Why This Document Exists}
+
+This document has two jobs. The first is to record, in one place, every
+paper the team read while surveying the research area around
+\artemis{}, together with an accurate citation for each one. The second
+is to analyse that reading critically, so that the team can state
+clearly what is already known, where the open problems are, and what
+each piece of work means for the design and evaluation of \artemis{}.
+
+The document is deliberately raw. It is longer and more repetitive than
+a published literature review would be, because its aim is completeness
+rather than polish. A shorter, integrated literature review suitable
+for inclusion in the project report will be written afterwards, using
+this document as its source.
+
+\section{How the Review Is Organised}
+
+The reading is grouped into seven themes. Each theme corresponds to one
+capability or concern of \artemis{}.
+
+\begin{enumerate}
+  \item Task interruption and resumption. This supports the
+        \enquote{pick up where you left off} feature.
+  \item Bounded artificial intelligence agents and trust. This supports
+        the opt-in workspace model and the approval mechanism.
+  \item Agentic reasoning, planning, and undo. This supports multi-step
+        task execution with reversible actions.
+  \item Voice interaction parity. This supports the speech input and
+        output mode and its evaluation.
+  \item Code assistance with human review. This supports the bounded
+        code assistant feature.
+  \item Hallucination in artificial intelligence summarisation. This
+        concerns the note and citation synthesis feature.
+  \item Retrieval-augmented generation citation accuracy. This also
+        concerns the synthesis feature, specifically the correctness of
+        its citations.
+\end{enumerate}
+
+\section{Structure of Each Entry}
+
+The document has two main chapters after this one.
+
+Chapter~\ref{ch:raw} is the raw review. For each theme it lists the
+papers in turn. For every paper it records three things: what the paper
+found, what research gap the paper identifies or leaves open, and what
+the authors of the paper were trying to do.
+
+Chapter~\ref{ch:analysis} is the critical analysis. For each theme it
+revisits the same papers and adds a fourth element for every one: the
+takeaway for \artemis{}. This states what the team should learn from
+the paper, whether \artemis{} addresses the gap the paper describes,
+and if so whether it does so fully or only in part.
+
+\section{A Note on Sources}
+
+Every source was resolved to its primary published version. Where the
+initial reading recorded an archived or redirected link, the citation
+here points to the peer-reviewed paper instead. Papers that existed only
+as preprints, with no peer-reviewed venue, were excluded from this
+review, so every entry in the reference list has a conference or journal
+publication. A small number of 2026 conference and journal papers are
+cited; their identifiers were checked and are genuine, not typing
+errors.
+
+%% ==================================================================
+\chapter{Raw Literature Review}
+\label{ch:raw}
+%% ==================================================================
+
+This chapter reports each paper on its own terms. It does not yet
+connect the papers to \artemis{}; that connection is made in
+Chapter~\ref{ch:analysis}.
+
+%% ------------------------------------------------------------------
+\section{Theme One: Task Interruption and Resumption}
+%% ------------------------------------------------------------------
+
+\subsection{Overview of the Theme}
+
+This theme concerns what happens when a person is pulled away from a
+computing task and later has to resume it. The reading covers an
+early field study that diagnosed the problem and a tool that turned
+that diagnosis into a visual retrieval aid.
+
+\subsection{Iqbal and Horvitz, Disruption and Recovery of Computing
+Tasks (CHI 2007)}
+
+\noindent Reference: \autocite{iqbal2007disruption}.
+
+\subsubsection{What the Paper Found}
+
+The paper reports a field study of ordinary workplace computer use. The
+authors logged real activity and looked for patterns behind faster and
+slower task resumption. The central finding, on which later work
+builds, is that visible on-screen cues matter. Windows or applications
+left open rather than minimised act as a strong reminder that helps a
+person pick a suspended task back up.
+
+\subsubsection{Research Gap Identified or Left Open}
+
+The paper only observes and diagnoses the problem. It does not propose
+or test a system. It therefore leaves open the question of what a
+person should do when leaving a window open is no longer a workable
+strategy, for example after a restart, after a gap of several days, or
+when switching between devices.
+
+\subsubsection{What the Authors Were Trying to Do}
+
+The authors were trying to understand disruption and recovery
+empirically, in a natural setting, and to point out directions for
+tools that could support recovery. The paper is the ancestor of the
+whole visual-cue line of research.
+
+\subsection{Hu and Lee, ScreenTrack (CHI 2020)}
+
+\noindent Reference: \autocite{hu2020screentrack}.
+
+\subsubsection{What the Paper Found}
+
+ScreenTrack records the screen in the background as a time-lapse video
+and lets the user scrub through it visually to find and reopen a
+document, website, or application. The design assumes that people
+remember what they were doing as a sequence of scenes better than they
+remember exact file names or dates. In a controlled laboratory study,
+participants retrieved requested information faster with ScreenTrack
+than with existing tools in some cases. A later use study showed people
+using it to recover task context.
+
+\subsubsection{Research Gap Identified or Left Open}
+
+The authors are open about the limits of the approach. It works well
+for recent activity but becomes slow and tedious for anything further
+back, because the video-timeline interface makes searching a long
+history a manual task. It depends on screens looking visually distinct,
+so it suits shopping or slide design but may not suit text-heavy work
+such as writing in a word processor. It was tested only in a short
+controlled laboratory setting, not in long-term, cluttered,
+multi-application use. The authors list long-term deployment as future
+work.
+
+\subsubsection{What the Authors Were Trying to Do}
+
+The authors were trying to build a retrieval aid that works with human
+visual memory rather than against it, by giving people a way to
+recognise a past moment and click straight back to the resource they
+were using at that time.
+
+%% ------------------------------------------------------------------
+\section{Theme Two: Bounded Artificial Intelligence Agents and Trust}
+%% ------------------------------------------------------------------
+
+\subsection{Overview of the Theme}
+
+This theme concerns how to keep an agent's autonomy within safe,
+understandable limits. The reading covers a developer-facing assurance
+framework with contracts and fault injection, and a security survey
+that examines the limits of human-in-the-loop approval directly.
+
+\subsection{Paduraru et al., A Trace-Based Assurance Framework (ENASE
+2026)}
+
+\noindent Reference: \autocite{paduraru2026tracebased}.
+
+\subsubsection{What the Paper Found}
+
+The authors built a system that records everything an agent does as a
+structured trace, a sequence of messages and actions, with explicit
+contracts attached to each step that can be automatically checked as
+pass or fail. When something breaks, the framework points to the exact
+step that violated its contract and can replay that failure
+deterministically. On the governance side, every action is mediated as
+one of three outcomes: allow it, rewrite it to something safer, or
+block it, and per-agent capability limits are enforced throughout.
+
+\subsubsection{Research Gap Identified or Left Open}
+
+This is a developer-facing testing and evaluation tool, not something an
+end user interacts with. It is built to catch problems before
+deployment, not to explain a pending action to a person or get their
+sign-off in the moment. It also describes no reversal mechanism: once
+an action is mediated and allowed to run, there is no way to undo it
+afterwards.
+
+\subsubsection{What the Authors Were Trying to Do}
+
+The authors were trying to give developers a way to stress-test a
+multi-agent system before shipping it, by injecting faults where the
+system talks to outside services, memory, or retrieval, and measuring
+how well the system contains the damage.
+
+\subsection{Kim et al., The Attack and Defense Landscape of Agentic AI
+(USENIX Security 2026)}
+
+\noindent Reference: \autocite{kim2026attackdefense}.
+
+\subsubsection{What the Paper Found}
+
+This survey maps how agentic systems are attacked and defended. One
+section covers privilege separation as an architectural defence, the
+same idea as least-privilege scoping but described from the security
+side. It compares this to how operating systems separate a trusted
+kernel from untrusted user programs, applied here to separating a
+trusted planning component from a component that processes raw,
+possibly manipulated, external data. The section that matters most for
+the team examines the limits of human-in-the-loop approval directly. It
+states plainly that frequent validation prompts cause decision fatigue
+that undermines the safety benefit they are supposed to provide, and
+that most people do not have the security background to judge what they
+are being asked to approve, so in practice they either approve risky
+things without thinking or overreact to harmless ones.
+
+\subsubsection{Research Gap Identified or Left Open}
+
+The survey names approval fatigue as an open challenge the field has
+not solved. It proposes no fix for it. It presents this as a problem
+the field must still address, not one it resolves.
+
+\subsubsection{What the Authors Were Trying to Do}
+
+The authors were trying to give the first systematic and comprehensive
+survey of agentic system security, covering design considerations,
+attack vectors, and defences, and to identify open research challenges
+that are specific to agents.
+
+%% ------------------------------------------------------------------
+\section{Theme Three: Agentic Reasoning, Planning, and Undo}
+%% ------------------------------------------------------------------
+
+\subsection{Overview of the Theme}
+
+This theme concerns how a language model can move beyond producing text
+and instead reason about a goal, plan steps, use tools, and act. The
+reading covers verbal self-reflection, self-supervised tool use,
+believable multi-agent behaviour driven by memory and reflection,
+interleaved reasoning and acting, and deliberate search over reasoning
+paths.
+
+\subsection{Shinn et al., Reflexion (NeurIPS 2023)}
+
+\noindent Reference: \autocite{shinn2023reflexion}.
+
+\subsubsection{What the Paper Found}
+
+Reflexion lets an agent evaluate its previous attempts, generate verbal
+reflections, store them as episodic memories, and use them to improve
+future plans and actions, without updating model weights. It was
+evaluated on decision-making, reasoning, and programming tasks and
+showed improvements over baseline approaches.
+
+\subsubsection{Research Gap Identified or Left Open}
+
+Reflexion mainly improves an agent's performance through its own
+previous task experiences. Its memory represents lessons from past
+attempts rather than the ongoing context of a human user's real
+workspace. The experiments also use bounded memory contexts. There is
+room to explore how agentic reasoning and memory can maintain human
+work context and support users returning to interrupted tasks.
+
+\subsubsection{What the Authors Were Trying to Do}
+
+The authors were trying to give language agents a cheap way to learn
+from trial and error, by turning task feedback into written reflection
+that is kept in memory and consulted on later attempts.
+
+\subsection{Schick et al., Toolformer (NeurIPS 2023)}
+
+\noindent Reference: \autocite{schick2023toolformer}.
+
+\subsubsection{What the Paper Found}
+
+Toolformer teaches a language model to decide when to use a tool, which
+tool to use, and what to pass to it, in a self-supervised way that
+needs only a handful of demonstrations per tool. It can use tools such
+as a search engine, a calculator, a question-answering system, a
+translation system, and a calendar. This lets the model perform tasks
+that are hard to solve with its language knowledge alone.
+
+\subsubsection{Research Gap Identified or Left Open}
+
+The approach focuses on using individual tools rather than managing a
+complete multi-step task. Toolformer can call a tool, but it does not
+fully support situations where the result of one tool must become the
+input to another. It can also be sensitive to the exact wording of the
+user's request when deciding whether to call an interface. It does not
+focus on bounded, user-controlled task execution.
+
+\subsubsection{What the Authors Were Trying to Do}
+
+The authors were trying to give a language model general tool use
+learned from data rather than from heavy human annotation, so that the
+model itself learns how and when a tool helps.
+
+\subsection{Park et al., Generative Agents (UIST 2023)}
+
+\noindent Reference: \autocite{park2023generative}.
+
+\subsubsection{What the Paper Found}
+
+Generative Agents shows that language-model agents can use memory,
+reflection, and planning to produce coherent behaviour over time. The
+system stores past experiences, retrieves relevant memories, generates
+higher-level reflections, and uses those reflections to build future
+action plans. This shows that memory-based reasoning and planning can
+support decisions that go beyond a single prompt and response. The
+demonstration populated a sandbox world with twenty-five agents that
+planned their days, shared news, formed relationships, and coordinated
+group activities.
+
+\subsubsection{Research Gap Identified or Left Open}
+
+The work focuses on simulating believable human behaviour in a
+controlled virtual environment. It does not focus on helping a real
+user resume interrupted work across a bounded desktop workspace, select
+tools for practical tasks, or require user approval before consequential
+actions. The paper also reports failures such as incorrect memory
+retrieval and fabricated memory details.
+
+\subsubsection{What the Authors Were Trying to Do}
+
+The authors were trying to build agents that behave believably as
+simulacra of people, using a memory stream plus reflection and planning
+as the mechanism for coherent long-term behaviour.
+
+\subsection{Yao et al., ReAct (ICLR 2023)}
+
+\noindent Reference: \autocite{yao2023react}.
+
+\subsubsection{What the Paper Found}
+
+ReAct interleaves reasoning, actions, and observations, so that an agent
+reasons about what action to take, observes the result, and updates its
+next action or plan. It was evaluated on question answering, fact
+verification, interactive environments, and web navigation, and it
+showed that combining reasoning and acting can improve task performance
+and make the decision process easier to interpret.
+
+\subsubsection{Research Gap Identified or Left Open}
+
+ReAct can suffer from reasoning errors, repetitive action loops, and
+difficulty when an action produces an uninformative result. The paper
+notes that complex tasks with large action spaces may need more
+demonstrations than fit easily in the model's context. Existing
+approaches focus on individual tasks in specific environments rather
+than on maintaining a bounded workspace context for a user across
+everyday activities.
+
+\subsubsection{What the Authors Were Trying to Do}
+
+The authors were trying to unite chain-of-thought reasoning with the
+ability to act in an environment, so that reasoning informs actions and
+observations inform reasoning within a single loop.
+
+\subsection{Yao et al., Tree of Thoughts (NeurIPS 2023)}
+
+\noindent Reference: \autocite{yao2023tot}.
+
+\subsubsection{What the Paper Found}
+
+Tree of Thoughts lets a model generate several possible thoughts or
+partial solutions, evaluate them, and continue with the more promising
+one. It can look ahead and backtrack to an earlier step when the
+current path is not useful. It represents a problem as a tree where
+branches are different reasoning paths, and it uses search methods such
+as breadth-first or depth-first search to explore them. It was
+evaluated on tasks such as Game of 24, creative writing, and mini
+crosswords, and reported a large improvement on Game of 24 over
+standard chain-of-thought reasoning.
+
+\subsubsection{Research Gap Identified or Left Open}
+
+The approach is mainly focused on reasoning and search-based problems.
+The paper itself notes that more complex real-world applications such as
+coding, data analysis, and robotics create opportunities for further
+research into planning and reasoning. Search-based reasoning can also
+require more computation, and the evaluation heuristics the model uses
+are not always reliable.
+
+\subsubsection{What the Authors Were Trying to Do}
+
+The authors were trying to bring deliberate search, planning,
+evaluation, and backtracking into language-model reasoning, so that the
+model considers possible future steps before committing to one.
+
+%% ------------------------------------------------------------------
+\section{Theme Four: Voice Interaction Parity}
+%% ------------------------------------------------------------------
+
+\subsection{Overview of the Theme}
+
+This theme concerns whether people can carry out practical computer work
+by voice as well as they can by typing, and how voice interaction
+should be evaluated. The reading covers two systematic reviews of voice
+assistant usability, a study of speech as a real-time signal of user
+experience, a study of speech-based waiting indicators, and a study of
+conversational fillers for masking response delay.
+
+\subsection{Deshmukh and Chalmeta, User Experience and Usability of
+Voice User Interfaces (Information, 2024)}
+
+\noindent Reference: \autocite{deshmukh2024vui}.
+
+\subsubsection{What the Paper Found}
+
+This systematic literature review conducts a bibliometric analysis of
+user experience with voice user interfaces and proposes a
+classification framework of six research categories. Existing research
+mainly focuses on how users interact with voice assistants and what
+factors affect their experience. The review identifies voice-related
+factors such as voice gender, accent, personality, and style;
+user-related factors such as gender, personality, experience, and
+language background; task-related factors; conversational style; and
+human-likeness or anthropomorphism. It also notes that voice-assistant
+research measures trust, likeability, acceptance, perceived
+intelligence, perceived humanness, social presence, and mental workload
+in addition to the traditional effectiveness, efficiency, and
+satisfaction of ISO 9241-11.
+
+\subsubsection{Research Gap Identified or Left Open}
+
+The review finds that existing research studies factors separately and
+that the relationships between many variables and usability measures
+are still incomplete. Some relationships are well studied while others
+have very few studies. Traditional usability frameworks do not fully
+capture voice-specific concerns such as trust, attitude, machine voice
+and human-likeness, and cognitive load. Many studies use controlled
+environments, and the review calls for more research in natural
+settings. It also notes that voice as a complete interaction method for
+multi-step desktop work is under-researched compared with single-task
+voice use.
+
+\subsubsection{What the Authors Were Trying to Do}
+
+The authors were trying to organise a fragmented field, map its main
+research streams, and identify future research directions within each
+category.
+
+\subsection{Dutsinma et al., A Systematic Review of Voice Assistant
+Usability, ISO 9241-11 Approach (SN Computer Science, 2022)}
+
+\noindent Reference: \autocite{dutsinma2022vareview}.
+
+\subsubsection{What the Paper Found}
+
+This review reads existing studies through the ISO 9241-11 lens of
+effectiveness, efficiency, and satisfaction. It finds that voice
+assistant research adds measures beyond that framework, including
+trust, attitude, machine voice quality, human-likeness, and cognitive
+load. It confirms that the same voice assistant may not give every user
+the same experience, and that task type and context affect usability.
+
+\subsubsection{Research Gap Identified or Left Open}
+
+ISO 9241-11 alone does not explain all aspects of modern voice
+assistant usability. Many aspects and relationships remain
+insufficiently researched. Current usability measures do not completely
+capture the needs of modern voice assistants, and there is a need for
+broader evaluation of voice interaction in realistic, multi-step tasks,
+especially when comparing voice with another interaction method such as
+typing.
+
+\subsubsection{What the Authors Were Trying to Do}
+
+The authors were trying to apply a recognised usability standard
+systematically to the voice-assistant literature and to show where that
+standard is and is not sufficient.
+
+\subsection{Ma et al., Beyond Words (CHI 2026)}
+
+\noindent Reference: \autocite{ma2026beyondwords}.
+
+\subsubsection{What the Paper Found}
+
+This paper studies speech as a source of information about the user's
+state during an interaction, not only after it. Human speech carries
+vocal information such as pitch, speech rate, pauses, intensity,
+jitter, shimmer, voice quality, filled pauses, repetitions, and
+self-repairs. Prior work has connected these characteristics with
+mental effort, frustration, engagement, uncertainty, and vocal tension,
+and with user-experience concepts such as satisfaction, trust, and
+attractiveness. The paper investigates whether speech features can be
+used with machine-learning methods to distinguish positive, neutral,
+and negative user experience automatically, in a within-subjects study
+with participants.
+
+\subsubsection{Research Gap Identified or Left Open}
+
+Voice-interface evaluation still mainly depends on post-hoc
+questionnaires and general performance measures, which ask users to
+recall their experience after the interaction has finished and are
+subject to recency bias, politeness, and limited self-awareness. There
+is little evaluation that captures in-situ, turn-by-turn speech during
+actual tasks. It is not clear which speech features reliably indicate
+which user-experience dimensions, and whether system behaviour and
+natural speech are sufficiently connected during real-time interaction.
+
+\subsubsection{What the Authors Were Trying to Do}
+
+The authors were trying to measure user experience from the user's
+voice while the interaction is happening, by linking specific speech
+features to user-experience levels through machine learning.
+
+\subsection{Zhang et al., Human Speech Indicators for Waiting Experience
+(CHI 2025)}
+
+\noindent Reference: \autocite{speech2025waiting}.
+
+\subsubsection{What the Paper Found}
+
+The paper studies how human speech can be designed as a
+waiting or loading indicator in voice user interfaces, where visual
+indicators such as progress bars do not apply. Focus groups with
+experienced voice-assistant users identified explanation and humour as
+the two most important design requirements. The authors then tested
+different speech indicators during short and long loading times. The
+appropriate design depends on the length of the wait. For long waits, a
+speech indicator with both high explanation and high humour performed
+best overall. For short waits, either explanation or humour alone could
+be effective, because too much information during a short wait can add
+cognitive load.
+
+\subsubsection{Research Gap Identified or Left Open}
+
+Previous waiting-experience research focused on graphical interfaces
+rather than voice interfaces, where delays are relatively invisible to
+the user. There was not enough research on how different types of human
+speech could be designed for the waiting period, and in particular the
+combination of explanation and humour in speech indicators for voice
+interfaces had not been properly investigated.
+
+\subsubsection{What the Authors Were Trying to Do}
+
+The authors were trying to find out how to fill the silent waiting
+period in a voice interface with speech that improves the experience
+rather than adding to the user's load.
+
+\subsection{Wang et al., Mitigating Response Delays in Free-Form
+Conversations (CUI 2025)}
+
+\noindent Reference: \autocite{fillers2025mitigating}.
+
+\subsubsection{What the Paper Found}
+
+The authors studied response latency in free-form conversations with
+language-model-powered virtual agents. They tested three response
+delays of 1.5, 4, and 6.5 seconds and three conditions: no filler, an
+artificial wait indicator, and a natural conversational filler. Longer
+delays hurt users' perception of the agents. Natural conversational
+fillers improved perceived response time, particularly at 4 and 6.5
+seconds. Artificial wait indicators, consisting of a loading icon and
+sound, did not significantly improve perceived response time or broader
+user-experience measures compared with having no filler.
+
+\subsubsection{Research Gap Identified or Left Open}
+
+Earlier studies of response delay commonly used scripted questions and
+answers, Wizard-of-Oz setups, or pre-recorded conversations rather than
+fully interactive, free-form conversations with language-model agents,
+which makes their findings hard to generalise. Simply showing the user
+that the system is processing does not necessarily solve the
+user-experience problem. Even natural fillers did not significantly
+improve all broader aspects of user experience such as engagement, good
+impression, competence, discomfort, or willingness to interact again.
+Response delays above 4 seconds significantly degraded the experience,
+and technical improvements cannot fully remove the problem because
+network instability, hardware limits, and increasingly complex
+reasoning continue to introduce latency.
+
+\subsubsection{What the Authors Were Trying to Do}
+
+The authors were trying to test whether conversational fillers reduce
+the negative effect of response delay in realistic, free-form
+interaction with a language-model agent, and to find the delay
+threshold beyond which the experience degrades.
+
+%% ------------------------------------------------------------------
+\section{Theme Five: Code Assistance with Human Review}
+%% ------------------------------------------------------------------
+
+\subsection{Overview of the Theme}
+
+This theme concerns artificial intelligence support for programming
+that keeps a person in control of the decisions. The reading covers a
+human-in-the-loop software development agent deployed in industry, a
+token-level human-in-the-loop decoding interface, a study of when to
+show a code suggestion, a study of expert steering strategies, and a
+study of how reliably language models judge whether code meets a
+requirement.
+
+\subsection{Takerngsaksiri et al., Human-In-the-Loop Software
+Development Agents (ICSE-SEIP 2025)}
+
+\noindent Reference: \autocite{takerngsaksiri2025hula}.
+
+\subsubsection{What the Paper Found}
+
+The HULA framework has three agents: an artificial intelligence planner
+agent, an artificial intelligence coding agent, and a human agent. The
+planner identifies relevant files and creates a coding plan, the coding
+agent generates code changes, and the human software engineer reviews,
+modifies, and approves the results. HULA was integrated into Atlassian
+JIRA and evaluated on both benchmark data and real issues. Practitioners
+approved 433 of 527 generated plans, an 82 percent plan approval rate.
+Of 376 issues for which code was generated, 95 resulted in raised pull
+requests and 56 of those were merged. Practitioners reported that HULA
+could reduce development time and effort, particularly for
+straightforward tasks and for starting a coding plan.
+
+\subsubsection{Research Gap Identified or Left Open}
+
+Earlier systems were mostly evaluated on historical benchmark datasets
+and open-source projects, which makes it hard to know how well they
+work in real enterprise environments; previous work rarely included
+human feedback at every stage; and many systems had not been deployed
+in practice. HULA addresses these within software development but still
+finds that agent performance depends heavily on the amount and quality
+of input context, that generating consistently correct code without
+human involvement remains a problem, and that passing unit tests does
+not prove code is correct. HULA's workflow is specific to a JIRA issue,
+a source-code repository, and pull requests, so it is an example of an
+agent helping a human within one professional workflow rather than a
+general desktop assistant.
+
+\subsubsection{What the Authors Were Trying to Do}
+
+The authors were trying to build and deploy a software development agent
+that keeps a human in the loop at planning and coding stages, and to
+report how real practitioners perceive its benefits and problems.
+
+\subsection{Anaya Gonzalez et al., HiLDe (VL/HCC 2025)}
+
+\noindent Reference: \autocite{gonzalez2025hilde}.
+
+\subsubsection{What the Paper Found}
+
+HiLDe introduces human-in-the-loop decoding. It highlights important
+decision points in generated code, shows local alternatives that the
+model considered, and explains how those alternatives differ. The user
+selects a preferred alternative at the token level, and HiLDe
+regenerates the following code according to that choice. In a study
+with 18 participants, users generated 31 percent fewer vulnerabilities
+on average with HiLDe than with a baseline assistant, and intentionally
+repaired more vulnerabilities.
+
+\subsubsection{Research Gap Identified or Left Open}
+
+Existing assistants concentrate on code generation and provide global
+alternatives that may be similar to one another, so users often have to
+reverse-engineer the model's choices. Simply showing uncertainty is not
+enough. HiLDe itself is still focused on code generation within a
+programming environment, implemented as a Visual Studio Code extension
+oriented to security-related tasks. The authors state that adapting it
+to other priorities such as efficiency, maintainability, and personal
+style is future work. HiLDe can also make unwanted changes to
+downstream code when a user selects a local alternative, its
+regeneration can overwrite previous user edits, and some participants
+found the number of alternatives and the token highlighting
+overwhelming.
+
+\subsubsection{What the Authors Were Trying to Do}
+
+The authors were trying to make interaction with an artificial
+intelligence programming assistant more intentional, by surfacing
+meaningful decisions and letting the user steer them at fine grain
+rather than accepting the first suggestion.
+
+\subsection{Mozannar et al., When to Show a Suggestion? (AAAI 2024)}
+
+\noindent Reference: \autocite{mozannar2024whento}.
+
+\subsubsection{What the Paper Found}
+
+The paper presents an artificial intelligence-assisted programming
+system built on GitHub Copilot that decides when to show or hide a code
+suggestion. It uses programmer accept and reject behaviour as feedback,
+learned from telemetry of real programming sessions covering 535
+programmers and more than 168,000 shown suggestions. The main
+contribution is conditional suggestion display from human feedback. A
+machine-learning model predicts the probability that a programmer will
+accept a suggestion; if acceptance is unlikely, the suggestion is
+hidden. A two-stage design can decide using only code and prior
+interaction information without generating the suggestion, which can
+reduce unnecessary generation and latency. Including a model of the
+programmer's latent state raised acceptance prediction accuracy from
+61.9 percent to 83.6 percent.
+
+\subsubsection{Research Gap Identified or Left Open}
+
+The paper focuses on one specific interaction, deciding when to show or
+hide a suggestion, and states that it does not tackle which suggestion
+to display among a candidate set. The system relies on telemetry, which
+cannot capture what the programmer is doing or thinking between two
+recorded events, called the programmer's latent state. The evaluation
+is mainly retrospective, using previously collected interaction data to
+estimate what would have happened; the authors say a user study is
+needed to verify whether the method makes programmers more productive,
+and warn that hiding useful suggestions or relying too heavily on
+acceptance rate can make the experience worse. Optimising only for
+acceptance can favour very short or single-token suggestions rather
+than complete useful code.
+
+\subsubsection{What the Authors Were Trying to Do}
+
+The authors were trying to reduce unnecessary suggestions, verification
+effort, and latency in an artificial intelligence coding assistant, by
+learning from accept and reject behaviour when a suggestion should be
+displayed at all.
+
+\subsection{Chidambaram et al., Socratic Human Feedback (Findings of
+EMNLP 2024)}
+
+\noindent Reference: \autocite{chidambaram2024sohf}.
+
+\subsubsection{What the Paper Found}
+
+The paper studies human steering of code-generating language models.
+Eight expert programmers interacted with GPT-4, Gemini Ultra, and
+Claude 3.5 Sonnet on difficult competition-level problems, using
+multiple conversational turns to guide the models when their initial
+solutions failed. The study identified steering strategies including
+test reiteration, new test definition, revising unit tests, pointing
+out a specific programming error, addressing code inefficiency,
+requirement reiteration, requirement clarification, approach
+re-orientation, and specific approach instruction. Humans could
+successfully guide a model through several rounds of feedback rather
+than expecting a correct solution in one attempt.
+
+\subsubsection{Research Gap Identified or Left Open}
+
+Previous work demonstrated human-model collaboration but there was
+limited understanding of what specific feedback strategies expert users
+actually use to steer a model toward a solution. This paper studies and
+categorises those strategies rather than building them into a system.
+It focuses on competition-level problems, and it is not yet clear
+whether novice programmers would achieve the same success as experts,
+since strategies such as pointing out a specific error and re-orienting
+the approach may require expert knowledge. The dataset is relatively
+small. Future work could use the identified strategies to design
+interfaces that recommend follow-up prompts, ask clarifying questions,
+or provide prompt templates, and could adapt steering strategies
+dynamically to the conversation.
+
+\subsubsection{What the Authors Were Trying to Do}
+
+The authors were trying to observe real conversations between expert
+programmers and code-generating models and to build a taxonomy of the
+steering strategies those experts use.
+
+\subsection{Jin and Chen, Are LLMs Reliable Code Reviewers? Systematic
+Overcorrection in Requirement Conformance Judgement (Automated Software
+Engineering, 2026)}
+
+\noindent Reference: \autocite{jin2026reliable}.
+
+\subsubsection{What the Paper Found}
+
+The paper investigates whether language models can reliably verify that
+code satisfies a natural-language requirement, especially when no test
+cases or formal specifications are available. It finds that models make
+two kinds of mistake: false rejection, where correct code is judged
+incorrect, and false acceptance, where buggy code is judged correct. A
+particularly important finding is an over-correction bias: instead of
+checking whether the code meets the requirement, models invent
+requirements, worry about unspecified edge cases, assume different
+input types, imagine runtime problems, or claim the algorithm is wrong
+when the implementation is actually correct. The largest category of
+false-rejection explanations was logic error, followed by added
+requirement, boundary error, and misread specification; together these
+four categories represented 87.2 percent of false-negative
+explanations. Increasing prompt complexity, for example asking the
+model to judge, explain, and propose a fix, reduced false acceptance in
+some situations but greatly increased false rejection. Explanations
+could also contradict the model's own final judgement. The models were
+better at identifying the observable symptom of a bug than the
+underlying bug type.
+
+\subsubsection{Research Gap Identified or Left Open}
+
+Existing research shows that language models have strong
+code-generation and code-understanding abilities, but much less is
+known about whether their judgements themselves are reliable. Asking a
+model for more reasoning does not necessarily make its reasoning more
+trustworthy, and a longer explanation should not be treated as evidence
+that a decision is correct.
+
+\subsubsection{What the Authors Were Trying to Do}
+
+The authors were trying to measure the reliability of language-model
+judgements about requirement conformance, to build a taxonomy of
+false-rejection reasons, and to test how prompt design affects
+misjudgement rates.
+
+%% ------------------------------------------------------------------
+\section{Theme Six: Hallucination in Artificial Intelligence
+Summarisation}
+%% ------------------------------------------------------------------
+
+\subsection{Overview of the Theme}
+
+This theme concerns whether generated summaries stay faithful to their
+source. A summary can be faithful but factually wrong if the source is
+wrong, and factually true but unfaithful if the model added something
+correct that was not in the document. The papers in this theme study
+faithfulness. The reading covers a diagnostic human evaluation, a
+trained consistency detector, a typology and benchmark of factuality
+metrics, and a recent test of whether frontier language models can tell
+a consistent summary from an inconsistent one.
+
+\subsection{Maynez et al., On Faithfulness and Factuality in Abstractive
+Summarization (ACL 2020)}
+
+\noindent Reference: \autocite{maynez2020faithfulness}.
+
+\subsubsection{What the Paper Found}
+
+The authors ran a large human evaluation on several neural abstractive
+summarisation systems, checking whether each generated summary matched
+its source. They split hallucinations into two types: intrinsic, where
+the model twists or misstates something that was in the source, and
+extrinsic, where the model adds something that was not in the source at
+all. They found substantial hallucinated content in every system
+tested. They also checked whether the standard metric, ROUGE, could
+catch this, and it mostly could not. What did correlate better with
+human judgements of faithfulness was textual entailment, checking
+whether the source document logically implies the summary sentence.
+
+\subsubsection{Research Gap Identified or Left Open}
+
+This paper measures and describes the problem. It does not build a
+system that produces faithful summaries, and it does not build an
+automatic detector; it only shows that entailment is a promising
+direction for one. After this paper, hallucination is known to be
+common and ROUGE is known not to catch it, but there is still no tool
+that catches it for you.
+
+\subsubsection{What the Authors Were Trying to Do}
+
+The authors were trying to quantify how much hallucination neural
+summarisers produce, to categorise it, and to identify which automatic
+measures track human judgements of faithfulness.
+
+\subsection{Kryscinski et al., Evaluating the Factual Consistency of
+Abstractive Text Summarization (EMNLP 2020)}
+
+\noindent Reference: \autocite{kryscinski2020evaluating}.
+
+\subsubsection{What the Paper Found}
+
+This paper builds a model called FactCC that predicts whether a summary
+sentence is factually consistent with its source. Because there was
+little real training data, the authors generated their own by applying
+rule-based transformations to source sentences, such as swapping
+entities and negating statements, to create realistic-looking
+inconsistent examples. The model is trained to do three things at once:
+say whether a sentence is consistent, point to the part of the source
+that supports or contradicts it, and, if it is inconsistent, point to
+the part of the summary that is wrong.
+
+\subsubsection{Research Gap Identified or Left Open}
+
+FactCC is a detector, not a fix. It tells you after the fact that
+something is wrong; it does not stop the wrong summary from being
+generated. There is also a question about whether training on synthetic
+rule-based errors teaches the model to catch the subtler mistakes that
+real generation models actually make, which do not always look like a
+simple rule-based edit.
+
+\subsubsection{What the Authors Were Trying to Do}
+
+The authors were trying to build an automatic, weakly supervised
+consistency checker for summaries, one that not only flags an
+inconsistency but also localises it in both the source and the summary.
+
+\subsection{Pagnoni et al., Understanding Factuality in Abstractive
+Summarization with FRANK (NAACL 2021)}
+
+\noindent Reference: \autocite{pagnoni2021understanding}.
+
+\subsubsection{What the Paper Found}
+
+Earlier work mostly treated factuality as a yes-or-no question. This
+paper argues that is too coarse and builds a typology of specific error
+types instead, such as wrong entities, wrong relations between
+entities, and wrong dates. The authors collect human annotations of
+these specific error types on real model-generated summaries from
+CNN/DailyMail and XSum, then use that annotated data as a benchmark to
+test how well existing automatic factuality metrics, including FactCC,
+agree with human judgement.
+
+\subsubsection{Research Gap Identified or Left Open}
+
+The headline finding is that no single metric is reliably good across
+all error types; different metrics catch different kinds of mistake and
+miss others. This is a meta-evaluation paper: it evaluates the
+evaluators and does not propose a new generation or detection method.
+It shows that even the detection side of this problem is fragmented, so
+you cannot pick one off-the-shelf metric and trust it uniformly.
+
+\subsubsection{What the Authors Were Trying to Do}
+
+The authors were trying to give the field a finer-grained way to talk
+about summary errors, and a benchmark for judging how well automatic
+factuality metrics match human annotation across error types.
+
+\subsection{Laban et al., SummEdits (EMNLP 2023)}
+
+\noindent Reference: \autocite{laban2023summedits}.
+
+\subsubsection{What the Paper Found}
+
+This is the most recent paper in the theme and tests actual language
+models rather than older summarisation-specific models. The authors
+found existing benchmarks for inconsistency detection to be flawed in
+ways that skewed results, so they built a new one, SummEdits, across ten
+domains, designed to be cheap to build and highly reproducible, with
+annotator agreement around 0.9. They then tested a range of language
+models on whether they could correctly tell a consistent summary from
+an inconsistent one. Most models performed close to random chance. Even
+GPT-4, the best model tested, still landed 8 percent below estimated
+human performance.
+
+\subsubsection{Research Gap Identified or Left Open}
+
+This is the clearest, most current evidence that catching hallucination
+automatically is still unsolved, even by the most capable
+general-purpose models available at the time of the study. If a
+frontier model struggles to tell a faithful summary from an unfaithful
+one, then any system that plans to use a language model to check its own
+output inherits that limitation.
+
+\subsubsection{What the Authors Were Trying to Do}
+
+The authors were trying to build a reliable, reproducible benchmark for
+factual-consistency detection and to measure how well current language
+models actually perform on it.
+
+%% ------------------------------------------------------------------
+\section{Theme Seven: Retrieval-Augmented Generation Citation Accuracy}
+%% ------------------------------------------------------------------
+
+\subsection{Overview of the Theme}
+
+This theme concerns whether a citation attached to a generated
+statement actually means anything. Three properties matter and the
+papers do not always use the same words for them. Citation correctness
+is whether the cited source actually supports the specific claim.
+Citation completeness is whether every claim that needs support
+actually has a citation. Citation faithfulness or attribution is
+whether the model generated the claim from the cited source rather than
+from its own knowledge with a plausible citation attached afterwards.
+The reading covers a formal definition of attribution, a benchmark for
+end-to-end citation generation, and an audit of deployed generative
+search products.
+
+\subsection{Rashkin et al., Measuring Attribution in Natural Language
+Generation Models (Computational Linguistics, 2023)}
+
+\noindent Reference: \autocite{rashkin2023measuring}.
+
+\subsubsection{What the Paper Found}
+
+This paper gives the field a definition for what it means for generated
+text to be attributable to a source. The authors call it Attributable
+to Identified Sources, and the test they define is intuitive: a
+statement counts as attributed to a source if a person would agree with
+the sentence \enquote{According to this source, this statement is
+true}. They built a two-stage human annotation pipeline to apply this
+test consistently and demonstrated it across three tasks: conversational
+question answering, summarisation, and table-to-text generation.
+
+\subsubsection{Research Gap Identified or Left Open}
+
+This is a definition and a human annotation method, not an automatic
+system. Somebody still has to sit down and manually judge each
+statement against the standard. It also predates the current wave of
+language models that generate citations directly as part of their
+answer, so it was not tested against systems like commercial generative
+search that ship citations to real users.
+
+\subsubsection{What the Authors Were Trying to Do}
+
+The authors were trying to give attribution a precise, testable
+definition and a repeatable annotation procedure, so that different
+studies can measure the same thing.
+
+\subsection{Gao et al., Enabling Large Language Models to Generate Text
+with Citations (EMNLP 2023)}
+
+\noindent Reference: \autocite{gao2023enabling}.
+
+\subsubsection{What the Paper Found}
+
+The authors built ALCE, described as the first benchmark specifically
+for testing how well language models generate text with citations end
+to end, meaning the system both retrieves supporting evidence and
+writes an answer that cites it. They built automatic metrics for three
+things, fluency, correctness, and citation quality, and checked that
+those automatic scores line up with human judgement. Current systems
+have a lot of room to improve. On the ELI5 dataset specifically, even
+the best-performing models failed to provide complete citation support
+for their claims about half the time.
+
+\subsubsection{Research Gap Identified or Left Open}
+
+This paper is about citation completeness: not every claim gets backed
+by a citation, even from the strongest systems tested. It is a research
+benchmark for testing and comparing systems, not a deployed product, so
+it says the problem is unsolved in research settings but does not say
+what happens once such a system ships to real users.
+
+\subsubsection{What the Authors Were Trying to Do}
+
+The authors were trying to create a reproducible benchmark and
+automatic metrics for citation generation, so that progress on faithful
+cited answers can be measured.
+
+\subsection{Liu et al., Evaluating Verifiability in Generative Search
+Engines (Findings of EMNLP 2023)}
+
+\noindent Reference: \autocite{liu2023evaluating}.
+
+\subsubsection{What the Paper Found}
+
+Instead of testing a benchmark, the authors audited four real, deployed
+generative search products that people were using at the time: Bing
+Chat, NeevaAI, perplexity.ai, and YouChat. Human annotators checked two
+things for each product's answers: citation recall, meaning whether all
+statements in the answer have supporting citations, and citation
+precision, meaning whether each citation actually supports the statement
+it is attached to. On average, only 51.5 percent of generated sentences
+were fully supported by citations, and only 74.5 percent of citations
+actually supported the statement they were attached to.
+
+\subsubsection{Research Gap Identified or Left Open}
+
+This is the strongest evidence in the theme that citations do not
+automatically mean trustworthy, because these are real commercial
+products with a polished, authoritative-looking citation interface, and
+roughly a quarter of their citations do not hold up while about half
+their sentences are not fully backed. The paper is diagnostic only. It
+audits and reports; it does not build or propose a fix, and it does not
+determine whether the failures come from bad retrieval, bad generation,
+or citations being attached after the answer was already written.
+
+\subsubsection{What the Authors Were Trying to Do}
+
+The authors were trying to measure how verifiable the answers of
+real-world generative search engines actually are, using human
+annotation of citation recall and precision.
+
+%% ==================================================================
+\chapter{Critical Analysis and Takeaways for \artemis{}}
+\label{ch:analysis}
+%% ==================================================================
+
+This chapter revisits every paper from Chapter~\ref{ch:raw} and adds the
+element that the raw review deliberately left out: what the team should
+take from it. For each paper the takeaway states what \artemis{} should
+learn, whether \artemis{} addresses the gap the paper raises, and
+whether that treatment is full or partial. Each theme closes with a
+short synthesis.
+
+%% ------------------------------------------------------------------
+\section{Theme One: Task Interruption and Resumption}
+%% ------------------------------------------------------------------
+
+\subsection{Iqbal and Horvitz (CHI 2007)}
+
+\subsubsection{Takeaway for \artemis{}}
+
+\artemis{} turns this descriptive finding into a durable feature. The
+\enquote{pick up where you left off} feature is a stable substitute for
+the physical cue that Iqbal and Horvitz studied, because it surfaces the
+equivalent information, what was recently active, what was saved, and
+what the user said was next, as a persistent list rather than as a
+window that happens to be open on a screen. This is a partial fill of
+the gap. \artemis{} operationalises the finding but has not run the kind
+of field validation the original study did, which is what the team's
+field-evaluation objective is set up to do.
+
+\subsection{Hu and Lee, ScreenTrack (CHI 2020)}
+
+\subsubsection{Takeaway for \artemis{}}
+
+\artemis{} avoids ScreenTrack's main weakness structurally rather than
+trying to fix it. The resumption feature does not use screen recording
+or visual scrubbing at all. It works from the file system and the
+user's own saved notes, so it does not depend on whether two screens
+look alike, and it matches on file name, recency, and explicit text
+notes. It also sidesteps the \enquote{search a long video} problem,
+because a workspace has a bounded scope by design, so there is a short
+list to show rather than an open-ended timeline. The team should keep
+the workspace boundary tight for exactly this reason.
+
+\subsection{Synthesis for Theme One}
+
+The two papers describe a progression: a field diagnosis with no tool,
+followed by a tool that works only for recent, visually distinct
+activity. \artemis{} sits deliberately to one side of this progression.
+It does not attempt a general memory system. It substitutes a bounded
+workspace, a short recency-and-notes list, and a visible editable
+knowledge panel. The open work for the team is evaluation in a
+realistic setting, since none of the resumption benefits have been
+tested outside the design itself.
+
+%% ------------------------------------------------------------------
+\section{Theme Two: Bounded Artificial Intelligence Agents and Trust}
+%% ------------------------------------------------------------------
+
+\subsection{Paduraru et al., Trace-Based Assurance (2026)}
+
+\subsubsection{Takeaway for \artemis{}}
+
+This is one of the clearest direct matches in the whole review. The
+framework's biggest blind spot, no way to reverse an action once it
+executes, is exactly what \artemis{}'s undo step is built to cover.
+Where this framework mediates actions using machine-checkable contracts
+before they run, \artemis{} mediates them with a plain-language preview
+that a person reads before they run, and then adds the reversal option
+this framework never has. It is a partial fill in the other direction:
+\artemis{} has no deterministic replay and no automatic contract
+verification, so it depends entirely on a person looking at a preview
+and deciding, which is a weaker guarantee than a machine-checked
+contract but a more usable one for someone without an engineering
+background.
+
+\subsection{Kim et al., Attack and Defense Landscape (2026)}
+
+\subsubsection{Takeaway for \artemis{}}
+
+This one needs to be stated plainly rather than smoothed over.
+\artemis{} does not solve approval fatigue. This paper identifies a
+real, documented weakness in the exact approach \artemis{} depends on,
+stopping for approval before every consequential action. The design
+currently has no mechanism to prevent that fatigue, nothing that
+distinguishes a routine low-stakes approval from a genuinely risky one,
+and nothing that reduces prompts as trust builds. This is a limitation
+\artemis{} inherits from relying on human-in-the-loop approval at all,
+not something its bounded workspace design removes. The team's
+evaluation should test directly whether approval fatigue shows up over
+repeated sessions, rather than assuming the design avoids it.
+
+\subsection{Synthesis for Theme Two}
+
+Across the two papers, the safe-agent field has strong ideas, contract
+mediation, deterministic replay, capability limits, and privilege
+separation, but they are built for developers and organisations with
+security staff. \artemis{} takes the principles and makes them operable
+by one person: a folder instead of a sandbox definition, a readable
+panel instead of a provenance graph, a preview and undo instead of a
+contract engine. The honest gap is approval fatigue, which \artemis{}
+inherits and must measure rather than claim to have designed away.
+
+%% ------------------------------------------------------------------
+\section{Theme Three: Agentic Reasoning, Planning, and Undo}
+%% ------------------------------------------------------------------
+
+\subsection{Shinn et al., Reflexion (2023)}
+
+\subsubsection{Takeaway for \artemis{}}
+
+\artemis{} applies agentic reasoning in a bounded desktop workspace.
+Instead of focusing only on learning from failed attempts, it uses
+workspace context such as recently changed files, saved notes, and the
+user's intended next action to help reconstruct interrupted work. It
+combines multi-step planning with explicit workspace boundaries and
+reversible actions. The lesson from Reflexion is that episodic,
+written memory is a workable substrate for agent behaviour; \artemis{}
+uses a similar idea but points it at human work context rather than at
+the agent's own past errors.
+
+\subsection{Schick et al., Toolformer (2023)}
+
+\subsubsection{Takeaway for \artemis{}}
+
+\artemis{} extends tool-using language models toward chained,
+multi-step execution, which Toolformer does not fully support. A request
+such as reading documents, preparing a summary, and emailing it is a
+sequence where each step depends on the previous one. \artemis{} plans
+that sequence and keeps it bounded and reviewable through the approval
+mechanism. The takeaway is that tool use alone is not enough for a real
+assistant; the planning layer on top is where \artemis{} adds value.
+
+\subsection{Park et al., Generative Agents (2023)}
+
+\subsubsection{Takeaway for \artemis{}}
+
+\artemis{} applies the memory, reflection, and planning idea to a
+practical desktop workspace instead of a simulated world. Given a
+request, the agent determines what information is needed, retrieves
+relevant workspace context, selects tools, and plans a sequence of
+actions. Unlike a fully autonomous agent it requires user approval
+before actions that modify files or leave the workspace, and it
+provides preview, audit, and undo. The reported failures in this paper,
+incorrect memory retrieval and fabricated memory details, are a direct
+warning: they are the same failure modes the team must guard against in
+the resumption and synthesis features.
+
+\subsection{Yao et al., ReAct (2023)}
+
+\subsubsection{Takeaway for \artemis{}}
+
+\artemis{} adopts the interleaved reason, act, observe loop but places
+it inside a bounded workspace with user approval at the points where
+actions leave that workspace. The known weaknesses of ReAct, reasoning
+errors, repetitive loops, and poor recovery from uninformative
+observations, argue for keeping the action space small and the number
+of autonomous steps limited before returning to the user. The team
+should treat the approval checkpoints as loop breakers as well as trust
+mechanisms.
+
+\subsection{Yao et al., Tree of Thoughts (2023)}
+
+\subsubsection{Takeaway for \artemis{}}
+
+Tree of Thoughts establishes that search, evaluation, and backtracking
+improve reasoning, but its evaluation is on puzzle-like tasks. \artemis{}
+does not need full tree search; its tasks are more like short
+dependency chains than large search spaces. The takeaway is that a
+lightweight planning step, with the ability to revise a plan when a
+step produces a poor result, is enough for the \artemis{} task profile,
+and heavier search would add computation without a matching benefit.
+
+\subsection{Synthesis for Theme Three}
+
+The five papers establish that language models can reason, plan, use
+tools, reflect, and search, and that reasoning alone is not enough for a
+real assistant. The common gap is that this work is evaluated on
+individual tasks in specific or simulated environments, not on
+maintaining a bounded workspace context for a user across everyday
+activity. \artemis{} is positioned exactly in that gap: it applies
+multi-step agentic planning to a practical, bounded workspace, with
+tool selection, context awareness, human approval, and reversible
+actions. The failure modes reported across these papers, especially
+fabricated memory and reasoning loops, define the risks the team's
+evaluation must probe.
+
+%% ------------------------------------------------------------------
+\section{Theme Four: Voice Interaction Parity}
+%% ------------------------------------------------------------------
+
+\subsection{Deshmukh and Chalmeta (2024)}
+
+\subsubsection{Takeaway for \artemis{}}
+
+This review tells the team what has and has not been studied in voice
+usability, and confirms that voice as a complete interaction method for
+multi-step desktop work is under-researched. \artemis{} contributes here
+by treating speech as an alternative interaction mode over the same
+bounded feature set, and by evaluating it against typed interaction on
+ease of use and task completion time, with cognitive workload and trust
+in the broader evaluation. This is a partial fill: \artemis{} studies
+voice in a real desktop productivity setting rather than as a
+question-and-answer interface, but it does not resolve the fragmented
+factor relationships the review describes.
+
+\subsection{Dutsinma et al. (2022)}
+
+\subsubsection{Takeaway for \artemis{}}
+
+The review's central point, that ISO 9241-11's effectiveness,
+efficiency, and satisfaction do not fully capture voice usability, tells
+the team which extra measures to include. The \artemis{} voice
+evaluation should therefore report not only task completion time and
+success but also cognitive workload and trust, which this review
+identifies as voice-specific concerns. The safer framing for the team's
+own writing is that the reviewed literature does not sufficiently
+address voice interaction parity across complete, multi-step desktop
+workflows, rather than any claim that voice and typing have never been
+compared.
+
+\subsection{Ma et al., Beyond Words (2026)}
+
+\subsubsection{Takeaway for \artemis{}}
+
+This paper is relevant to how the team measures the voice mode, not to
+what \artemis{} builds. It shows that speech carries a real-time signal
+of user experience that post-hoc questionnaires miss. If the team can
+record turn-by-turn audio during the voice-versus-typing study, speech
+features such as pause duration and disfluency rate could supplement
+questionnaire measures of cognitive load and frustration. \artemis{}
+does not currently plan this, so it is an optional evaluation
+enhancement rather than a design requirement.
+
+\subsection{Zhang et al., Waiting Indicators (2025)}
+
+\subsubsection{Takeaway for \artemis{}}
+
+\artemis{}'s voice mode will have waiting periods while the agent plans
+and executes. This paper gives concrete design guidance: for a long
+wait, a spoken indicator that both explains what is happening and adds
+light humour works best; for a short wait, explanation or humour alone
+is enough, and too much information adds load. The team should design
+the voice mode's waiting behaviour along these lines rather than using a
+silent pause or a generic tone.
+
+\subsection{Wang et al., Response Delays (2025)}
+
+\subsubsection{Takeaway for \artemis{}}
+
+This paper sets a latency budget for the voice mode. Response delays
+above 4 seconds significantly degrade the experience, and natural
+conversational fillers help at 4 and 6.5 seconds while artificial
+loading sounds do not. The team should target sub-4-second responses
+where possible, use natural spoken fillers rather than earcons when a
+delay is unavoidable, and accept that filler cannot fully compensate for
+a slow multi-step plan. This reinforces keeping the number of
+autonomous steps between user touchpoints small.
+
+\subsection{Synthesis for Theme Four}
+
+The two reviews establish that voice usability is studied in fragments
+and that standard usability metrics miss voice-specific concerns such as
+trust and cognitive load. The three empirical papers give the team
+usable numbers and design rules: a 4-second latency threshold, natural
+fillers over artificial ones, explanation-plus-humour for long waits,
+and speech as an optional real-time experience signal. \artemis{}'s
+contribution is to evaluate voice as a full interaction mode over
+practical multi-step tasks, comparing it against typing on ease of use,
+task time, cognitive workload, and trust, which the literature agrees is
+under-explored.
+
+%% ------------------------------------------------------------------
+\section{Theme Five: Code Assistance with Human Review}
+%% ------------------------------------------------------------------
+
+\subsection{Takerngsaksiri et al., HULA (2025)}
+
+\subsubsection{Takeaway for \artemis{}}
+
+HULA is evidence that a plan, generate, human-approve loop works in
+practice, with an 82 percent plan approval rate in a real deployment.
+\artemis{}'s code assistant uses the same shape but is narrower: it
+reads workspace source, answers questions, explains errors, and
+proposes a fix as a diff that the user approves, and it does not open
+pull requests or act on a whole repository. The lesson is that the
+human-approval loop is not a compromise; it is a validated interaction
+model. HULA's finding that output quality depends heavily on input
+context also applies: \artemis{} should surface the relevant files and
+context clearly before proposing a change.
+
+\subsection{Anaya Gonzalez et al., HiLDe (2025)}
+
+\subsubsection{Takeaway for \artemis{}}
+
+HiLDe operates at a finer grain than \artemis{} needs, steering
+generation token by token. \artemis{} keeps the interaction at the level
+of a whole proposed change shown as a diff, which is coarser but
+simpler and matches the non-expert user. The relevant caution from
+HiLDe is that regeneration can silently overwrite earlier user edits and
+that too many alternatives overwhelm users; \artemis{} should show one
+proposed change at a time and never modify code the user did not
+approve.
+
+\subsection{Mozannar et al., When to Show a Suggestion? (2024)}
+
+\subsubsection{Takeaway for \artemis{}}
+
+This paper addresses a problem \artemis{} does not have. \artemis{}'s
+code assistant is invoked deliberately by the user rather than offering
+continuous inline suggestions, so there is no when-to-show decision to
+make and no risk of optimising for acceptance rate at the expense of
+useful content. The takeaway is that \artemis{}'s on-demand model
+sidesteps a whole class of problems that inline assistants have, and the
+team can note this as a deliberate design advantage.
+
+\subsection{Chidambaram et al., Socratic Human Feedback (2024)}
+
+\subsubsection{Takeaway for \artemis{}}
+
+This paper's taxonomy of steering strategies, such as pointing out a
+specific error, clarifying a requirement, and re-orienting the approach,
+is useful input for \artemis{}'s code-assistant conversation design. The
+team could use it to structure follow-up prompts or clarifying
+questions when the user disagrees with a proposed fix. The paper's
+caution that some strategies may need expert knowledge is relevant,
+since \artemis{}'s target user may be a non-expert, so the assistant
+should offer these steering moves rather than assume the user will
+supply them.
+
+\subsection{Jin and Chen, Are LLMs Reliable Code Reviewers? (2026)}
+
+\subsubsection{Takeaway for \artemis{}}
+
+This paper is the direct justification for \artemis{} never applying a
+code change on its own. It adds a specific warning: models over-correct,
+inventing requirements and flagging correct code as wrong, and asking
+for a longer explanation makes this worse, not better. Increasing
+prompt complexity reduced false acceptance in some cases but greatly
+increased false rejection, and explanations could contradict the
+model's own final judgement. \artemis{} should therefore present a
+proposed fix as a suggestion to review, not as a defect report to
+trust, and should be cautious about prompting its own model for
+elaborate justifications. The paper's point that the models were better
+at spotting a bug's symptom than its underlying cause also tells the
+team to keep the user, not the model, as the final judge. This is a
+limitation \artemis{} inherits from using a language model at all, and
+the diff-plus-approval design is the mitigation.
+
+\subsection{Synthesis for Theme Five}
+
+The five papers converge on one point: language-model code judgement is
+useful but not trustworthy on its own, with a documented over-correction
+bias and judgements that a longer explanation does not make more
+reliable. \artemis{}'s design answers this directly through an
+on-demand, diff-based, user-approved code assistant that never writes or
+runs code by itself. HULA and HiLDe show the human-approval loop is a
+validated model, not a fallback. The steering-strategy taxonomy from
+SoHF and the acceptance-versus-usefulness caution from the
+when-to-show-a-suggestion work are concrete inputs for the assistant's
+conversation design. The residual limitation, that the underlying model
+can still be wrong or over-cautious, is inherited and is mitigated, not
+removed, by keeping the user in control.
+
+%% ------------------------------------------------------------------
+\section{Theme Six: Hallucination in Artificial Intelligence
+Summarisation}
+%% ------------------------------------------------------------------
+
+\subsection{Maynez et al. (2020)}
+
+\subsubsection{Takeaway for \artemis{}}
+
+The synthesis feature pulls together notes and citations from a small,
+explicitly selected set of documents, which is a narrower and more
+controlled task than open-domain abstractive summarisation. A narrower
+scope reduces the surface area for hallucination but does not remove it.
+This paper's finding, that hallucination appeared in every system
+tested, is a real reason to expect the synthesis feature needs some kind
+of faithfulness check, and the team should not treat the narrower scope
+as making the problem solved. Entailment between source and output is
+the check this paper points to.
+
+\subsection{Kryscinski et al., FactCC (2020)}
+
+\subsubsection{Takeaway for \artemis{}}
+
+FactCC is the closest thing in the literature to a plug-in tool the
+synthesis feature could actually use: a lightweight, already-built
+consistency checker rather than something built from scratch. Nothing
+in the current \artemis{} design uses a detector of this kind, so this
+is a genuine open gap rather than something \artemis{} already handles.
+If the team wants to reduce hallucination risk in the synthesis feature,
+adopting a FactCC-style check after generation is a concrete,
+literature-backed way to do it.
+
+\subsection{Pagnoni et al., FRANK (2021)}
+
+\subsubsection{Takeaway for \artemis{}}
+
+This paper is a warning against relying on a single automatic metric to
+prove the synthesis feature is faithful. If the team adds a consistency
+check, FRANK's finding means one metric will not catch every kind of
+error a citation-synthesis feature can produce. It does not hand
+\artemis{} a gap to fill so much as it tells the team to expect any
+single fix to be incomplete and to combine checks or keep a human in
+the loop.
+
+\subsection{Laban et al., SummEdits (2023)}
+
+\subsubsection{Takeaway for \artemis{}}
+
+This is the strongest reason to treat the synthesis feature's evaluation
+as genuinely necessary rather than a formality. It shows that even
+frontier models cannot reliably tell a faithful summary from an
+unfaithful one, so if \artemis{} ever tried to have the model check its
+own citations by asking \enquote{is this supported by the source}, that
+approach is not reliable even with the best models. This is a current
+limitation \artemis{} inherits, and the team's plan to measure synthesis
+accuracy where source metadata is available is the right response.
+
+\subsection{Synthesis for Theme Six}
+
+The four papers trace the problem from diagnosis to detection to
+meta-evaluation to a frontier-model test, and the conclusion is
+consistent: hallucination is common, ROUGE does not catch it, no single
+detector is uniformly reliable, and even the best current models are
+weak at judging faithfulness. \artemis{} reduces exposure by narrowing
+the task to a small, user-selected document set, but it currently has no
+faithfulness check, so this is an open gap in the design. The
+recommended direction is an entailment-style or FactCC-style check after
+generation, combined with keeping the user in the loop, plus the planned
+accuracy evaluation where source metadata allows it.
+
+%% ------------------------------------------------------------------
+\section{Theme Seven: Retrieval-Augmented Generation Citation Accuracy}
+%% ------------------------------------------------------------------
+
+\subsection{Rashkin et al., Attribution (2023)}
+
+\subsubsection{Takeaway for \artemis{}}
+
+The \enquote{according to this source, this statement is true} test is a
+useful standard to hold the synthesis feature's output to: every claim
+it pulls into a new file should pass that test against the document it
+came from. This paper gives \artemis{} a standard to aim for, not a tool
+to enforce it automatically, and nothing in the current design applies
+this standard even informally. Adding a check of this kind, even a
+manual review step during evaluation, would be a concrete improvement.
+
+\subsection{Gao et al., ALCE (2023)}
+
+\subsubsection{Takeaway for \artemis{}}
+
+Having the user pre-select the documents removes the retrieval half of
+the problem ALCE studies, since \artemis{} never has to decide which
+documents to retrieve. But ALCE's finding that even strong systems fail
+to fully cite their claims about half the time is about the generation
+half, and a smaller document set does not fix that. Nothing in the
+current design checks that every claim in a synthesised file carries a
+citation, so citation completeness is an open gap that the workspace
+scope does not resolve on its own.
+
+\subsection{Liu et al., Verifiability in Generative Search (2023)}
+
+\subsubsection{Takeaway for \artemis{}}
+
+This is the clearest real-world comparison point for the synthesis
+feature: mature, widely used products with dedicated citation
+engineering still fail these checks often, with about a quarter of
+citations not holding up and about half of sentences not fully
+supported. That is a reason to expect the synthesis feature needs
+deliberate citation verification, not an assumption that citing from a
+small known set is inherently safe. The proposal narrows the retrieval
+problem by having the user pre-select documents, but it does not
+currently include the recall or precision checks this paper used to
+audit real products, so this is an unaddressed gap in the current
+design, not a partially solved one.
+
+\subsection{Synthesis for Theme Seven}
+
+The three papers give a definition of attribution, a benchmark showing
+incomplete citation is common, and an audit showing deployed products
+get citation precision and recall wrong at meaningful rates. \artemis{}
+removes the retrieval part of the problem by having the user choose the
+documents, but citation correctness and completeness in the generated
+output remain unaddressed in the current design. The team should either
+add a citation-verification step, at least for the evaluation, or be
+explicit in the project report that this is a known limitation rather
+than something the bounded workspace solves.
+
+%% ==================================================================
+\chapter{Cross-Cutting Observations}
+%% ==================================================================
+
+\section{Where \artemis{} Genuinely Fills a Gap}
+
+\begin{enumerate}
+  \item Applying multi-step agentic planning to a bounded, user-chosen
+        desktop workspace, rather than to a simulated world, a single
+        task, or an open codebase. The reasoning-and-planning papers
+        all leave this specific combination open.
+  \item Making agent memory visible and user-editable through the
+        \enquote{what \artemis{} knows} panel, rather than running it as
+        an opaque background process. The Generative Agents work reports
+        fabricated and mis-retrieved memory, and the agent-security
+        survey notes that persistence is usually an automatic process
+        the user cannot inspect or control.
+  \item Providing a reversal step after a previewed action. The
+        trace-based assurance framework has no reversal mechanism at
+        all, and this is one of the clearest direct matches in the
+        review.
+  \item Evaluating voice as a complete interaction mode over practical
+        multi-step tasks, compared against typing on ease of use, task
+        time, cognitive workload, and trust. Both voice reviews agree
+        this is under-explored.
+\end{enumerate}
+
+\section{Where \artemis{} Only Partially Fills a Gap}
+
+\begin{enumerate}
+  \item Bounded capability scoping. \artemis{}'s workspace is a
+        plain-language version of the capability limits and privilege
+        separation the assurance and security papers describe, and it
+        trades rigour for usability.
+  \item Task resumption. \artemis{} operationalises the Iqbal and
+        Horvitz finding but has not run comparable field validation.
+  \item Code assistance. The human-approval loop is validated by HULA
+        and HiLDe, but the underlying model can still be wrong or
+        over-cautious, and approval mitigates rather than removes this.
+\end{enumerate}
+
+\section{Where \artemis{} Does Not Fill the Gap and Inherits a
+Limitation}
+
+\begin{enumerate}
+  \item Approval fatigue. The security survey documents that frequent
+        approval prompts cause decision fatigue and that non-expert
+        users cannot always judge what they approve. \artemis{} relies
+        on approval prompts and has no mechanism to vary them by risk
+        or to reduce them as trust builds. The evaluation must test for
+        this rather than assume the design avoids it.
+  \item Faithfulness of synthesised text. Every summarisation paper
+        shows hallucination is common and hard to detect, and even
+        frontier models judge faithfulness poorly. \artemis{} narrows
+        the task but has no faithfulness check in the current design.
+  \item Citation correctness and completeness. The attribution and
+        citation papers show that citing is unreliable even in polished
+        deployed products. \artemis{} removes the retrieval half by
+        pre-selection but does not verify that citations support their
+        claims or that every claim is cited.
+\end{enumerate}
+
+\section{Implications for the Evaluation Plan}
+
+\begin{enumerate}
+  \item The field-style evaluation should measure task resumption
+        benefit directly, since no reviewed work has validated this
+        outside a design description.
+  \item The evaluation should include a specific test for approval
+        fatigue over repeated sessions.
+  \item The voice study should use a 4-second latency threshold as a
+        design target, natural spoken fillers rather than tones, and
+        should report cognitive workload and trust alongside task time
+        and success.
+  \item The synthesis feature should be evaluated for factual
+        faithfulness and citation accuracy wherever source metadata
+        allows it, and any shortfall should be reported as a known
+        limitation.
+  \item Code-assistant evaluation should confirm that no change is ever
+        applied without explicit user approval and should check for
+        silent overwrites of prior user edits.
+\end{enumerate}
+
+%% ==================================================================
+\printbibliography[heading=bibintoc,title={References}]
+%% ==================================================================
+
+\end{document}

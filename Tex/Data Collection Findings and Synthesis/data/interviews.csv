@@ -1,0 +1,14 @@
+lost_place,workaround,concept_reaction,trust_break,keep_using
+40% manual Code Review,"Planning, Didn't think about automating it",Semi-Positive,Conditional,Conditional
+Problem Exists,Makes a .md using AI Agent,Positive,Shrug it off,Yes
+Problem Exists,"Documents, Lazy to do it",Two Way,If Abnormally,Conditional
+Problem Exists,"Staying upto date with job posting, not equipped",Positive,Shrug it off,Yes
+A lot of Manual rep work,Not fully equipped,Positive,Shrug it off,Yes
+Happened a lot of time,Too lazy to automate,Good,Stop using it,Still wouldn't use it
+Never Happened,No Need,Positive,Shrug it off,Privacy Concern
+Forgot What was there,Scope Creeping,Positive,Shrug it off,Yes
+"Yes Happened, .md solution",Proposal Writing and client communication,Positive,Need Reinforcement Learning Human Feedback,Yes
+Takes 1 Day to recover,"Dax Queries, Lazy to automate",Positive,"Shrug it off, with cautioun",Yes
+"Forgets what was done, Time costly","Every different project has different struct, too lazy to automate",Positive,Shrug it off,Not at Current POC
+Problem Exists,"Organizing Files, pulling together notes",Positive,"Shrug it off, with cautioun",Onboarding should be easy
+Knowledge Base,A lot of manual work,Negative,Won't use it,Nope

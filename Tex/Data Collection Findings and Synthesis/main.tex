@@ -1,0 +1,691 @@
+\documentclass[11pt]{article}
+\usepackage{preamble}
+\input{figures/stats}
+
+\title{\vspace{-1.5em}\textbf{Data Collection Findings and Synthesis}}
+\author{}
+\date{}
+
+\begin{document}
+
+% ======================================================================
+% Title page
+% ======================================================================
+\begin{titlepage}
+\centering
+\vspace*{2.2cm}
+{\Large ARTEMIS Foundational Research}\\[0.4cm]
+{\LARGE\bfseries Data Collection Findings and Synthesis}\\[0.6cm]
+{\large FAST NUCES Final-Year Project \textbf{F26-008}}\\[0.2cm]
+{\small \textit{Adaptive Reasoning, Task Execution and Multi-agent Intelligence System}}\\[1.6cm]
+
+\begin{tabular}{@{}ll@{}}
+\toprule
+Team member & Roll number \\
+\midrule
+Hashir Rauf & 23L-2572 \\
+Hira Khalid & 23L-2594 \\
+Doureesha Batool & 23L-2651 \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.9cm}
+
+{\normalsize Supervisor: Mr.\ Mubasher Hussain}
+
+\vfill
+{\normalsize Internal research document. Not for external distribution.}\\[0.3cm]
+{\normalsize Compiled \today}
+\end{titlepage}
+
+% ======================================================================
+% Front matter
+% ======================================================================
+\pagenumbering{roman}
+\setcounter{page}{1}
+\tableofcontents
+\vspace{1em}
+\listoffigures
+\clearpage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+% ======================================================================
+\section{Executive Summary}
+% ======================================================================
+
+This report analyses the foundational research collected for ARTEMIS: a questionnaire with
+\Nresp{} valid responses and \Niv{} coded in-person interviews. The purpose is to test whether
+the problem ARTEMIS targets is real, whether the bounded-scope design is a genuine trust
+advantage, and which features to build first.
+
+The data confirms the problem. A large majority of respondents work across multiple files
+often, lose meaningful time reorienting after a break, and see their file organisation decay
+faster than they clean it. The reasons the work is not already automated are lack of trust in
+automation and lack of know-how, not indifference. The bounded-workspace idea is supported:
+roughly two thirds of respondents rate an assistant that only sees files they explicitly add
+as meaningfully more trustworthy than one with full computer access, and local-first is the
+single most common deployment preference. Predicted sustained use is moderate rather than
+enthusiastic, and the most common churn risks are poor fit with existing habits and a mistake
+the user cannot trust the tool to avoid again.
+
+\subsubsection*{Headline findings}
+
+The nine numbered findings (F1 to F9) are stated in context in the sections that follow. In
+summary:
+\begin{itemize}[leftmargin=3.2em,labelsep=0.6em]
+  \item[\textbf{F1.}] The reorientation problem is real. \PctReturnOften{}\pctsym{} of
+        respondents struggle to remember what they were doing when they return to a project
+        after a break, and only \PctReturnNever{}\pctsym{} never do.
+  \item[\textbf{F2.}] File disorder outpaces manual cleanup for \PctMessyAgree{}\pctsym{} of
+        respondents (agree or strongly agree).
+  \item[\textbf{F3.}] The problem costs real time at a moderate scale:
+        \PctTimeOverHour{}\pctsym{} lose more than an hour a week.
+  \item[\textbf{F4.}] The work is not automated because of distrust of automation
+        (\PctNoTrustAuto{}\pctsym{}) and not knowing how (\PctDontKnowHow{}\pctsym{}), not
+        because the tasks do not exist.
+  \item[\textbf{F5.}] The bounded-workspace hypothesis holds. \PctWorkspaceTrust{}\pctsym{}
+        rate a workspace-only assistant as more trustworthy than a full-access one
+        (mean \MeanWorkspaceTrust{} on a 1 to 5 scale), and \PctLocalFirst{}\pctsym{} prefer
+        local-first over cloud.
+  \item[\textbf{F6.}] Users are forgiving of a single mistake. \PctKeepAfterMistake{}\pctsym{}
+        would keep using ARTEMIS after one wrong suggestion; only \PctQuitAfterMistake{}\pctsym{}
+        would abandon it outright.
+  \item[\textbf{F7.}] The main retention risks are habit fit (\PctChurnHabit{}\pctsym{}) and an
+        untrusted mistake (\PctChurnMistake{}\pctsym{}); approval fatigue is real but smaller
+        (\PctChurnApproval{}\pctsym{}).
+  \item[\textbf{F8.}] Feature demand is concentrated. Session resume, multi-document synthesis,
+        and tidying a folder are the top three first-week features; speech input and output is
+        last by a wide margin.
+  \item[\textbf{F9.}] The interviews confirm the questionnaire and add effortless onboarding as
+        a named condition for continued use.
+\end{itemize}
+
+% ======================================================================
+\section{Research Method}
+% ======================================================================
+
+\subsection{Instruments}
+
+The questionnaire had 17 items covering four areas: the respondent's context (role, how often
+they do multi-file work, prior use of AI assistants); the problem (reorientation after a break,
+file disorder, time lost, why repeated tasks are not automated); design and trust (approval-first
+versus act-then-undo, the value of a bounded workspace, local versus cloud, tolerance for a
+mistake, predicted sustained use, predicted reason to stop); and feature demand (a forced
+top-three selection from ten candidate features, plus two free-text items). Likert items used a
+1 to 5 scale.
+
+The interview guide coded each conversation on five axes: the last time the participant lost
+their place in multi-file work; the workaround they already use; their reaction to the ARTEMIS
+concept; what a trust-breaking mistake would do to their usage; and whether they would keep
+using the tool.
+
+\subsection{Sample}
+
+\begin{table}[H]
+\centering
+\caption{Response counts}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Instrument & Responses \\
+\midrule
+Questionnaire (valid rows) & \Nresp{} \\
+In-person interviews (coded) & \Niv{} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Recruitment was through FAST NUCES student and practitioner networks. The questionnaire ran
+from 22 to 27 August 2026. The sample is student-heavy (\PctStudent{}\pctsym{} students,
+\PctDeveloper{}\pctsym{} developers or software engineers, the remainder freelance or employed),
+which matches the intended early-adopter profile for a final-year project but limits
+generalisation.
+
+\subsubsection{Limitations}
+\begin{itemize}
+  \item The sample is self-selected and drawn from a single institution's networks.
+  \item Students dominate; the working-professional signal rests on a smaller subsample.
+  \item ARTEMIS was described in text, not demonstrated. Predicted use and predicted churn are
+        stated intentions, not observed behaviour.
+  \item Free-text responses include a set of near-identical phrasings, which suggests some
+        answer options were presented as suggested text. Theme counts should be read as
+        indicative, not precise.
+\end{itemize}
+
+% ======================================================================
+\section{Respondent Profile}
+% ======================================================================
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{fig_profile.pdf}
+\caption{Respondent role and how often respondents do multi-file project work.}
+\label{fig:profile}
+\end{figure}
+
+\subsection{Role and exposure to the problem domain}
+
+As shown in Figure~\ref{fig:profile}, \PctStudent{}\pctsym{} of respondents are students and
+\PctDeveloper{}\pctsym{} are developers or software engineers. Multi-file work is frequent:
+\PctDailyWeekly{}\pctsym{} do it daily or a few times a week (\NDaily{} daily), and none of the
+respondents do it less than a few times a month. The population that answered is therefore
+squarely inside ARTEMIS's target use case.
+
+\subsection{Prior experience with AI assistants}
+
+\PctUsedAI{}\pctsym{} have used an AI assistant to help manage files, write code, or handle
+tasks (regularly or occasionally), and only \PctNeverAI{}\pctsym{} have never tried one. The
+audience is experienced enough to compare ARTEMIS against existing tools, which raises the bar
+for differentiation (Section~\ref{sec:feedback}).
+
+% ======================================================================
+\section{Problem Validation}
+% ======================================================================
+
+\subsection{Reorientation after a break}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.82\textwidth]{fig_return_struggle.pdf}
+\caption{How often respondents return to a project after a break of a day or more and struggle
+to remember what they were doing or what to do next.}
+\label{fig:return}
+\end{figure}
+
+\PctReturnOften{}\pctsym{} of respondents answered \enquote{Often} or \enquote{Every time}
+(Figure~\ref{fig:return}). Only \PctReturnNever{}\pctsym{} said it never happens. This is the
+problem the first ARTEMIS feature, session resume, addresses directly.
+
+\begin{finding}[The reorientation problem is real and widespread.]
+Nearly half of respondents struggle to recover context after a break, and the overwhelming
+majority experience it at least sometimes. Session resume targets a real, frequent pain point.
+\end{finding}
+
+\subsection{File disorder outpaces manual cleanup}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.82\textwidth]{fig_messy_agree.pdf}
+\caption{Agreement with \enquote{My folders and files tend to become messy or disorganized
+faster than I can manually clean them up} (1 = strongly disagree, 5 = strongly agree).}
+\label{fig:messy}
+\end{figure}
+
+\PctMessyAgree{}\pctsym{} of respondents rate this 4 or 5 (Figure~\ref{fig:messy}), mean
+\MeanMessy{}. The tidy-a-folder feature has a clear constituency, though Section~\ref{sec:synth}
+notes a countervailing segment that will not delegate organisation.
+
+\begin{finding}[Most users cannot keep up with their own file organisation.]
+A clear majority agree their files decay faster than they can clean them, which validates the
+tidy-a-folder feature as a genuine need rather than a nice-to-have.
+\end{finding}
+
+\subsection{Self-reported time lost}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.82\textwidth]{fig_time_lost.pdf}
+\caption{Estimated total time lost per week to reorienting after breaks, tidying files,
+repeating manual tasks, and searching scattered notes.}
+\label{fig:time}
+\end{figure}
+
+\PctTimeOverHour{}\pctsym{} of respondents estimate losing more than an hour a week, and
+\PctTimeOverThree{}\pctsym{} estimate more than three hours (Figure~\ref{fig:time}). The modal
+answer is 30 to 60 minutes. This is a moderate, recurring cost rather than a crisis, which
+matches the moderate predicted-use numbers in Section~\ref{sec:design}.
+
+\begin{finding}[The problem costs real time, at a moderate scale.]
+Most respondents lose 30 minutes to 3 hours a week. ARTEMIS should be positioned as removing
+steady friction, not as solving an emergency.
+\end{finding}
+
+\subsection{Why the work is not already automated}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{fig_why_not_automated.pdf}
+\caption{The honest reason respondents have not automated repeated manual file-handling tasks.}
+\label{fig:whynot}
+\end{figure}
+
+The leading reasons are distrust of unsupervised automation (\PctNoTrustAuto{}\pctsym{}) and
+not knowing how (\PctDontKnowHow{}\pctsym{}), followed by setup cost exceeding the payoff
+(\PctSetupCost{}\pctsym{}). Only a minority say the tasks do not exist (Figure~\ref{fig:whynot}).
+
+\begin{finding}[The barrier is trust and know-how, not absence of the need.]
+Respondents want the work done but do not trust automation to do it unsupervised and do not
+know how to set it up. An approval-gated assistant with zero configuration directly answers both
+objections.
+\end{finding}
+
+% ======================================================================
+\section{Design and Trust Signals}
+\label{sec:design}
+% ======================================================================
+
+\subsection{Approval-first versus act-then-undo}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.72\textwidth]{fig_assistant_pref.pdf}
+\caption{Preference between Assistant A (asks for approval before every file change or outbound
+action) and Assistant B (acts on reasonable requests automatically, with review and undo
+afterward).}
+\label{fig:pref}
+\end{figure}
+
+The split is close: \NPrefA{} for approval-first, \NPrefB{} for act-then-undo
+(\PctPrefA{}\pctsym{} versus the remainder, Figure~\ref{fig:pref}).
+
+\subsubsection{Implication}
+
+There is no single right answer for the whole audience. Approval granularity should be a
+user-configurable setting (for example: approve every action, approve by category, or trust the
+session after the first few approvals), rather than a fixed product decision. This also
+mitigates the approval-fatigue churn risk in Section~\ref{sec:churn}.
+
+\subsection{The bounded-workspace hypothesis}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.82\textwidth]{fig_workspace_trust.pdf}
+\caption{Agreement with \enquote{An assistant that only sees files I explicitly add to a
+workspace is meaningfully more trustworthy to me than one with full access to my computer}
+(1 = strongly disagree, 5 = strongly agree).}
+\label{fig:wstrust}
+\end{figure}
+
+\PctWorkspaceTrust{}\pctsym{} of respondents rate this 4 or 5, mean \MeanWorkspaceTrust{}
+(Figure~\ref{fig:wstrust}). This is the most direct test in the survey of the project's central
+hypothesis, that restricting an assistant's scope increases user trust, and the result supports
+it.
+
+\begin{finding}[The bounded workspace is a genuine trust advantage.]
+Roughly two thirds of respondents find a workspace-only assistant meaningfully more trustworthy
+than a full-access one. The bounded-scope design should be kept and made visible in the product,
+not treated as an internal implementation detail.
+\end{finding}
+
+\subsection{Local-first versus cloud}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.82\textwidth]{fig_local_vs_cloud.pdf}
+\caption{Preference for a local, offline-first version versus a cloud-backed version.}
+\label{fig:localcloud}
+\end{figure}
+
+Local-first is the single most common choice at \PctLocalFirst{}\pctsym{},
+\PctNeedSpecifics{}\pctsym{} want more specifics before deciding, and only
+\PctCloud{}\pctsym{} actively prefer cloud (Figure~\ref{fig:localcloud}). Privacy also appears
+as a churn reason (\PctChurnPrivacy{}\pctsym{}, Section~\ref{sec:churn}) and as a recurring
+free-text concern (Section~\ref{sec:feedback}). Respondents who prefer local-first also report
+slightly higher predicted sustained use than those who prefer cloud, so the local-first option
+is not costing engagement.
+
+\subsection{Tolerance for a single mistake}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{fig_wrong_suggestion.pdf}
+\caption{What respondents would do if ARTEMIS made one wrong or unwanted suggestion (for
+example grouped files incorrectly or drafted an email with a mistake).}
+\label{fig:mistake}
+\end{figure}
+
+\PctKeepAfterMistake{}\pctsym{} would keep using ARTEMIS after one mistake (either
+\enquote{more cautious but keep using} or \enquote{one mistake would not change my usage}).
+A further group would stop trusting only the specific feature that erred, and just
+\PctQuitAfterMistake{}\pctsym{} would abandon the tool entirely (Figure~\ref{fig:mistake}).
+
+\begin{finding}[One mistake is survivable if recovery is easy.]
+Most users are forgiving of a single error, provided they can see and reverse it. This makes a
+reliable, visible undo more important than eliminating every mistake.
+\end{finding}
+
+\subsection{Predicted sustained use}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.82\textwidth]{fig_likely_use.pdf}
+\caption{Likelihood of continuing to use ARTEMIS after the novelty wears off, if it worked
+exactly as described (1 = very unlikely, 5 = very likely).}
+\label{fig:likely}
+\end{figure}
+
+\PctLikelyUse{}\pctsym{} of respondents answered 4 or 5, \PctUnlikelyUse{}\pctsym{} answered
+1 or 2, and the mean is \MeanLikelyUse{} (Figure~\ref{fig:likely}). This is a moderate,
+plausible result for a described-but-not-demonstrated concept, and it sets a realistic
+expectation: ARTEMIS should aim to convert the large \enquote{3} group through a good first
+experience.
+
+\subsection{Predicted reasons for churn}
+\label{sec:churn}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{fig_stop_reason.pdf}
+\caption{The single most likely reason a respondent would stop using ARTEMIS after a week.}
+\label{fig:churn}
+\end{figure}
+
+The dominant risks are poor fit with existing habits (\PctChurnHabit{}\pctsym{}) and a mistake
+the user cannot trust the tool to avoid again (\PctChurnMistake{}\pctsym{}), followed by
+redundancy with what the user can already do (\PctChurnRedundant{}\pctsym{}) and privacy
+(\PctChurnPrivacy{}\pctsym{}). Approval fatigue is real but the smallest named risk at
+\PctChurnApproval{}\pctsym{} (Figure~\ref{fig:churn}).
+
+\begin{finding}[Retention depends on habit fit and trustworthy recovery, not on fewer prompts.]
+The two largest churn drivers are workflow fit and an untrusted mistake. Onboarding that plants
+ARTEMIS inside an existing routine, plus visible undo, address the top risks. Reducing approval
+prompts helps a smaller group and should not come at the cost of the trust the approval model
+buys.
+\end{finding}
+
+% ======================================================================
+\section{Feature Demand}
+% ======================================================================
+
+\subsection{First-week feature priorities}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{fig_features.pdf}
+\caption{Number of times each feature was chosen in the forced top-three selection
+(multi-select, \Nresp{} respondents).}
+\label{fig:features}
+\end{figure}
+
+Ranked by selections (Figure~\ref{fig:features}):
+\begin{enumerate}
+  \item Resuming interrupted work (session resume), \FeatRankOneCount{}
+  \item Pulling together notes and citations from multiple documents, \FeatRankTwoCount{}
+  \item Tidying up a messy folder, \FeatRankThreeCount{}
+  \item Code assistant (explain errors, suggest fixes as a diff), \FeatRankFourCount{}
+  \item Detecting and offering to automate a repeated task, \FeatRankFiveCount{}
+  \item Drafting documents from existing material, \FeatRankSixCount{}
+  \item On-demand web search, \FeatRankSevenCount{}
+  \item Drafting and sending emails with approval, \FeatRankEightCount{}
+  \item Speech input and output, \FeatRankNineCount{}
+\end{enumerate}
+
+\begin{finding}[Demand is concentrated on the first three planned features; speech is last.]
+Session resume, multi-document synthesis, and folder tidy are the clear top three. Speech input
+and output is chosen roughly a fifth as often as the leader and should stay last in the build
+order.
+\end{finding}
+
+\subsection{Alignment with the planned build order}
+
+\begin{table}[H]
+\centering
+\caption{Planned ARTEMIS build order against measured first-week demand.}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{4.7cm}c>{\raggedright\arraybackslash}p{7.2cm}@{}}
+\toprule
+Planned feature (build order) & Demand rank & Comment \\
+\midrule
+Pick up where you left off (session resume) & 1 & Highest demand and lowest technical risk. Correct to build first. \\
+Tidy up a folder & 3 & Strong demand; watch the \enquote{I organise my own files} segment. \\
+Pull together notes & 2 & Second-highest demand. Bring forward if resources allow. \\
+Notice a repeated task & 5 & Mid demand; pairs well with the automation-distrust finding (F4). \\
+Code assistant & 4 & Solid demand, concentrated among the developer subsample. \\
+Web search & 7 & Lower demand; keep on-demand only as planned. \\
+Mailing & 8 & Lower demand; approval and logging are essential given trust concerns. \\
+Document drafting & 6 & Mid demand. \\
+Speech input and output & 9 & Lowest demand. Keep last. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The measured demand order is close to the planned build order. The one adjustment worth
+considering is prioritising multi-document synthesis, which ranks second in demand but is
+currently scheduled after the file features.
+
+\subsection{Unprompted requests}
+\label{sec:feedback}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{fig_open_feedback_themes.pdf}
+\caption{Recurring themes in free-text responses. Counts are indicative given repeated phrasings
+in the raw data.}
+\label{fig:themes}
+\end{figure}
+
+The recurring themes, by frequency (Figure~\ref{fig:themes}):
+\begin{enumerate}
+  \item \textbf{Learn my folder structure over time} (\ThemeLearn{}). The most requested
+        capability not already on the roadmap. Users want ARTEMIS to remember how they organise
+        work so they do not reconfigure it each session.
+  \item \textbf{One-click universal undo} (\ThemeUndo{}). Named repeatedly as the thing that
+        would make the tool trustworthy. Reinforces F5.
+  \item \textbf{Already covered by Copilot or Claude Code} (\ThemeRedundant{}). A
+        differentiation risk: an experienced audience is not sure what ARTEMIS adds. The answer
+        is the bounded workspace and local-first operation, and this needs to be stated
+        explicitly in all messaging.
+  \item \textbf{Concern about how much data is sent to a server} (\ThemeDataServer{}).
+        Supports the local-first default and a visible \enquote{What ARTEMIS Knows} panel.
+  \item \textbf{File-consolidation requests} (auto-group files with similar names, merge
+        duplicate versions, track the latest version across copies). Together these are the
+        largest cluster and point to a \enquote{consolidate related files} capability within
+        the tidy feature.
+  \item \textbf{Work across cloud drives} (Google Drive, OneDrive), not only local folders.
+        In tension with the local-first and bounded-scope design; note for later.
+  \item \textbf{I organise my own files and will not delegate it}. A real segment that will not
+        use the tidy feature regardless of quality.
+\end{enumerate}
+
+% ======================================================================
+\section{Interview Findings}
+% ======================================================================
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{fig_interview.pdf}
+\caption{Coded interview responses: reaction to the ARTEMIS concept, and whether the
+participant would actually keep using it (\Niv{} interviews).}
+\label{fig:interview}
+\end{figure}
+
+\subsection{The problem in participants' own words}
+
+Almost every participant recognised the problem. The workarounds they already use are
+consistent: ad hoc Markdown notes written by hand or with an AI agent to record where they left
+off; manual, repeated restructuring because \enquote{every project has a different structure};
+and simply tolerating the friction because automating it feels like more work than it saves.
+Two participants said the problem does not affect them much, one because an IDE agent already
+handles it.
+
+\subsection{Reaction to the concept}
+
+\IvPositive{} of \Niv{} participants reacted positively to the concept
+(Figure~\ref{fig:interview}), with the rest split between conditional, mixed, and one negative.
+
+\subsection{Trust-breaking moments}
+
+Most participants (\IvTrustShrug{} of \Niv{}) said a single mistake would not stop them, though
+several qualified this with \enquote{with caution}. A minority wanted the tool to learn from
+being corrected. \IvTrustStop{} said a trust-breaking mistake would make them stop. This mirrors
+the questionnaire result F5.
+
+\subsection{Willingness to keep using}
+
+\IvKeepYes{} said yes outright and \IvKeepConditional{} said they would keep using it
+conditionally, with easy onboarding named as the most common condition, followed by privacy and
+by the tool reaching sufficient maturity.
+
+\begin{finding}[Interviews confirm the questionnaire and add onboarding as a named condition.]
+Concept reception is positive, a single mistake is mostly survivable, and continued use is
+conditional on onboarding being effortless.
+\end{finding}
+
+% ======================================================================
+\section{Synthesis}
+\label{sec:synth}
+% ======================================================================
+
+\subsection{What the data confirms}
+\begin{itemize}
+  \item The reorientation and file-disorder problems are real, frequent, and cost most users
+        30 minutes to 3 hours a week (F1, F2, F3).
+  \item The work is not automated because of distrust and lack of know-how, which an
+        approval-gated, zero-configuration assistant is well placed to address (F4).
+  \item The bounded workspace is a real trust advantage, and local-first is the most common
+        deployment preference (F5).
+  \item Users are forgiving of a single mistake when recovery is easy (F6), and the interviews
+        agree (F9).
+  \item Feature demand is concentrated on session resume, multi-document synthesis, and folder
+        tidy; speech is last (F8).
+\end{itemize}
+
+\subsection{What the data challenges}
+\begin{itemize}
+  \item The audience is split almost evenly on approval-first versus act-then-undo, so a single
+        fixed interaction model will not satisfy everyone.
+  \item A visible segment states plainly that it organises its own files and will not delegate
+        that, which caps the addressable audience for the tidy feature.
+  \item An experienced audience is not sure ARTEMIS adds anything over Copilot or Claude Code.
+        Differentiation is not self-evident and must be argued.
+  \item Predicted sustained use is moderate (mean \MeanLikelyUse{}), not enthusiastic. The
+        large neutral group is the one to win.
+\end{itemize}
+
+\subsection{Cross-cutting tensions}
+\begin{itemize}
+  \item \textbf{Approval friction versus trust.} The approval model is what makes the tool
+        trustworthy, but approval fatigue is a named churn risk. Resolve with configurable
+        granularity, not by weakening the model.
+  \item \textbf{Local-first versus cross-drive convenience.} The privacy-driven local-first
+        preference conflicts with requests to operate across Google Drive and OneDrive.
+  \item \textbf{Personalisation versus bounded scope.} The top unmet request, learning the
+        user's folder structure over time, implies persistent memory of the user's habits,
+        which must be designed to stay inside the bounded-scope guarantee.
+\end{itemize}
+
+\subsubsection{Segment view}
+
+\input{figures/segments}
+
+Students and developers give near-identical workspace-trust ratings and identical approval-first
+shares, so role does not predict the interaction preference. Experience does move it: regular
+AI-assistant users prefer approval-first less often than light or non-users
+(\PctPrefAHeavy{}\pctsym{} versus \PctPrefALight{}\pctsym{}), which is consistent with heavier
+users being more comfortable delegating. The effect is modest and neither group is close to
+unanimous, so the practical conclusion is unchanged: the interaction model should be a setting
+rather than a fixed decision. Local-first preference is broadly consistent across all segments
+(\PctLocalDev{}\pctsym{} to \PctLocalStudent{}\pctsym{}).
+
+% ======================================================================
+\section{Recommendations for the Build}
+% ======================================================================
+
+\begin{enumerate}
+  \item \textbf{Build session resume, multi-document synthesis, and folder tidy first; keep
+        speech input and output last.} Motivated by F8. Consider moving multi-document synthesis
+        ahead of the later file features given it ranks second in demand.
+  \item \textbf{Ship a reliable, visible, one-click undo before any outward-action feature.}
+        Motivated by F6 and the free-text requests. Undo is the single most cited condition for
+        trusting the tool.
+  \item \textbf{Make onboarding effortless and design it to plant ARTEMIS inside an existing
+        routine.} Motivated by F7 and F9, which name onboarding as the top condition for
+        continued use.
+  \item \textbf{Keep the bounded opt-in workspace and offer a local-first mode, and make both
+        visible in the product.} Motivated by F5 and the privacy churn and free-text signals.
+        This is also the differentiation answer to the \enquote{already covered by Copilot}
+        objection.
+  \item \textbf{Make approval granularity user-configurable} (per action, per category, or
+        session trust after the first approvals). Motivated by the near-even A versus B split
+        and the approval-fatigue churn risk.
+  \item \textbf{Add \enquote{learn my workspace structure over time} to the roadmap.} It is the
+        top requested capability not currently planned. Design it as per-workspace memory of the
+        user's organisation preferences so it stays within the bounded-scope guarantee.
+  \item \textbf{State the differentiation from Copilot and Claude Code explicitly} in the
+        proposal, the UI, and any external material. The target audience already uses those
+        tools and will not infer the difference.
+  \item \textbf{Treat file consolidation as a first-class part of the tidy feature}
+        (group files with similar names, flag duplicate versions, identify the latest version),
+        since together these are the largest free-text cluster.
+\end{enumerate}
+
+\subsection{Open questions carried forward}
+\begin{itemize}
+  \item How to expose configurable approval granularity without making the first-run experience
+        complex.
+  \item Whether and how to support cloud drives without breaking the local-first and
+        bounded-scope guarantees.
+  \item How persistent \enquote{learn my structure} memory is represented in the
+        \enquote{What ARTEMIS Knows} panel.
+  \item How to convert the large neutral group (predicted-use rating 3) through the first
+        session. These extend the existing internal open-questions note.
+\end{itemize}
+
+% ======================================================================
+\appendix
+\clearpage
+\section{Appendix}
+% ======================================================================
+
+\subsection{Questionnaire items}
+\begin{enumerate}
+  \item Timestamp.
+  \item Email address.
+  \item How often do you work on projects that involve managing multiple files, documents, or
+        folders (coursework, code projects, client deliverables, research)?
+  \item What best describes you?
+  \item How often do you return to a project after a break of a day or more and struggle to
+        remember what you were doing or what to do next?
+  \item \enquote{My folders and files tend to become messy or disorganized faster than I can
+        manually clean them up} (1 = strongly disagree, 5 = strongly agree).
+  \item If you repeat the same manual file-handling task often, why have you not automated it?
+        Pick the honest reason.
+  \item Roughly how much total time per week do you think you lose to these issues (reorienting
+        after breaks, tidying files, repeating manual tasks, searching scattered notes)?
+  \item Have you used an AI assistant (Copilot, ChatGPT, Gemini, a computer-use agent) to help
+        manage files, write code, or handle tasks on your computer?
+  \item Which of these two assistants would you actually prefer to use day to day? (A: asks for
+        approval before every file change or outbound action; B: acts on reasonable requests
+        automatically, with review and undo afterward.)
+  \item \enquote{An assistant that only sees files I explicitly add to a workspace is
+        meaningfully more trustworthy to me than one with full access to my computer}
+        (1 = strongly disagree, 5 = strongly agree).
+  \item Suppose ARTEMIS made a wrong or unwanted suggestion once (grouped your files
+        incorrectly, or drafted an email with a mistake). Would you keep using it?
+  \item Which of the following features would you actually use in your first week, if it worked
+        exactly as described? Select your top 3.
+  \item A local, offline-first version versus a cloud-backed version. Which would you actually
+        choose?
+  \item If ARTEMIS worked exactly as described, how likely would you be to actually use it for
+        your own work, not \enquote{try once} but keep using after the novelty wears off?
+        (1 = very unlikely, 5 = very likely).
+  \item What is the single most likely reason you would stop using ARTEMIS after a week, if you
+        had to guess right now?
+  \item Is there anything about how you currently manage multi-file work, a frustration, a
+        workaround, or a feature you wish existed, that this questionnaire did not ask about but
+        that we should know before building a tool like this?
+\end{enumerate}
+
+\subsection{Interview coding scheme}
+\begin{table}[H]
+\centering
+\caption{Interview coding axes.}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{3.6cm}>{\raggedright\arraybackslash}p{10.3cm}@{}}
+\toprule
+Axis & Coded values \\
+\midrule
+The last time you lost your place & Problem exists / happened a lot / never happened / other free-text descriptions. \\
+The workaround you already have & Markdown notes, manual restructuring, \enquote{too lazy to automate}, not equipped, no need. \\
+Reacting to the concept & Positive / semi-positive / mixed / negative. \\
+The trust-breaking moment & Shrug it off (sometimes with caution) / conditional / needs human feedback / stop using. \\
+Would you actually keep using it & Yes / conditional (onboarding, maturity) / privacy concern / no. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Complete response distributions}
+
+Counts and percentages for every closed questionnaire item and every coded interview axis.
+
+\input{figures/tables}
+
+\end{document}

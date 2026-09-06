@@ -136,3 +136,7 @@ Desktop.ini
 *.orig
 tmp/
 scratch/
+
+# ---- LaTeX build output (Tex/) ----
+Tex/**/_latexbuild/
+Tex/**/_preview/
