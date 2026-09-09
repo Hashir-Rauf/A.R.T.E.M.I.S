@@ -1,0 +1,116 @@
+\ProvidesPackage{preamble}[2026/09/09 ARTEMIS architecture document preamble]
+
+% ---- Page geometry --------------------------------------------------------
+\RequirePackage[a4paper,top=0.78in,bottom=0.78in,left=0.82in,right=0.82in]{geometry}
+
+% ---- Fonts: Times Roman body and matching math --------------------------
+\RequirePackage{newtxtext}
+\RequirePackage{newtxmath}
+\RequirePackage[T1]{fontenc}
+\RequirePackage[utf8]{inputenc}
+\RequirePackage{microtype}
+
+% ---- Core packages ------------------------------------------------------
+\RequirePackage{graphicx}
+\RequirePackage{booktabs}
+\RequirePackage{array}
+\RequirePackage{float}
+\RequirePackage{xcolor}
+\RequirePackage{enumitem}
+\RequirePackage{csquotes}
+\RequirePackage[labelfont=bf,font=small,skip=4pt]{caption}
+\RequirePackage{titlesec}
+\RequirePackage{fancyhdr}
+\RequirePackage{mdframed}
+\RequirePackage[hidelinks]{hyperref}
+
+% ---- Colours ----------------------------------------------------------
+\definecolor{artemisink}{HTML}{1B1B1B}
+\definecolor{artemisblue}{HTML}{356FB0}
+\definecolor{artemisrule}{HTML}{9AB2CC}
+\definecolor{artemisbg}{HTML}{EEF3F8}
+
+% ---- Graphics path --------------------------------------------------------
+\graphicspath{{figures/}}
+
+% ---- List spacing -------------------------------------------------------
+\setlist{itemsep=1pt,topsep=2pt,parsep=0pt}
+\setlist[enumerate]{leftmargin=1.6em}
+\setlist[itemize]{leftmargin=1.4em}
+
+% ---- Heading styles ---------------------------------------------------
+\titleformat{\section}{\normalfont\large\bfseries}{\thesection}{0.6em}{}
+\titleformat{\subsection}{\normalfont\normalsize\bfseries}{\thesubsection}{0.6em}{}
+\titleformat{\subsubsection}{\normalfont\normalsize\itshape}{\thesubsubsection}{0.6em}{}
+\titlespacing*{\section}{0pt}{10pt}{4pt}
+\titlespacing*{\subsection}{0pt}{7pt}{3pt}
+\titlespacing*{\subsubsection}{0pt}{6pt}{2pt}
+
+% ---- Header / footer -------------------------------------------------
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small ARTEMIS System Design}
+\fancyhead[R]{\small System Architecture, Revision 2}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyfoot[C]{\small\thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+}
+
+% ---- Finding callout box ----------------------------------------------
+\newcounter{finding}
+\renewcommand{\thefinding}{P\arabic{finding}}
+\newmdenv[
+  linewidth=0.8pt,
+  linecolor=artemisrule,
+  backgroundcolor=artemisbg,
+  topline=true,bottomline=true,leftline=true,rightline=true,
+  innertopmargin=6pt,innerbottommargin=6pt,
+  innerleftmargin=8pt,innerrightmargin=8pt,
+  skipabove=8pt,skipbelow=8pt,
+]{findingframe}
+
+\newenvironment{finding}[1][]{%
+  \refstepcounter{finding}%
+  \begin{findingframe}%
+  \noindent\textbf{Principle \thefinding.}\enspace \textit{#1}\par\vspace{2pt}%
+}{%
+  \end{findingframe}%
+}
+
+
+% ---- Float density -------------------------------------------------------
+% The document is figure-heavy; without these, LaTeX defers floats and leaves
+% large gaps. These let a page be almost entirely float when it needs to be.
+\renewcommand{\topfraction}{0.92}
+\renewcommand{\bottomfraction}{0.85}
+\renewcommand{\textfraction}{0.07}
+\renewcommand{\floatpagefraction}{0.80}
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{5}
+\setlength{\textfloatsep}{9pt plus 2pt minus 2pt}
+\setlength{\intextsep}{8pt plus 2pt minus 2pt}
+\setlength{\floatsep}{8pt plus 2pt minus 2pt}
+
+% ---- Compact captions and tables ----------------------------------------
+\captionsetup{font=small,labelfont=bf,skip=3pt}
+
+% ---- Tighter callout boxes ----------------------------------------------
+\setlength{\parskip}{0pt}
+
+
+% ---- Body leading --------------------------------------------------------
+% A touch tighter than the default for 11pt, which recovers roughly a line per
+% paragraph across a figure-heavy document without hurting readability.
+\linespread{0.98}
+
+% ---- Callout boxes -------------------------------------------------------
+\mdfsetup{innertopmargin=4pt,innerbottommargin=4pt,skipabove=6pt,skipbelow=6pt}
+
+% ---- Convenience -----------------------------------------------------
+\newcommand{\pctsym}{\%}
+\renewcommand{\arraystretch}{1.06}
