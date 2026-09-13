@@ -130,314 +130,147 @@ connect the papers to \artemis{}; that connection is made in
 Chapter~\ref{ch:analysis}.
 
 %% ------------------------------------------------------------------
-\section{Theme One: Task Interruption and Resumption}
+\section{Task Interruption and Resumption}
 %% ------------------------------------------------------------------
 
-\subsection{Overview of the Theme}
+Work on this problem starts from a simple observational finding: when
+people are pulled away from a computer task, the presence of visible
+on-screen cues, such as a window left open rather than minimised, is
+what helps them pick the task back up later \autocite{iqbal2007disruption}.
+This finding came out of a field study of ordinary office computer use
+rather than a lab experiment, and it did not go further than
+diagnosis; no system was proposed to help once leaving a window open
+stops being practical, for instance after a reboot or a gap of several
+days.
 
-This theme concerns what happens when a person is pulled away from a
-computing task and later has to resume it. The reading covers an
-early field study that diagnosed the problem and a tool that turned
-that diagnosis into a visual retrieval aid.
+Later work turned this diagnosis into an actual tool. ScreenTrack
+records a background time-lapse of the screen and lets a user scroll
+through it visually to find and reopen something they remember
+seeing, on the reasoning that people recall a sequence of visual
+scenes more easily than exact file names or timestamps
+\autocite{hu2020screentrack}. It performed well in a controlled lab
+study for recent, visually distinct activity, but the authors were
+candid about its limits: retrieval becomes slow once the history is
+long, the approach depends on tasks looking visually different from
+each other, so it may not suit text-heavy work, and it was never
+tested in messy, long-term, multi-application use.
 
-\subsection{Iqbal and Horvitz, Disruption and Recovery of Computing
-Tasks (CHI 2007)}
-
-\noindent Reference: \autocite{iqbal2007disruption}.
-
-\subsubsection{What the Paper Found}
-
-The paper reports a field study of ordinary workplace computer use. The
-authors logged real activity and looked for patterns behind faster and
-slower task resumption. The central finding, on which later work
-builds, is that visible on-screen cues matter. Windows or applications
-left open rather than minimised act as a strong reminder that helps a
-person pick a suspended task back up.
-
-\subsubsection{Research Gap Identified or Left Open}
-
-The paper only observes and diagnoses the problem. It does not propose
-or test a system. It therefore leaves open the question of what a
-person should do when leaving a window open is no longer a workable
-strategy, for example after a restart, after a gap of several days, or
-when switching between devices.
-
-\subsubsection{What the Authors Were Trying to Do}
-
-The authors were trying to understand disruption and recovery
-empirically, in a natural setting, and to point out directions for
-tools that could support recovery. The paper is the ancestor of the
-whole visual-cue line of research.
-
-\subsection{Hu and Lee, ScreenTrack (CHI 2020)}
-
-\noindent Reference: \autocite{hu2020screentrack}.
-
-\subsubsection{What the Paper Found}
-
-ScreenTrack records the screen in the background as a time-lapse video
-and lets the user scrub through it visually to find and reopen a
-document, website, or application. The design assumes that people
-remember what they were doing as a sequence of scenes better than they
-remember exact file names or dates. In a controlled laboratory study,
-participants retrieved requested information faster with ScreenTrack
-than with existing tools in some cases. A later use study showed people
-using it to recover task context.
-
-\subsubsection{Research Gap Identified or Left Open}
-
-The authors are open about the limits of the approach. It works well
-for recent activity but becomes slow and tedious for anything further
-back, because the video-timeline interface makes searching a long
-history a manual task. It depends on screens looking visually distinct,
-so it suits shopping or slide design but may not suit text-heavy work
-such as writing in a word processor. It was tested only in a short
-controlled laboratory setting, not in long-term, cluttered,
-multi-application use. The authors list long-term deployment as future
-work.
-
-\subsubsection{What the Authors Were Trying to Do}
-
-The authors were trying to build a retrieval aid that works with human
-visual memory rather than against it, by giving people a way to
-recognise a past moment and click straight back to the resource they
-were using at that time.
+Taken together, these two papers describe a progression from noticing
+the problem to building a partial fix that only works under fairly
+narrow conditions. \artemis{}'s ``pick up where you left off'' feature
+sits to one side of this line of work rather than extending it. It
+does not try to imitate human visual memory or record the screen at
+all; it works from the file system and from notes the user has
+already written, matching on file name, recency, and explicit text
+rather than on how a screen looks. Because a workspace in \artemis{}
+has a bounded scope by design, the tool also avoids the ``searching a
+long video'' problem that limits ScreenTrack, since there is only ever
+a short list of recent, relevant items to show. This is a reasonable
+substitute for the physical cue that Iqbal and Horvitz studied, but it
+is worth being honest that \artemis{} has not been tested in the field
+the way their study was, so the resumption benefit is currently a
+design claim rather than a demonstrated one.
 
 %% ------------------------------------------------------------------
-\section{Theme Two: Bounded Artificial Intelligence Agents and Trust}
+\section{Bounded Artificial Intelligence Agents and Trust}
 %% ------------------------------------------------------------------
 
-\subsection{Overview of the Theme}
+A separate line of work asks how an AI agent's autonomy can be kept
+within limits a person can actually trust. One direction is
+developer-facing: a trace-based assurance framework logs everything an
+agent does as a structured trace with machine-checkable contracts
+attached to each step, so that a violation can be traced to an exact
+point and replayed deterministically, and every action is mediated as
+allow, rewrite, or block according to per-agent capability limits
+\autocite{paduraru2026tracebased}. This is built to catch problems
+before deployment rather than to explain a pending action to an end
+user, and notably it has no way to undo an action once it has already
+run.
 
-This theme concerns how to keep an agent's autonomy within safe,
-understandable limits. The reading covers a developer-facing assurance
-framework with contracts and fault injection, and a security survey
-that examines the limits of human-in-the-loop approval directly.
+A recent security survey looks at the same broad space from a
+different angle and is more directly relevant to systems that rely on
+human sign-off. It examines privilege separation as an architectural
+defence, drawing a comparison to how an operating system separates a
+trusted kernel from untrusted programs, and applies this to isolating
+a planning component from untrusted external data
+\autocite{kim2026attackdefense}. More importantly, it looks squarely
+at the limits of human-in-the-loop approval itself, and its conclusion
+is not encouraging: frequent approval prompts cause decision fatigue
+that undercuts the safety benefit they are meant to provide, and most
+people lack the background to judge what they are being asked to
+approve, so they end up either approving risky actions without real
+scrutiny or rejecting harmless ones. The survey names this as an open
+problem for the field and does not offer a solution.
 
-\subsection{Paduraru et al., A Trace-Based Assurance Framework (ENASE
-2026)}
-
-\noindent Reference: \autocite{paduraru2026tracebased}.
-
-\subsubsection{What the Paper Found}
-
-The authors built a system that records everything an agent does as a
-structured trace, a sequence of messages and actions, with explicit
-contracts attached to each step that can be automatically checked as
-pass or fail. When something breaks, the framework points to the exact
-step that violated its contract and can replay that failure
-deterministically. On the governance side, every action is mediated as
-one of three outcomes: allow it, rewrite it to something safer, or
-block it, and per-agent capability limits are enforced throughout.
-
-\subsubsection{Research Gap Identified or Left Open}
-
-This is a developer-facing testing and evaluation tool, not something an
-end user interacts with. It is built to catch problems before
-deployment, not to explain a pending action to a person or get their
-sign-off in the moment. It also describes no reversal mechanism: once
-an action is mediated and allowed to run, there is no way to undo it
-afterwards.
-
-\subsubsection{What the Authors Were Trying to Do}
-
-The authors were trying to give developers a way to stress-test a
-multi-agent system before shipping it, by injecting faults where the
-system talks to outside services, memory, or retrieval, and measuring
-how well the system contains the damage.
-
-\subsection{Kim et al., The Attack and Defense Landscape of Agentic AI
-(USENIX Security 2026)}
-
-\noindent Reference: \autocite{kim2026attackdefense}.
-
-\subsubsection{What the Paper Found}
-
-This survey maps how agentic systems are attacked and defended. One
-section covers privilege separation as an architectural defence, the
-same idea as least-privilege scoping but described from the security
-side. It compares this to how operating systems separate a trusted
-kernel from untrusted user programs, applied here to separating a
-trusted planning component from a component that processes raw,
-possibly manipulated, external data. The section that matters most for
-the team examines the limits of human-in-the-loop approval directly. It
-states plainly that frequent validation prompts cause decision fatigue
-that undermines the safety benefit they are supposed to provide, and
-that most people do not have the security background to judge what they
-are being asked to approve, so in practice they either approve risky
-things without thinking or overreact to harmless ones.
-
-\subsubsection{Research Gap Identified or Left Open}
-
-The survey names approval fatigue as an open challenge the field has
-not solved. It proposes no fix for it. It presents this as a problem
-the field must still address, not one it resolves.
-
-\subsubsection{What the Authors Were Trying to Do}
-
-The authors were trying to give the first systematic and comprehensive
-survey of agentic system security, covering design considerations,
-attack vectors, and defences, and to identify open research challenges
-that are specific to agents.
+These two pieces of work show that the technical machinery for
+bounding an agent, contracts, capability limits, privilege separation,
+already exists, but it is built for organisations with security staff
+and infrastructure behind it, not for a single person running an
+assistant on their own machine. \artemis{}'s workspace model is best
+read as a plain-language version of the same idea: a folder a user
+selects rather than a sandbox a system administrator defines, and a
+readable preview a person reads before an action runs rather than a
+machine-checked contract. Where the trace-based framework has no way
+to undo an action, \artemis{} adds exactly that as a deliberate design
+choice, which is one of the more direct matches in this review. But
+this needs to be stated plainly rather than smoothed over: \artemis{}
+does not solve approval fatigue. It relies on the same human-in-the-loop
+approval mechanism the security survey singles out as unresolved, and
+nothing in the current design distinguishes a routine approval from a
+risky one or reduces prompts as trust builds over repeated use. This
+is a limitation the project inherits by choosing this approach at
+all, and it is something the evaluation should test directly rather
+than something the bounded workspace can be assumed to fix.
 
 %% ------------------------------------------------------------------
-\section{Theme Three: Agentic Reasoning, Planning, and Undo}
+\section{Agentic Reasoning, Planning, and Undo}
 %% ------------------------------------------------------------------
 
-\subsection{Overview of the Theme}
+A substantial body of work has moved language models beyond producing
+text and toward reasoning about a goal, planning steps, and acting on
+them. Reflexion lets an agent evaluate its own past attempts, write
+verbal reflections, and store them as episodic memory to improve later
+attempts, without retraining the model, and this improved performance
+on decision-making, reasoning, and coding tasks
+\autocite{shinn2023reflexion}. Toolformer takes a related but narrower
+approach, teaching a model in a largely self-supervised way when and
+how to call an external tool such as a calculator or a search engine
+\autocite{schick2023toolformer}. Generative Agents extends the
+memory-and-reflection idea further, showing that a population of
+agents can behave coherently over simulated days by storing,
+retrieving, and reflecting on experience, though the same paper also
+reports failures such as incorrect retrieval and fabricated memory
+details \autocite{park2023generative}. ReAct interleaves reasoning,
+acting, and observing in a single loop and shows this combination
+improves both performance and interpretability, while also being
+prone to repetitive action loops and poor recovery when an action
+returns an unhelpful result \autocite{yao2023react}. Tree of Thoughts
+goes further still, letting a model search across multiple possible
+reasoning paths and backtrack from unpromising ones, which produced
+large gains on puzzle-style tasks but at a real computational cost
+\autocite{yao2023tot}.
 
-This theme concerns how a language model can move beyond producing text
-and instead reason about a goal, plan steps, use tools, and act. The
-reading covers verbal self-reflection, self-supervised tool use,
-believable multi-agent behaviour driven by memory and reflection,
-interleaved reasoning and acting, and deliberate search over reasoning
-paths.
-
-\subsection{Shinn et al., Reflexion (NeurIPS 2023)}
-
-\noindent Reference: \autocite{shinn2023reflexion}.
-
-\subsubsection{What the Paper Found}
-
-Reflexion lets an agent evaluate its previous attempts, generate verbal
-reflections, store them as episodic memories, and use them to improve
-future plans and actions, without updating model weights. It was
-evaluated on decision-making, reasoning, and programming tasks and
-showed improvements over baseline approaches.
-
-\subsubsection{Research Gap Identified or Left Open}
-
-Reflexion mainly improves an agent's performance through its own
-previous task experiences. Its memory represents lessons from past
-attempts rather than the ongoing context of a human user's real
-workspace. The experiments also use bounded memory contexts. There is
-room to explore how agentic reasoning and memory can maintain human
-work context and support users returning to interrupted tasks.
-
-\subsubsection{What the Authors Were Trying to Do}
-
-The authors were trying to give language agents a cheap way to learn
-from trial and error, by turning task feedback into written reflection
-that is kept in memory and consulted on later attempts.
-
-\subsection{Schick et al., Toolformer (NeurIPS 2023)}
-
-\noindent Reference: \autocite{schick2023toolformer}.
-
-\subsubsection{What the Paper Found}
-
-Toolformer teaches a language model to decide when to use a tool, which
-tool to use, and what to pass to it, in a self-supervised way that
-needs only a handful of demonstrations per tool. It can use tools such
-as a search engine, a calculator, a question-answering system, a
-translation system, and a calendar. This lets the model perform tasks
-that are hard to solve with its language knowledge alone.
-
-\subsubsection{Research Gap Identified or Left Open}
-
-The approach focuses on using individual tools rather than managing a
-complete multi-step task. Toolformer can call a tool, but it does not
-fully support situations where the result of one tool must become the
-input to another. It can also be sensitive to the exact wording of the
-user's request when deciding whether to call an interface. It does not
-focus on bounded, user-controlled task execution.
-
-\subsubsection{What the Authors Were Trying to Do}
-
-The authors were trying to give a language model general tool use
-learned from data rather than from heavy human annotation, so that the
-model itself learns how and when a tool helps.
-
-\subsection{Park et al., Generative Agents (UIST 2023)}
-
-\noindent Reference: \autocite{park2023generative}.
-
-\subsubsection{What the Paper Found}
-
-Generative Agents shows that language-model agents can use memory,
-reflection, and planning to produce coherent behaviour over time. The
-system stores past experiences, retrieves relevant memories, generates
-higher-level reflections, and uses those reflections to build future
-action plans. This shows that memory-based reasoning and planning can
-support decisions that go beyond a single prompt and response. The
-demonstration populated a sandbox world with twenty-five agents that
-planned their days, shared news, formed relationships, and coordinated
-group activities.
-
-\subsubsection{Research Gap Identified or Left Open}
-
-The work focuses on simulating believable human behaviour in a
-controlled virtual environment. It does not focus on helping a real
-user resume interrupted work across a bounded desktop workspace, select
-tools for practical tasks, or require user approval before consequential
-actions. The paper also reports failures such as incorrect memory
-retrieval and fabricated memory details.
-
-\subsubsection{What the Authors Were Trying to Do}
-
-The authors were trying to build agents that behave believably as
-simulacra of people, using a memory stream plus reflection and planning
-as the mechanism for coherent long-term behaviour.
-
-\subsection{Yao et al., ReAct (ICLR 2023)}
-
-\noindent Reference: \autocite{yao2023react}.
-
-\subsubsection{What the Paper Found}
-
-ReAct interleaves reasoning, actions, and observations, so that an agent
-reasons about what action to take, observes the result, and updates its
-next action or plan. It was evaluated on question answering, fact
-verification, interactive environments, and web navigation, and it
-showed that combining reasoning and acting can improve task performance
-and make the decision process easier to interpret.
-
-\subsubsection{Research Gap Identified or Left Open}
-
-ReAct can suffer from reasoning errors, repetitive action loops, and
-difficulty when an action produces an uninformative result. The paper
-notes that complex tasks with large action spaces may need more
-demonstrations than fit easily in the model's context. Existing
-approaches focus on individual tasks in specific environments rather
-than on maintaining a bounded workspace context for a user across
-everyday activities.
-
-\subsubsection{What the Authors Were Trying to Do}
-
-The authors were trying to unite chain-of-thought reasoning with the
-ability to act in an environment, so that reasoning informs actions and
-observations inform reasoning within a single loop.
-
-\subsection{Yao et al., Tree of Thoughts (NeurIPS 2023)}
-
-\noindent Reference: \autocite{yao2023tot}.
-
-\subsubsection{What the Paper Found}
-
-Tree of Thoughts lets a model generate several possible thoughts or
-partial solutions, evaluate them, and continue with the more promising
-one. It can look ahead and backtrack to an earlier step when the
-current path is not useful. It represents a problem as a tree where
-branches are different reasoning paths, and it uses search methods such
-as breadth-first or depth-first search to explore them. It was
-evaluated on tasks such as Game of 24, creative writing, and mini
-crosswords, and reported a large improvement on Game of 24 over
-standard chain-of-thought reasoning.
-
-\subsubsection{Research Gap Identified or Left Open}
-
-The approach is mainly focused on reasoning and search-based problems.
-The paper itself notes that more complex real-world applications such as
-coding, data analysis, and robotics create opportunities for further
-research into planning and reasoning. Search-based reasoning can also
-require more computation, and the evaluation heuristics the model uses
-are not always reliable.
-
-\subsubsection{What the Authors Were Trying to Do}
-
-The authors were trying to bring deliberate search, planning,
-evaluation, and backtracking into language-model reasoning, so that the
-model considers possible future steps before committing to one.
+What unites this line of work is also its shared limitation. Each
+system is evaluated on an individual task in a specific or simulated
+environment: Reflexion on its own past attempts, Toolformer on
+isolated tool calls it cannot easily chain together, Generative Agents
+in a sandbox world, ReAct and Tree of Thoughts on benchmark tasks.
+None of them is built to maintain a bounded workspace context for a
+real user across ordinary, interrupted work, and none require the
+kind of user approval that would make consequential actions
+reversible. \artemis{} is positioned directly in that gap. It borrows
+the underlying idea that reasoning, tool use, and reflective memory
+can be combined into working agent behaviour, but it points that
+behaviour at a user's actual files, notes, and stated intentions
+instead of at the agent's own history or a simulated environment, and
+it wraps the resulting multi-step plans in a preview-and-approval step
+with an undo option, which none of these systems provide. The failure
+modes reported across this literature, particularly fabricated memory
+and repetitive reasoning loops, are also a direct warning for the
+team: they describe exactly the kind of error the resumption and
+synthesis features need to guard against, and they argue for keeping
+the number of unsupervised steps between user checkpoints small rather
+than assuming a longer autonomous chain is safe.
 
 %% ------------------------------------------------------------------
 \section{Theme Four: Voice Interaction Parity}
@@ -848,262 +681,96 @@ false-rejection reasons, and to test how prompt design affects
 misjudgement rates.
 
 %% ------------------------------------------------------------------
-\section{Theme Six: Hallucination in Artificial Intelligence
-Summarisation}
+\section{Hallucination in Artificial Intelligence Summarisation}
 %% ------------------------------------------------------------------
 
-\subsection{Overview of the Theme}
+A separate concern applies to \artemis{}'s note and citation synthesis
+feature: whether a generated summary stays faithful to the material it
+is drawn from. The foundational study in this area ran a large human
+evaluation across several summarisation systems and found substantial
+hallucinated content in every one of them, splitting errors into
+intrinsic cases, where the model distorts something from the source,
+and extrinsic cases, where it adds something not present at all; it
+also found that the standard ROUGE metric mostly failed to catch these
+errors, while textual entailment between source and summary
+correlated much better with human judgement
+\autocite{maynez2020faithfulness}. This paper only measured the
+problem; it did not build a detector.
 
-This theme concerns whether generated summaries stay faithful to their
-source. A summary can be faithful but factually wrong if the source is
-wrong, and factually true but unfaithful if the model added something
-correct that was not in the document. The papers in this theme study
-faithfulness. The reading covers a diagnostic human evaluation, a
-trained consistency detector, a typology and benchmark of factuality
-metrics, and a recent test of whether frontier language models can tell
-a consistent summary from an inconsistent one.
+Later work tried to close that gap directly. FactCC is a trained
+classifier that predicts whether a summary sentence is consistent with
+its source and can point to the specific span responsible for an
+inconsistency, though it was trained on synthetic, rule-based errors,
+which leaves some doubt about whether it generalises to the subtler
+mistakes real generation systems make \autocite{kryscinski2020evaluating}.
+A follow-up study argued that treating faithfulness as a single
+yes-or-no judgement is too coarse, and built a finer typology of error
+types together with a benchmark showing that no single automatic
+metric, including FactCC, catches every kind of mistake reliably
+\autocite{pagnoni2021understanding}. The most recent and arguably most
+relevant paper in this theme tested actual large language models,
+rather than older specialised classifiers, on the same underlying task
+and found that most performed close to chance, with even GPT-4
+landing several points below estimated human accuracy
+\autocite{laban2023summedits}.
 
-\subsection{Maynez et al., On Faithfulness and Factuality in Abstractive
-Summarization (ACL 2020)}
-
-\noindent Reference: \autocite{maynez2020faithfulness}.
-
-\subsubsection{What the Paper Found}
-
-The authors ran a large human evaluation on several neural abstractive
-summarisation systems, checking whether each generated summary matched
-its source. They split hallucinations into two types: intrinsic, where
-the model twists or misstates something that was in the source, and
-extrinsic, where the model adds something that was not in the source at
-all. They found substantial hallucinated content in every system
-tested. They also checked whether the standard metric, ROUGE, could
-catch this, and it mostly could not. What did correlate better with
-human judgements of faithfulness was textual entailment, checking
-whether the source document logically implies the summary sentence.
-
-\subsubsection{Research Gap Identified or Left Open}
-
-This paper measures and describes the problem. It does not build a
-system that produces faithful summaries, and it does not build an
-automatic detector; it only shows that entailment is a promising
-direction for one. After this paper, hallucination is known to be
-common and ROUGE is known not to catch it, but there is still no tool
-that catches it for you.
-
-\subsubsection{What the Authors Were Trying to Do}
-
-The authors were trying to quantify how much hallucination neural
-summarisers produce, to categorise it, and to identify which automatic
-measures track human judgements of faithfulness.
-
-\subsection{Kryscinski et al., Evaluating the Factual Consistency of
-Abstractive Text Summarization (EMNLP 2020)}
-
-\noindent Reference: \autocite{kryscinski2020evaluating}.
-
-\subsubsection{What the Paper Found}
-
-This paper builds a model called FactCC that predicts whether a summary
-sentence is factually consistent with its source. Because there was
-little real training data, the authors generated their own by applying
-rule-based transformations to source sentences, such as swapping
-entities and negating statements, to create realistic-looking
-inconsistent examples. The model is trained to do three things at once:
-say whether a sentence is consistent, point to the part of the source
-that supports or contradicts it, and, if it is inconsistent, point to
-the part of the summary that is wrong.
-
-\subsubsection{Research Gap Identified or Left Open}
-
-FactCC is a detector, not a fix. It tells you after the fact that
-something is wrong; it does not stop the wrong summary from being
-generated. There is also a question about whether training on synthetic
-rule-based errors teaches the model to catch the subtler mistakes that
-real generation models actually make, which do not always look like a
-simple rule-based edit.
-
-\subsubsection{What the Authors Were Trying to Do}
-
-The authors were trying to build an automatic, weakly supervised
-consistency checker for summaries, one that not only flags an
-inconsistency but also localises it in both the source and the summary.
-
-\subsection{Pagnoni et al., Understanding Factuality in Abstractive
-Summarization with FRANK (NAACL 2021)}
-
-\noindent Reference: \autocite{pagnoni2021understanding}.
-
-\subsubsection{What the Paper Found}
-
-Earlier work mostly treated factuality as a yes-or-no question. This
-paper argues that is too coarse and builds a typology of specific error
-types instead, such as wrong entities, wrong relations between
-entities, and wrong dates. The authors collect human annotations of
-these specific error types on real model-generated summaries from
-CNN/DailyMail and XSum, then use that annotated data as a benchmark to
-test how well existing automatic factuality metrics, including FactCC,
-agree with human judgement.
-
-\subsubsection{Research Gap Identified or Left Open}
-
-The headline finding is that no single metric is reliably good across
-all error types; different metrics catch different kinds of mistake and
-miss others. This is a meta-evaluation paper: it evaluates the
-evaluators and does not propose a new generation or detection method.
-It shows that even the detection side of this problem is fragmented, so
-you cannot pick one off-the-shelf metric and trust it uniformly.
-
-\subsubsection{What the Authors Were Trying to Do}
-
-The authors were trying to give the field a finer-grained way to talk
-about summary errors, and a benchmark for judging how well automatic
-factuality metrics match human annotation across error types.
-
-\subsection{Laban et al., SummEdits (EMNLP 2023)}
-
-\noindent Reference: \autocite{laban2023summedits}.
-
-\subsubsection{What the Paper Found}
-
-This is the most recent paper in the theme and tests actual language
-models rather than older summarisation-specific models. The authors
-found existing benchmarks for inconsistency detection to be flawed in
-ways that skewed results, so they built a new one, SummEdits, across ten
-domains, designed to be cheap to build and highly reproducible, with
-annotator agreement around 0.9. They then tested a range of language
-models on whether they could correctly tell a consistent summary from
-an inconsistent one. Most models performed close to random chance. Even
-GPT-4, the best model tested, still landed 8 percent below estimated
-human performance.
-
-\subsubsection{Research Gap Identified or Left Open}
-
-This is the clearest, most current evidence that catching hallucination
-automatically is still unsolved, even by the most capable
-general-purpose models available at the time of the study. If a
-frontier model struggles to tell a faithful summary from an unfaithful
-one, then any system that plans to use a language model to check its own
-output inherits that limitation.
-
-\subsubsection{What the Authors Were Trying to Do}
-
-The authors were trying to build a reliable, reproducible benchmark for
-factual-consistency detection and to measure how well current language
-models actually perform on it.
+Read together, these findings say that hallucination in generated
+summaries is common, that popular automatic metrics do not reliably
+catch it, that no single detector covers every error type, and that
+even strong general-purpose models are still poor judges of whether
+their own output is faithful to a source. \artemis{}'s synthesis
+feature narrows its exposure somewhat by working from a small,
+explicitly user-selected set of documents rather than open-domain
+summarisation, but a narrower scope is not the same as a solved
+problem, and the current design has no faithfulness check of any
+kind. The literature points toward a concrete, low-effort mitigation,
+an entailment-style or FactCC-style consistency check applied after
+generation, while also warning that such a check would not be a
+complete fix on its own, and that asking the model to judge its own
+citations is not a reliable substitute given how poorly even frontier
+models perform at that task.
 
 %% ------------------------------------------------------------------
-\section{Theme Seven: Retrieval-Augmented Generation Citation Accuracy}
+\section{Retrieval-Augmented Generation Citation Accuracy}
 %% ------------------------------------------------------------------
 
-\subsection{Overview of the Theme}
+A closely related question is whether a citation attached to a
+generated statement means anything at all, which matters directly for
+the correctness of \artemis{}'s synthesised notes. One line of work
+supplies a formal answer to what a good citation should look like,
+proposing that a statement counts as properly attributed to a source
+only if a person would agree that ``according to this source, this
+statement is true,'' and building a human annotation procedure to
+apply that test consistently across several generation tasks
+\autocite{rashkin2023measuring}. This gives the field a definition,
+but it depends on manual judgement and predates the current generation
+of systems that attach citations automatically.
 
-This theme concerns whether a citation attached to a generated
-statement actually means anything. Three properties matter and the
-papers do not always use the same words for them. Citation correctness
-is whether the cited source actually supports the specific claim.
-Citation completeness is whether every claim that needs support
-actually has a citation. Citation faithfulness or attribution is
-whether the model generated the claim from the cited source rather than
-from its own knowledge with a plausible citation attached afterwards.
-The reading covers a formal definition of attribution, a benchmark for
-end-to-end citation generation, and an audit of deployed generative
-search products.
+Later work measured how far short of that standard real systems fall.
+A benchmark built specifically to test end-to-end citation generation
+found that even the strongest models failed to fully support their
+claims with citations roughly half the time on one of its test sets
+\autocite{gao2023enabling}. An audit of four real, deployed generative
+search products found much the same pattern under live conditions:
+only about half of generated sentences were fully backed by their
+citations, and roughly a quarter of the citations attached to a claim
+did not actually support it \autocite{liu2023evaluating}.
 
-\subsection{Rashkin et al., Measuring Attribution in Natural Language
-Generation Models (Computational Linguistics, 2023)}
-
-\noindent Reference: \autocite{rashkin2023measuring}.
-
-\subsubsection{What the Paper Found}
-
-This paper gives the field a definition for what it means for generated
-text to be attributable to a source. The authors call it Attributable
-to Identified Sources, and the test they define is intuitive: a
-statement counts as attributed to a source if a person would agree with
-the sentence \enquote{According to this source, this statement is
-true}. They built a two-stage human annotation pipeline to apply this
-test consistently and demonstrated it across three tasks: conversational
-question answering, summarisation, and table-to-text generation.
-
-\subsubsection{Research Gap Identified or Left Open}
-
-This is a definition and a human annotation method, not an automatic
-system. Somebody still has to sit down and manually judge each
-statement against the standard. It also predates the current wave of
-language models that generate citations directly as part of their
-answer, so it was not tested against systems like commercial generative
-search that ship citations to real users.
-
-\subsubsection{What the Authors Were Trying to Do}
-
-The authors were trying to give attribution a precise, testable
-definition and a repeatable annotation procedure, so that different
-studies can measure the same thing.
-
-\subsection{Gao et al., Enabling Large Language Models to Generate Text
-with Citations (EMNLP 2023)}
-
-\noindent Reference: \autocite{gao2023enabling}.
-
-\subsubsection{What the Paper Found}
-
-The authors built ALCE, described as the first benchmark specifically
-for testing how well language models generate text with citations end
-to end, meaning the system both retrieves supporting evidence and
-writes an answer that cites it. They built automatic metrics for three
-things, fluency, correctness, and citation quality, and checked that
-those automatic scores line up with human judgement. Current systems
-have a lot of room to improve. On the ELI5 dataset specifically, even
-the best-performing models failed to provide complete citation support
-for their claims about half the time.
-
-\subsubsection{Research Gap Identified or Left Open}
-
-This paper is about citation completeness: not every claim gets backed
-by a citation, even from the strongest systems tested. It is a research
-benchmark for testing and comparing systems, not a deployed product, so
-it says the problem is unsolved in research settings but does not say
-what happens once such a system ships to real users.
-
-\subsubsection{What the Authors Were Trying to Do}
-
-The authors were trying to create a reproducible benchmark and
-automatic metrics for citation generation, so that progress on faithful
-cited answers can be measured.
-
-\subsection{Liu et al., Evaluating Verifiability in Generative Search
-Engines (Findings of EMNLP 2023)}
-
-\noindent Reference: \autocite{liu2023evaluating}.
-
-\subsubsection{What the Paper Found}
-
-Instead of testing a benchmark, the authors audited four real, deployed
-generative search products that people were using at the time: Bing
-Chat, NeevaAI, perplexity.ai, and YouChat. Human annotators checked two
-things for each product's answers: citation recall, meaning whether all
-statements in the answer have supporting citations, and citation
-precision, meaning whether each citation actually supports the statement
-it is attached to. On average, only 51.5 percent of generated sentences
-were fully supported by citations, and only 74.5 percent of citations
-actually supported the statement they were attached to.
-
-\subsubsection{Research Gap Identified or Left Open}
-
-This is the strongest evidence in the theme that citations do not
-automatically mean trustworthy, because these are real commercial
-products with a polished, authoritative-looking citation interface, and
-roughly a quarter of their citations do not hold up while about half
-their sentences are not fully backed. The paper is diagnostic only. It
-audits and reports; it does not build or propose a fix, and it does not
-determine whether the failures come from bad retrieval, bad generation,
-or citations being attached after the answer was already written.
-
-\subsubsection{What the Authors Were Trying to Do}
-
-The authors were trying to measure how verifiable the answers of
-real-world generative search engines actually are, using human
-annotation of citation recall and precision.
+The pattern across this theme is consistent: a clear definition of
+what a trustworthy citation requires, evidence from a controlled
+benchmark that current systems fall well short of it, and confirmation
+from an audit of commercial products that the same gap shows up in
+practice, including in systems with dedicated engineering behind their
+citation pipelines. \artemis{} sidesteps part of this problem by
+having the user pre-select the documents it draws from, which removes
+the retrieval side of the difficulty these papers study. It does
+nothing, however, about the generation side: nothing in the current
+design checks that every claim in a synthesised note actually carries
+a citation, or that each citation genuinely supports the statement it
+is attached to. Given how often this fails even in polished, widely
+used products, this should be treated as an open limitation of the
+current design rather than something the narrower, user-selected
+document set already resolves.
 
 %% ==================================================================
 \chapter{Critical Analysis and Takeaways for \artemis{}}
