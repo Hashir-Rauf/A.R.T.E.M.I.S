@@ -1,0 +1,24 @@
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {2.1}{\ignorespaces Stakeholders, their roles with respect to the system, and the primary concern each brings to it.}}{12}{table.caption.6}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {3.1}{\ignorespaces Summary of the reviewed literature, giving the theme, contribution, relevance to this project and stated limitations of each study.}}{22}{table.caption.8}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {4.1}{\ignorespaces Use case UC-1, by which a user grants a folder as a workspace and the system establishes the boundary within which it may operate.}}{30}{table.caption.10}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces Use case UC-2, by which a user tidies a folder, exercising classification, preview, approval, snapshot, execution and reversal in a single path.}}{31}{table.caption.11}%
+\contentsline {table}{\numberline {4.3}{\ignorespaces Use case UC-3, in which an operation attempts to reach outside a granted workspace and the boundary refuses it.}}{32}{table.caption.12}%
+\contentsline {table}{\numberline {4.4}{\ignorespaces Use case UC-4, by which a user sends electronic mail, demonstrating that an outward action is gated in all circumstances.}}{33}{table.caption.13}%
+\contentsline {table}{\numberline {4.5}{\ignorespaces Minimum and recommended host hardware for development and deployment.}}{33}{table.caption.14}%
+\contentsline {table}{\numberline {4.6}{\ignorespaces Software required for development and deployment, with the purpose of each component.}}{34}{table.caption.15}%
+\contentsline {table}{\numberline {4.7}{\ignorespaces Data dictionary for the relational system of record, giving the purpose and principal attributes of each table.}}{35}{table.caption.16}%
+\contentsline {table}{\numberline {4.8}{\ignorespaces Project risks with likelihood, impact and mitigation.}}{36}{table.caption.17}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {5.1}{\ignorespaces The four risk tiers, their definitions, default treatment and recoverability.}}{39}{table.caption.18}%
+\contentsline {table}{\numberline {5.2}{\ignorespaces The build sequence, stating the deliverable of each stage and the reason for its position.}}{41}{table.caption.19}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {6.1}{\ignorespaces Component inventory, stating the layer, responsibility and governing invariant of each component.}}{47}{table.caption.21}%
+\contentsline {table}{\numberline {6.2}{\ignorespaces The capability services and the highest risk tier each may request.}}{52}{table.caption.30}%
+\contentsline {table}{\numberline {6.3}{\ignorespaces The degradation contract: required behaviour as each external capability is withdrawn.}}{54}{table.caption.32}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {A.1}{\ignorespaces Respondent role and frequency of multi-file project work, from 374 valid responses.}}{66}{table.caption.39}%
+\contentsline {table}{\numberline {A.2}{\ignorespaces Selected measures by respondent segment.}}{67}{table.caption.40}%

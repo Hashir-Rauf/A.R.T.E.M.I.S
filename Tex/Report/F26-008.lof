@@ -1,0 +1,37 @@
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {2.1}{\ignorespaces Respondent role and frequency of multi-file project work. The sample is student-heavy, which matches the intended early-adopter profile, and multi-file work is frequent across every group.}}{5}{figure.caption.1}%
+\contentsline {figure}{\numberline {2.2}{\ignorespaces Frequency with which respondents return to a project after a break of a day or more and struggle to recall what they were doing or what to do next.}}{6}{figure.caption.2}%
+\contentsline {figure}{\numberline {2.3}{\ignorespaces Estimated total time lost per week to reorienting after breaks, tidying files, repeating manual tasks and searching scattered notes.}}{7}{figure.caption.3}%
+\contentsline {figure}{\numberline {2.4}{\ignorespaces Reasons respondents gave for not already automating repeated manual tasks. Distrust of automation and lack of know-how dominate.}}{7}{figure.caption.4}%
+\contentsline {figure}{\numberline {2.5}{\ignorespaces The seventeen United Nations Sustainable Development Goals that may be targeted by a final year project, shown as a grid of seventeen numbered coloured tiles, each combining the goal number, its short title and a representative icon. This project targets Goal 9, Industry, Innovation and Infrastructure, and secondarily Goal 8, Decent Work and Economic Growth.}}{10}{figure.caption.5}%
+\contentsline {figure}{\numberline {2.6}{\ignorespaces Preference between an assistant that asks for approval before every file change or outward action and one that acts automatically with review and undo afterwards. The population is close to evenly divided.}}{13}{figure.caption.7}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Number of times each feature was selected in a forced top-three choice by 374 respondents. Demand is concentrated on session resume, notes synthesis and folder tidy.}}{24}{figure.caption.9}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {6.1}{\ignorespaces The layered architecture. Layers one to five form the local execution path, the two planes cross every layer, and the remote access plane is drawn outside the stack because removing it leaves a fully functional system.}}{44}{figure.caption.20}%
+\contentsline {figure}{\numberline {6.2}{\ignorespaces The request lifecycle. Modality is erased at the turn normaliser, the policy engine is consulted before the dispatcher, the snapshot precedes the mutation, and the audit entry is written whether the action proceeds or is refused.}}{48}{figure.caption.22}%
+\contentsline {figure}{\numberline {6.3}{\ignorespaces Internal structure of the gateway. The planner produces a plan but never executes it, and every call converges on the dispatcher, which is the sole execution point.}}{48}{figure.caption.23}%
+\contentsline {figure}{\numberline {6.4}{\ignorespaces Tier selection and the egress gate. Tiers above zero are reachable only where the workspace's cloud policy permits, and every egress is recorded.}}{49}{figure.caption.24}%
+\contentsline {figure}{\numberline {6.5}{\ignorespaces Context assembly. Every retrieved chunk carries a workspace identifier, any chunk outside the active grant is discarded and the discard logged, and the citation map is carried through to the answer.}}{50}{figure.caption.25}%
+\contentsline {figure}{\numberline {6.6}{\ignorespaces The four risk tiers. Only the reversible tier is user-configurable; outward actions are always gated and destructive actions are structurally unavailable.}}{50}{figure.caption.26}%
+\contentsline {figure}{\numberline {6.7}{\ignorespaces Policy evaluation order. Denials are evaluated before gates and gates before permissions, so that the first match is the decision and no later rule can grant what an earlier rule refused.}}{51}{figure.caption.27}%
+\contentsline {figure}{\numberline {6.8}{\ignorespaces A worked classification and approval for a folder tidy. Read operations execute automatically while the reversible operations are gated, and the preview states that nothing leaves the machine and nothing is deleted.}}{51}{figure.caption.28}%
+\contentsline {figure}{\numberline {6.9}{\ignorespaces Capability services are reachable only through the tool dispatcher and reach the filesystem only through the shared substrate, so no service holds its own path to the filesystem.}}{52}{figure.caption.29}%
+\contentsline {figure}{\numberline {6.10}{\ignorespaces Path resolution and confinement. Canonicalisation occurs before the containment test, which is what distinguishes a boundary from a suggestion.}}{53}{figure.caption.31}%
+\contentsline {figure}{\numberline {6.11}{\ignorespaces Five kinds of memory distinguished by lifetime and by store, all feeding a single context engine that merges, budgets and asserts bounds.}}{54}{figure.caption.33}%
+\contentsline {figure}{\numberline {6.12}{\ignorespaces The file index and system memory answer different questions and carry different consequences. The index is mechanical and rebuildable; memory is interpretive and, once deleted, lost.}}{55}{figure.caption.34}%
+\contentsline {figure}{\numberline {6.13}{\ignorespaces The remote access plane. The durable object records which authenticated device is connected to which host and relays encrypted frames it cannot read.}}{56}{figure.caption.35}%
+\contentsline {figure}{\numberline {6.14}{\ignorespaces The pairing handshake. Host-side confirmation is deliberate, so that possession of the pairing code alone is never sufficient to pair a device.}}{56}{figure.caption.36}%
+\contentsline {figure}{\numberline {6.15}{\ignorespaces The interactive path never blocks on background work, and background progress is reported visibly and remains cancellable.}}{57}{figure.caption.37}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {A.1}{\ignorespaces Coded interview responses across thirteen interviews, showing reaction to the concept and whether the participant would continue using the system.}}{67}{figure.caption.41}%
+\contentsline {figure}{\numberline {A.2}{\ignorespaces Agreement that folders and files become disorganised faster than they can be manually cleaned, on a five-point scale.}}{68}{figure.caption.42}%
+\contentsline {figure}{\numberline {A.3}{\ignorespaces Agreement that an assistant seeing only explicitly added files is meaningfully more trustworthy than one with full machine access. This is the most direct test of the project's central hypothesis.}}{68}{figure.caption.43}%
+\contentsline {figure}{\numberline {A.4}{\ignorespaces Preference between a local, offline-first version and a cloud-backed version.}}{69}{figure.caption.44}%
+\contentsline {figure}{\numberline {A.5}{\ignorespaces Reported response to a single wrong or unwanted suggestion, such as incorrectly grouped files or a mistake in a drafted message.}}{69}{figure.caption.45}%
+\contentsline {figure}{\numberline {A.6}{\ignorespaces Likelihood of continued use after the novelty has passed, assuming the system worked as described, on a five-point scale.}}{69}{figure.caption.46}%
+\contentsline {figure}{\numberline {A.7}{\ignorespaces The single most likely reason a respondent would stop using the system after a week.}}{70}{figure.caption.47}%
+\contentsline {figure}{\numberline {A.8}{\ignorespaces Recurring themes in free-text responses. Counts are indicative given repeated phrasings in the raw data.}}{70}{figure.caption.48}%

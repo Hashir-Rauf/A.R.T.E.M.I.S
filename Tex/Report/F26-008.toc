@@ -1,0 +1,89 @@
+\contentsline {chapter}{List of Figures}{x}{Doc-Start}%
+\contentsline {chapter}{List of Tables}{xii}{Doc-Start}%
+\contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Purpose of this Document}{1}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Intended Audience}{2}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Definitions, Acronyms, and Abbreviations}{2}{section.1.3}%
+\contentsline {section}{\numberline {1.4}Conclusion}{4}{section.1.4}%
+\contentsline {chapter}{\numberline {2}Project Vision}{5}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Problem Domain Overview}{5}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Problem Statement}{6}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Problem Elaboration}{6}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Goals and Objectives}{8}{section.2.4}%
+\contentsline {section}{\numberline {2.5}Project Scope}{8}{section.2.5}%
+\contentsline {section}{\numberline {2.6}Sustainable Development Goal (SDG)}{10}{section.2.6}%
+\contentsline {section}{\numberline {2.7}Constraints}{10}{section.2.7}%
+\contentsline {section}{\numberline {2.8}Business Opportunity}{11}{section.2.8}%
+\contentsline {section}{\numberline {2.9}Stakeholders Description/ User Characteristics}{12}{section.2.9}%
+\contentsline {subsection}{\numberline {2.9.1}Stakeholders Summary}{12}{subsection.2.9.1}%
+\contentsline {subsection}{\numberline {2.9.2}Key High-Level Goals and Problems of Stakeholders}{12}{subsection.2.9.2}%
+\contentsline {chapter}{\numberline {3}Literature Review / Related Work}{14}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Definitions, Acronyms, and Abbreviations}{14}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Detailed Literature Review}{14}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Task Interruption and Resumption}{14}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}Bounded Artificial Intelligence Agents and Trust}{15}{subsection.3.2.2}%
+\contentsline {subsection}{\numberline {3.2.3}Agentic Reasoning, Planning and Undo}{16}{subsection.3.2.3}%
+\contentsline {subsection}{\numberline {3.2.4}Voice Interaction Parity}{17}{subsection.3.2.4}%
+\contentsline {subsection}{\numberline {3.2.5}Code Assistance with Human Review}{18}{subsection.3.2.5}%
+\contentsline {subsection}{\numberline {3.2.6}Hallucination in Artificial Intelligence Summarisation}{19}{subsection.3.2.6}%
+\contentsline {subsection}{\numberline {3.2.7}Retrieval-Augmented Generation Citation Accuracy}{19}{subsection.3.2.7}%
+\contentsline {subsection}{\numberline {3.2.8}Related Development Projects and Applications}{20}{subsection.3.2.8}%
+\contentsline {section}{\numberline {3.3}Literature Review Summary Table}{20}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Conclusion}{20}{section.3.4}%
+\contentsline {chapter}{\numberline {4}Software Requirement Specifications}{23}{chapter.4}%
+\contentsline {section}{\numberline {4.1}List of Features}{23}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Functional Requirements}{24}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Workspace Management}{24}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}Action Gating and Recovery}{25}{subsection.4.2.2}%
+\contentsline {subsection}{\numberline {4.2.3}Capability Features}{26}{subsection.4.2.3}%
+\contentsline {subsection}{\numberline {4.2.4}Disclosure and Model Access}{27}{subsection.4.2.4}%
+\contentsline {section}{\numberline {4.3}Quality Attributes}{27}{section.4.3}%
+\contentsline {section}{\numberline {4.4}Non-Functional Requirements}{28}{section.4.4}%
+\contentsline {section}{\numberline {4.5}Assumptions}{29}{section.4.5}%
+\contentsline {section}{\numberline {4.6}Use Cases}{30}{section.4.6}%
+\contentsline {section}{\numberline {4.7}Hardware and Software Requirements}{30}{section.4.7}%
+\contentsline {subsection}{\numberline {4.7.1}Hardware Requirements}{30}{subsection.4.7.1}%
+\contentsline {subsection}{\numberline {4.7.2}Software Requirements}{31}{subsection.4.7.2}%
+\contentsline {section}{\numberline {4.8}Graphical User Interface}{31}{section.4.8}%
+\contentsline {section}{\numberline {4.9}Database Design}{33}{section.4.9}%
+\contentsline {subsection}{\numberline {4.9.1}ER Diagram}{34}{subsection.4.9.1}%
+\contentsline {subsection}{\numberline {4.9.2}Data Dictionary}{34}{subsection.4.9.2}%
+\contentsline {section}{\numberline {4.10}Risk Analysis}{35}{section.4.10}%
+\contentsline {chapter}{\numberline {5}Proposed Approach and Methodology}{37}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Overall Approach}{37}{section.5.1}%
+\contentsline {section}{\numberline {5.2}The Risk Classification Procedure}{38}{section.5.2}%
+\contentsline {section}{\numberline {5.3}The Recovery Procedure}{39}{section.5.3}%
+\contentsline {section}{\numberline {5.4}The Prompt Injection Defence}{40}{section.5.4}%
+\contentsline {section}{\numberline {5.5}Development Methods}{40}{section.5.5}%
+\contentsline {section}{\numberline {5.6}Evaluation Methodology}{42}{section.5.6}%
+\contentsline {chapter}{\numberline {6}High-Level and Low-Level Design}{43}{chapter.6}%
+\contentsline {section}{\numberline {6.1}System Overview}{43}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Design Considerations}{43}{section.6.2}%
+\contentsline {subsection}{\numberline {6.2.1}Assumptions and Dependencies}{43}{subsection.6.2.1}%
+\contentsline {subsection}{\numberline {6.2.2}General Constraints}{45}{subsection.6.2.2}%
+\contentsline {subsection}{\numberline {6.2.3}Goals and Guidelines}{45}{subsection.6.2.3}%
+\contentsline {subsection}{\numberline {6.2.4}Development Methods}{46}{subsection.6.2.4}%
+\contentsline {section}{\numberline {6.3}System Architecture}{46}{section.6.3}%
+\contentsline {subsection}{\numberline {6.3.1}Subsystem Architecture: The Gateway}{47}{subsection.6.3.1}%
+\contentsline {subsection}{\numberline {6.3.2}Subsystem Architecture: Capability Services}{51}{subsection.6.3.2}%
+\contentsline {section}{\numberline {6.4}Architectural Strategies}{53}{section.6.4}%
+\contentsline {subsection}{\numberline {6.4.1}Local-First Operation with Optional Egress}{53}{subsection.6.4.1}%
+\contentsline {subsection}{\numberline {6.4.2}Separation of Memory from the File Index}{54}{subsection.6.4.2}%
+\contentsline {subsection}{\numberline {6.4.3}Disclosure as a Live Query}{55}{subsection.6.4.3}%
+\contentsline {subsection}{\numberline {6.4.4}The Remote Plane as a Detachable Component}{55}{subsection.6.4.4}%
+\contentsline {subsection}{\numberline {6.4.5}Asynchrony with Bounded Queues}{57}{subsection.6.4.5}%
+\contentsline {section}{\numberline {6.5}Domain Model/Class Diagram}{57}{section.6.5}%
+\contentsline {section}{\numberline {6.6}Policies and Tactics}{58}{section.6.6}%
+\contentsline {subsection}{\numberline {6.6.1}Refusal as the Default Failure Mode}{58}{subsection.6.6.1}%
+\contentsline {subsection}{\numberline {6.6.2}Single Enforcement Points}{59}{subsection.6.6.2}%
+\contentsline {subsection}{\numberline {6.6.3}Ordering Constraints}{59}{subsection.6.6.3}%
+\contentsline {subsection}{\numberline {6.6.4}Testing Strategy}{59}{subsection.6.6.4}%
+\contentsline {subsection}{\numberline {6.6.5}Concurrency Handling}{59}{subsection.6.6.5}%
+\contentsline {subsection}{\numberline {6.6.6}Source Organisation}{60}{subsection.6.6.6}%
+\contentsline {chapter}{\numberline {A}Research Instruments and Response Distributions}{65}{appendix.A}%
+\contentsline {section}{\numberline {A.1}Research Method}{65}{section.A.1}%
+\contentsline {section}{\numberline {A.2}Respondent Profile}{65}{section.A.2}%
+\contentsline {section}{\numberline {A.3}Headline Findings}{65}{section.A.3}%
+\contentsline {section}{\numberline {A.4}Segment Analysis}{66}{section.A.4}%
+\contentsline {section}{\numberline {A.5}Interview Findings}{67}{section.A.5}%
+\contentsline {section}{\numberline {A.6}Additional Response Distributions}{68}{section.A.6}%

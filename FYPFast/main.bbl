@@ -1,0 +1,31 @@
+\begin{thebibliography}{1}
+
+\bibitem{ref:guyon:2007a}
+I.~Guyon, A.~Saffari, G.~Dror, and G.~Cawley, ``Analysis of the {IJCNN} 2007
+  agnostic learning vs. prior knowledge challenge,'' {\em Neural Networks},
+  vol.~21, pp.~544--550, December 2008.
+
+\bibitem{ref:Bishop:2006}
+C.~M. Bishop, {\em Pattern Recognition and Machine Learning}.
+\newblock Springer, 2006.
+
+\bibitem{ref:Duda:2000}
+R.~O. Duda, P.~E. Hart, and D.~G. Stork, {\em Pattern Classification}.
+\newblock John Wiley and Sons, 2000.
+
+\bibitem{ref:SVMGuide}
+C.-C. Chang and C.-J. Lin, {\em {LIBSVM}: A Library for Support Vector
+  Machines}, 2001.
+\newblock Available: \url{http://www.csie.ntu.edu.tw/~cjlin/libsvm}.
+
+\bibitem{ref:guyon:2007}
+I.~Guyon, A.~Saffari, G.~Dror, and G.~Cawley, ``Agnostic learning vs. prior
+  knowledge challenge,'' in {\em Proceedings of International Joint Conference
+  on Neural Networks}, August 2007.
+
+\bibitem{ref:IJCNNChallenge:2007}
+``{Agnostic Learning Vs. Prior Knowledge Challenge by {Internation Joint
+  Conference on Neural Networks (IJCNN)}}.'' Available:
+  \url{http://www.agnostic.inf.ethz.ch} [Accessed November 02, 2018].
+
+\end{thebibliography}
