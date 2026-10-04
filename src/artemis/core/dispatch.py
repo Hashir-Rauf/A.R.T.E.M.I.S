@@ -144,6 +144,14 @@ class ToolDispatcher:
             except DispatchRefused as refusal:
                 skipped.append(call.call_id)
                 results[call.call_id] = {"refused": refusal.reason}
+            except (OSError, ValueError) as problem:
+                # A handler declining one step is a skip, not a plan-wide
+                # abort. A tidy of twelve files should not lose eleven of them
+                # because the twelfth would have landed on an existing name.
+                # The step is reported rather than swallowed, so the result
+                # still says exactly what did and did not happen.
+                skipped.append(call.call_id)
+                results[call.call_id] = {"refused": str(problem)}
 
         return ExecutionResult(
             plan_id=plan.plan_id,

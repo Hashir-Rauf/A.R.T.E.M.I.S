@@ -308,6 +308,93 @@ class Store:
         )
         return int(row["n"]) if row else 0
 
+    # -- sessions and turns ------------------------------------------------
+
+    def start_session(self, workspace_id: int) -> int:
+        """Open a session. Returns its id.
+
+        A session is the unit "pick up where you left off" restores, so it is
+        opened explicitly rather than inferred from activity: an inferred
+        boundary would move about depending on how the user happened to work.
+        """
+        with self._write() as conn:
+            cursor = conn.execute(
+                "INSERT INTO sessions (workspace_id, started_at, resume_state)"
+                " VALUES (?, ?, '{}')",
+                (workspace_id, _now()),
+            )
+        return int(cursor.lastrowid)
+
+    def end_session(self, session_id: int, resume_state: str = "{}") -> None:
+        """Close a session and record what should be restored next time."""
+        with self._write() as conn:
+            conn.execute(
+                "UPDATE sessions SET ended_at = ?, resume_state = ? WHERE id = ?",
+                (_now(), resume_state, session_id),
+            )
+
+    def latest_session(self, workspace_id: int) -> sqlite3.Row | None:
+        return self.query_one(
+            "SELECT * FROM sessions WHERE workspace_id = ? ORDER BY id DESC LIMIT 1",
+            (workspace_id,),
+        )
+
+    def list_sessions(self, workspace_id: int, limit: int = 10) -> list[sqlite3.Row]:
+        return self.query(
+            "SELECT * FROM sessions WHERE workspace_id = ? ORDER BY id DESC LIMIT ?",
+            (workspace_id, limit),
+        )
+
+    def add_turn(self, session_id: int, role: str, content: str) -> int:
+        with self._write() as conn:
+            cursor = conn.execute(
+                "INSERT INTO turns (session_id, ts, role, content) VALUES (?, ?, ?, ?)",
+                (session_id, _now(), role, content),
+            )
+        return int(cursor.lastrowid)
+
+    def list_turns(self, session_id: int, limit: int = 50) -> list[sqlite3.Row]:
+        return self.query(
+            "SELECT * FROM turns WHERE session_id = ? ORDER BY id LIMIT ?",
+            (session_id, limit),
+        )
+
+    # -- automation rules --------------------------------------------------
+
+    def propose_rule(self, workspace_id: int, description: str) -> int:
+        """Record a proposed automation. Proposed is the only status it starts in.
+
+        The pattern watcher may propose and nothing more, so there is no method
+        here that creates a rule already accepted.
+        """
+        with self._write() as conn:
+            cursor = conn.execute(
+                "INSERT INTO automation_rules (workspace_id, description, status, created_at)"
+                " VALUES (?, ?, 'proposed', ?)",
+                (workspace_id, description, _now()),
+            )
+        return int(cursor.lastrowid)
+
+    def set_rule_status(self, rule_id: int, status: str) -> None:
+        with self._write() as conn:
+            conn.execute(
+                "UPDATE automation_rules SET status = ? WHERE id = ?", (status, rule_id)
+            )
+
+    def list_rules(
+        self, workspace_id: int, status: str | None = None
+    ) -> list[sqlite3.Row]:
+        if status is None:
+            return self.query(
+                "SELECT * FROM automation_rules WHERE workspace_id = ? ORDER BY id DESC",
+                (workspace_id,),
+            )
+        return self.query(
+            "SELECT * FROM automation_rules WHERE workspace_id = ? AND status = ?"
+            " ORDER BY id DESC",
+            (workspace_id, status),
+        )
+
     # -- audit log ---------------------------------------------------------
 
     def append_audit(

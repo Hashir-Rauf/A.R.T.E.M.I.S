@@ -1,0 +1,110 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[a4paper,top=0.6in,bottom=0.6in,left=0.8in,right=0.8in]{geometry}
+\usepackage{mathptmx}
+\usepackage{setspace}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{titlesec}
+\usepackage{parskip}
+
+\setstretch{1.0}
+\setlength{\parskip}{3pt}
+\setlist[itemize]{leftmargin=1.2em,itemsep=0.05em,topsep=0.15em,parsep=0pt}
+\titleformat{\section}{\normalfont\normalsize\bfseries}{\thesection}{0.7em}{}
+\titlespacing*{\section}{0pt}{0.9ex}{0.45ex}
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{center}
+{\large\bfseries How A.R.T.E.M.I.S Differs From the Closest Published Work}\\[0.3em]
+{\small F26-008 \textbar{} Hashir Rauf (23L-2572), Hira Khalid (23L-2594),
+Syeda Doureesha Batool (23L-2651) \textbar{} Supervisor: Mr.\ Mubasher Hussain}
+\end{center}
+\vspace{-0.4em}
+\hrule
+\vspace{0.6em}
+
+\section{The Two Closest Papers}
+
+\textbf{HULA} (Takerngsaksiri et al., ICSE-SEIP 2025, IEEE) deploys a
+plan-then-approve-then-code agent at Atlassian. Engineers approved the agent's
+plan in 82 percent of cases, establishing that human approval of an explicit
+plan is a workable interaction model rather than an obstacle.
+
+\textbf{SoK: Attack and Defense Landscape of Agentic AI Systems} (Kim, Guo and
+Song, USENIX Security 2026) systematises 51 attacks and 60 defences across 128
+papers. It concludes that architectural confinement is more dependable than
+detecting malicious input, and documents that human approval degrades through
+decision fatigue.
+
+Together these two represent the state of the art on the two axes our project
+occupies: the approval loop as an interaction model, and architectural
+confinement as a security position.
+
+\section{What We Take From Them}
+
+Our system adopts the plan-and-approve loop that HULA validates, and the
+confinement-over-detection position that the SoK recommends. Neither is claimed
+as our contribution.
+
+\section{Where We Differ}
+
+\begin{itemize}
+  \item \textbf{Scope is granted by the user, not assumed.} HULA's agent
+        operates across a repository and the surveyed systems generally assume
+        broad machine access. Our system resolves every path through one
+        component that canonicalises before testing containment, so a file
+        outside a folder the user explicitly granted is unreachable, not merely
+        refused. The SoK argues for this confinement; we apply it to a
+        user-chosen folder on an ordinary desktop.
+  \item \textbf{Destruction is unavailable rather than guarded.} There is no
+        approval dialogue for deleting a file because there is no code path to
+        it. A gate the user can click through is a policy; a gate that does not
+        exist is an architecture.
+  \item \textbf{Reversal exists.} Neither paper provides a facility to undo an
+        action once executed. We record how to reverse each change before
+        making it, and reverse an approved plan as the single unit the user
+        approved rather than as separate operations.
+  \item \textbf{The user is not assumed to be an engineer.} HULA's reviewers
+        are professional engineers; the SoK notes that most defences target
+        organisations with security staff. Our previews are written in plain
+        language for a student or ordinary knowledge worker, and our research
+        with 374 respondents is drawn from that population.
+  \item \textbf{Approval is graduated, not uniform.} Actions are classified into
+        four risk tiers, so reads never prompt, reversible changes prompt
+        according to user configuration, and actions that leave the machine
+        always prompt. This directly targets the fatigue the SoK documents.
+  \item \textbf{The system discloses what it holds.} A panel reports every
+        file, fact and action retained, and every entry can be deleted. The SoK
+        notes that agent memory is typically an opaque process the user cannot
+        inspect.
+  \item \textbf{Beyond code.} HULA addresses software tasks. Our system covers
+        resumption of interrupted work, file organisation, cited synthesis
+        across documents, correspondence and voice, with code assistance as one
+        capability among several and restricted to proposing a difference
+        rather than writing to a file.
+\end{itemize}
+
+\section{What We Do Not Claim}
+
+We do not solve approval fatigue. The SoK documents it as an open problem in
+the exact mechanism our design depends upon, and our risk tiers reduce prompt
+frequency without eliminating the effect. We have written it into our
+evaluation as something to measure across repeated sessions rather than assert
+away. We likewise inherit the limitations that a language model can produce
+unfaithful summaries and unreliable citations; our bounded document set narrows
+this exposure but does not remove it, and both are reported as known
+limitations rather than as solved problems.
+
+\section{Summary}
+
+HULA shows the approval loop works but leaves the agent unbounded and
+irreversible. The SoK shows confinement is the dependable defence but writes for
+organisations with security staff. Our project sits in the gap: the validated
+approval loop, inside a boundary the user grants, with reversal, for one
+non-expert user on a personal machine.
+
+\end{document}

@@ -35,11 +35,12 @@ from artemis.core.actions import Plan, Verdict
 from artemis.core.approval import ApprovalBroker, PendingApproval
 from artemis.core.broker import WorkspaceBroker
 from artemis.core.context import AssembledContext, Chunk, ContextEngine
-from artemis.core.dispatch import ExecutionResult, ToolDispatcher, default_handlers
+from artemis.core.dispatch import ExecutionResult, ToolDispatcher
 from artemis.core.planner import AgentPlanner, PlanningResult
 from artemis.core.policy import PolicyEngine
 from artemis.core.router import ModelRouter
 from artemis.core.undo import UndoJournal
+from artemis.services.registry import register_capabilities
 from artemis.data.store import Store
 
 
@@ -92,17 +93,15 @@ class Gateway:
     def build(cls, store: Store, router: ModelRouter) -> Gateway:
         """Wire a gateway with the standard components and placeholder tools.
 
-        The handlers are Sprint 3's placeholders; Sprint 5 replaces them with
-        real services. Registration is explicit here so the set of things the
-        system can do is visible in one place rather than discovered at runtime.
+        Handlers come from the capability registry, which is an allowlist:
+        an operation absent from it cannot run, whatever a plan asks for.
         """
         broker = WorkspaceBroker(store)
         policy = PolicyEngine(store, broker)
         approvals = ApprovalBroker(store, policy)
         journal = UndoJournal(store)
         dispatcher = ToolDispatcher(store, broker, approvals, journal)
-        for operation, handler in default_handlers().items():
-            dispatcher.register(operation, handler)
+        register_capabilities(dispatcher)
         return cls(
             store=store,
             broker=broker,
