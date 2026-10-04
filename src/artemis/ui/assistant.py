@@ -96,8 +96,8 @@ def _outcome_in_plain_words(plan) -> str:
     """What a finished plan did, counted by kind rather than by function name.
 
     `plan.summarise()` is written for logs and reads as "2 create dirs, 5 move
-    files". The person who just pressed Approve wants the same facts without
-    the function names.
+    files". Both the approval card and the result line show this instead, so
+    the person reading them never meets an operation name.
     """
     counts: dict[str, int] = {}
     for call in plan:
@@ -274,12 +274,12 @@ class AssistantPanel:
 
         facts = [
             ("Folder", preview["workspace"]),
-            ("What it does", preview["summary"]),
+            ("What it does", _outcome_in_plain_words(outcome.plan)),
             ("Risk", risk_word),
         ]
         fact_rows = "".join(
-            f'<div class="a-fact"><span class="a-fact-k">{_esc(k)}</span>'
-            f'<span class="a-fact-v">{_esc(v)}</span></div>'
+            f'<span class="a-fact-k">{_esc(k)}</span>'
+            f'<span class="a-fact-v">{_esc(v)}</span>'
             for k, v in facts
         )
 
@@ -303,7 +303,9 @@ class AssistantPanel:
 
         return (
             '<div class="a-approval">'
-            '<div class="a-approval-head">ARTEMIS needs your permission</div>'
+            '<div class="a-approval-head">Approve these changes?</div>'
+            '<div class="a-approval-sub">Nothing has happened yet. Read the '
+            "steps, then choose below.</div>"
             f'<div class="a-facts">{fact_rows}</div>'
             f'<div class="a-assures">{assurance_html}</div>'
             f'<div class="a-steps-head">Every step, in order</div>'

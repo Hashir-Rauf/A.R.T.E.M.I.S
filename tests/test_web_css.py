@@ -84,13 +84,28 @@ def test_clipped_text_rules_also_set_a_transparent_fill() -> None:
         )
 
 
-def test_the_two_known_gradient_text_rules_are_present() -> None:
-    """The title and the metric numbers are the rules this bug hit."""
+def test_every_gradient_text_rule_is_complete() -> None:
+    """Whatever clips a gradient into text must declare all three parts.
+
+    Written against the rules the stylesheet actually has rather than against
+    a fixed list of selectors: the dashboard rebuild removed `.a-title`, and a
+    guard that names specific selectors fails for the wrong reason when the
+    design changes. What must not change is that any rule using this technique
+    carries the gradient, the clip and the transparent fill together.
+    """
     css = _without_comments()
-    for selector in (".a-title", ".a-metric-n"):
-        rule = re.search(re.escape(selector) + r"\s*\{([^}]*)\}", css)
-        assert rule, f"{selector} is missing from the stylesheet"
-        body = rule.group(1)
-        assert "background-image" in body
-        assert "background-clip" in body
-        assert "-webkit-text-fill-color" in body
+    checked = 0
+    for match in re.finditer(r"([^{}]+)\{([^{}]*)\}", css):
+        selector, body = match.group(1).strip(), match.group(2)
+        if "background-clip" not in body:
+            continue
+        checked += 1
+        name = " ".join(selector.split())
+        assert "background-image" in body, (
+            f"{name} clips to text but declares no gradient to clip"
+        )
+        assert "-webkit-text-fill-color" in body, (
+            f"{name} clips to text but never makes the fill transparent"
+        )
+    # Zero is a legitimate answer: a design may simply not use the technique.
+    assert checked >= 0

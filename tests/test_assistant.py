@@ -53,7 +53,8 @@ def test_a_tidy_is_offered_and_nothing_happens_yet(
     message, card = assistant.suggest_tidy(messy)
 
     assert "Would move" in message
-    assert "needs your permission" in card
+    assert "Approve these changes?" in card
+    assert "Nothing has happened yet" in card
     assert sorted(p.name for p in _root(store, messy).iterdir()) == before
 
 

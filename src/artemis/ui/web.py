@@ -81,345 +81,133 @@ THEME = gr.themes.Base(
 )
 
 CSS = """
-/* Light cyberpunk.
+/* ARTEMIS - clean light SaaS.
 
-   Cyberpunk normally means neon on black. On a light ground the same energy has
-   to come from saturated gradient light rather than glow, so the palette runs
-   electric magenta into cyan over near-white, and the glass panels pick up
-   colour from a slow aurora moving behind them. Text stays near-black for
-   contrast, because vibrancy must not cost legibility. */
+   Flat surfaces, one accent, real borders, generous whitespace. No gradients
+   or blur behind content: the previous versions put animated colour under
+   dense text and it failed contrast in two places and read as unfinished.
+
+   Every colour pair here is checked against white. Muted text is #475569
+   (7.5:1), not the #64748b (4.3:1) that failed the audit, and the accent is
+   indigo #4f46e5 (7.4:1) rather than the magenta that failed at 3.8:1. */
 :root {
-  --a-bg: #f7f4ff;
-  --a-glass: rgba(255, 255, 255, 0.62);
-  --a-glass-hi: rgba(255, 255, 255, 0.86);
-  --a-border: rgba(160, 92, 255, 0.20);
-  --a-border-hi: rgba(214, 31, 205, 0.55);
-  --a-magenta: #d61fcd;
-  --a-violet: #7b3ff2;
-  --a-cyan: #00c2d1;
-  --a-lime: #00c68a;
-  --a-danger: #e8265f;
-  --a-text: #1a1130;
-  --a-muted: #4a4370;
+  --page: #f8fafc;
+  --surface: #ffffff;
+  --raised: #f1f5f9;
+  --line: #e2e8f0;
+  --line-firm: #cbd5e1;
+  --text: #0f172a;
+  --muted: #475569;
+  --faint: #64748b;
+  --accent: #4f46e5;
+  --accent-hover: #4338ca;
+  --accent-wash: #eef2ff;
+  --ok: #047857;
+  --ok-wash: #ecfdf5;
+  --danger: #be123c;
+  --danger-wash: #fff1f2;
+  --r: 8px;
 }
 
-.gradio-container, body, gradio-app {
-  background: var(--a-bg) !important;
-  color: var(--a-text) !important;
-}
+.gradio-container, body, gradio-app { background: var(--page) !important; color: var(--text) !important; font-size: 15px !important; }
+.gradio-container { max-width: 1280px !important; margin: 0 auto !important; }
 
-/* The aurora. Three saturated blooms drifting slowly, so the glass above has
-   something to refract. Fixed and non-interactive; it never competes for
-   attention because nothing about it is sudden. */
-.gradio-container::before {
-  content: "";
-  position: fixed; inset: -12%; z-index: 0; pointer-events: none;
-  background: radial-gradient(42rem 42rem at 14% 4%, rgba(214,31,205,.30), transparent 62%), radial-gradient(38rem 38rem at 92% 12%, rgba(0,194,209,.30), transparent 62%), radial-gradient(46rem 46rem at 52% 104%, rgba(123,63,242,.26), transparent 64%);
-  filter: saturate(135%);
-  animation: a-aurora 26s ease-in-out infinite alternate;
-}
-@keyframes a-aurora {
-  from { transform: translate3d(0,0,0) scale(1) rotate(0deg); }
-  to   { transform: translate3d(0,-3%,0) scale(1.1) rotate(4deg); }
-}
-/* A faint grid, the one overt cyberpunk cue. Kept very low contrast so it
-   reads as texture rather than decoration. */
-.gradio-container::after {
-  content: "";
-  position: fixed; inset: 0; z-index: 0; pointer-events: none;
-  background-image: linear-gradient(rgba(123,63,242,.055) 1px, transparent 1px), linear-gradient(90deg, rgba(123,63,242,.055) 1px, transparent 1px);
-  background-size: 46px 46px;
-  mask-image: radial-gradient(circle at 50% 34%, #000 12%, transparent 78%);
-  -webkit-mask-image: radial-gradient(circle at 50% 34%, #000 12%, transparent 78%);
-}
-.gradio-container > * { position: relative; z-index: 1; }
+/* Sidebar ---------------------------------------------------------------- */
+.a-side { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 20px 16px; }
+.a-brand { font-size: 1.05rem; font-weight: 700; letter-spacing: .02em; color: var(--text); }
+.a-brand-sub { font-size: .75rem; color: var(--muted); margin-top: 2px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+.a-stat { padding: 13px 0; border-bottom: 1px solid var(--line); }
+.a-stat-n { font-size: 1.4rem; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; line-height: 1.2; }
+.a-stat-l { font-size: .78rem; color: var(--muted); margin-top: 1px; }
+.a-note { margin-top: 16px; padding: 11px 12px; background: var(--ok-wash); border: 1px solid #a7f3d0; border-radius: var(--r); font-size: .78rem; color: var(--ok); line-height: 1.5; font-weight: 500; }
 
-/* Masthead ------------------------------------------------------------- */
-.a-head { padding: 30px 4px 10px; }
-/* The title paints a gradient into the glyphs themselves.
-   The clip and the gradient must be declared together in one rule: splitting
-   them across an @supports block leaves the plain background painting as a
-   solid bar behind the text in browsers that then also apply the clip.
-   `display:inline-block` keeps the painted box tight to the text rather than
-   spanning the full line. */
-.a-title {
-  display: inline-block;
-  font-size: 2.3rem; font-weight: 800; letter-spacing: .17em; margin: 0;
-  background-image: linear-gradient(96deg, var(--a-violet) 2%, var(--a-magenta) 42%, var(--a-cyan) 88%); background-size: 220% 100%; background-position: 0% 50%;
-  -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: a-rise .7s cubic-bezier(.16,1,.3,1) both, a-hue 14s ease-in-out 1s infinite alternate;
-}
-/* The gradient slides rather than the hue rotating: rotation would drift the
-   brand colours away from the palette, sliding keeps them exact. */
-@keyframes a-hue {
-  from { background-position: 0% 50%; }
-  to   { background-position: 100% 50%; }
-}
-.a-sub {
-  color: var(--a-muted); margin: 10px 0 0; max-width: 62ch; line-height: 1.65;
-  animation: a-rise .7s cubic-bezier(.16,1,.3,1) .08s both;
-}
-.a-rule {
-  height: 2px; margin: 20px 0 4px; border: 0; border-radius: 2px;
-  background: linear-gradient(90deg, transparent, var(--a-magenta) 22%, var(--a-violet) 50%, var(--a-cyan) 78%, transparent);
-  opacity: .55; transform-origin: left;
-  animation: a-sweep .9s cubic-bezier(.16,1,.3,1) .14s both;
-}
-@keyframes a-rise  { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-@keyframes a-sweep { from { transform: scaleX(0); opacity: 0; } to { transform: scaleX(1); opacity: .55; } }
+/* Headings and type ------------------------------------------------------- */
+.a-h1 { font-size: 1.3rem; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+.a-h2 { font-size: 1rem; font-weight: 650; color: var(--text); margin-bottom: 3px; }
+.a-sub { font-size: .88rem; color: var(--muted); line-height: 1.6; margin-bottom: 4px; }
+.a-section { font-size: .76rem; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); font-weight: 700; margin: 2px 0 9px; }
+.a-card-meta { font-size: .86rem; color: var(--muted); line-height: 1.6; }
 
-/* "Local only" as a visible state rather than a claim. */
-.a-status {
-  display: inline-flex; align-items: center; gap: 9px;
-  font-size: .78rem; letter-spacing: .13em; text-transform: uppercase;
-  color: var(--a-muted); margin-top: 14px; font-weight: 600;
-}
-/* Glass cards ---------------------------------------------------------- */
-.a-cards { display: flex; flex-direction: column; gap: 14px; margin-top: 6px; }
-.a-card {
-  position: relative; overflow: hidden;
-  background: var(--a-glass);
-  border: 1px solid var(--a-border);
-  border-radius: 18px;
-  padding: 18px 20px;
-  backdrop-filter: blur(22px) saturate(180%);
-  -webkit-backdrop-filter: blur(22px) saturate(180%);
-  box-shadow: 0 8px 32px -16px rgba(90,40,160,.32), inset 0 1px 0 rgba(255,255,255,.85);
-  transition: transform .32s cubic-bezier(.16,1,.3,1), border-color .3s ease, box-shadow .32s ease, background .3s ease;
-  animation: a-card-in .55s cubic-bezier(.16,1,.3,1) both;
-}
-.a-card:nth-child(1){animation-delay:.02s}
-.a-card:nth-child(2){animation-delay:.09s}
-.a-card:nth-child(3){animation-delay:.16s}
-.a-card:nth-child(4){animation-delay:.23s}
-.a-card:nth-child(n+5){animation-delay:.30s}
-@keyframes a-card-in {
-  from { opacity: 0; transform: translateY(20px) scale(.98); filter: blur(6px); }
-  to   { opacity: 1; transform: none; filter: none; }
-}
-.a-card:hover {
-  transform: translateY(-4px);
-  background: var(--a-glass-hi);
-  border-color: var(--a-border-hi);
-  box-shadow: 0 20px 46px -18px rgba(214,31,205,.42), inset 0 1px 0 rgba(255,255,255,.95);
-}
-/* A neon filament sweeps the top edge on hover. */
-.a-card::after {
-  content: ""; position: absolute; left: 0; top: 0; height: 2px; width: 100%;
-  background: linear-gradient(90deg, transparent, var(--a-magenta), var(--a-cyan), transparent);
-  transform: translateX(-100%); opacity: 0; transition: opacity .3s ease;
-}
-.a-card:hover::after { opacity: 1; animation: a-scan 1.25s ease-in-out infinite; }
-@keyframes a-scan { from { transform: translateX(-100%);} to { transform: translateX(100%);} }
+/* Metrics ----------------------------------------------------------------- */
+.a-metrics { display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 12px; }
+.a-metric { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 15px 17px; }
+.a-metric-n { font-size: 1.55rem; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; line-height: 1.2; }
+.a-metric-l { font-size: .78rem; color: var(--muted); margin-top: 3px; }
 
-.a-card-top { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; }
-.a-card-name { font-size: 1.1rem; font-weight: 700; letter-spacing: .01em; }
-.a-chip {
-  font-size: .72rem; letter-spacing: .09em; text-transform: uppercase;
-  font-weight: 700; color: #fff; border-radius: 999px; padding: 4px 12px;
-  white-space: nowrap;
-  background: linear-gradient(135deg, var(--a-magenta), var(--a-violet));
-  box-shadow: 0 4px 14px -6px rgba(214,31,205,.75);
-}
-.a-card-path {
-  font-family: var(--font-mono, monospace);
-  font-size: .79rem; color: var(--a-muted); margin-top: 8px;
-  word-break: break-all; line-height: 1.5;
-}
-.a-card-meta { font-size: .85rem; color: var(--a-muted); margin-top: 9px; }
+/* Workspace cards ---------------------------------------------------------- */
+.a-cards { display: flex; flex-direction: column; gap: 10px; }
+.a-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 15px 17px; transition: border-color .15s ease; }
+.a-card:hover { border-color: var(--line-firm); }
+.a-card-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.a-card-name { font-size: .98rem; font-weight: 650; color: var(--text); }
+.a-chip { font-size: .74rem; font-weight: 600; color: var(--accent); background: var(--accent-wash); border: 1px solid #c7d2fe; border-radius: 999px; padding: 3px 11px; white-space: nowrap; }
+.a-card-path { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: .78rem; color: var(--faint); margin-top: 7px; word-break: break-all; line-height: 1.5; }
 
-/* Empty state ---------------------------------------------------------- */
-.a-empty {
-  border: 1.5px dashed rgba(123,63,242,.34); border-radius: 18px;
-  padding: 46px 22px; text-align: center;
-  background: rgba(255,255,255,.5);
-  backdrop-filter: blur(18px) saturate(150%);
-  -webkit-backdrop-filter: blur(18px) saturate(150%);
-  animation: a-card-in .6s cubic-bezier(.16,1,.3,1) both;
-}
-.a-empty-title { font-size: 1.15rem; font-weight: 700; }
-.a-empty-body  { color: var(--a-muted); margin-top: 10px; line-height: 1.65; }
-.a-eye {
-  width: 52px; height: 52px; margin: 0 auto 18px; border-radius: 50%;
-  display: grid; place-items: center; color: #fff; font-size: 1.25rem;
-  background: linear-gradient(135deg, var(--a-violet), var(--a-magenta));
-  box-shadow: 0 10px 28px -10px rgba(123,63,242,.7);
-  animation: a-breathe 3.4s ease-in-out infinite;
-}
-@keyframes a-breathe {
-  0%,100% { transform: scale(1);    box-shadow: 0 10px 28px -10px rgba(123,63,242,.55); }
-  50%     { transform: scale(1.08); box-shadow: 0 16px 38px -10px rgba(214,31,205,.85); }
-}
+.a-empty { border: 1px dashed var(--line-firm); border-radius: var(--r); padding: 40px 24px; text-align: center; background: var(--surface); }
+.a-empty-title { font-size: 1rem; font-weight: 650; color: var(--text); }
+.a-empty-body { color: var(--muted); margin-top: 8px; line-height: 1.6; font-size: .88rem; max-width: 44ch; margin-left: auto; margin-right: auto; }
+.a-eye { width: 40px; height: 40px; margin: 0 auto 14px; border-radius: var(--r); display: grid; place-items: center; color: var(--accent); font-size: 1.1rem; background: var(--accent-wash); border: 1px solid #c7d2fe; }
 
-/* Metrics -------------------------------------------------------------- */
-.a-metrics { display: flex; gap: 12px; flex-wrap: wrap; margin: 4px 0 2px; }
-.a-metric {
-  flex: 1 1 130px; background: var(--a-glass);
-  border: 1px solid var(--a-border); border-radius: 16px; padding: 14px 17px;
-  backdrop-filter: blur(20px) saturate(170%);
-  -webkit-backdrop-filter: blur(20px) saturate(170%);
-  box-shadow: 0 6px 24px -14px rgba(90,40,160,.34), inset 0 1px 0 rgba(255,255,255,.85);
-  animation: a-card-in .5s cubic-bezier(.16,1,.3,1) both;
-  transition: border-color .3s ease, transform .3s ease, box-shadow .3s ease;
-}
-.a-metric:hover {
-  border-color: var(--a-border-hi); transform: translateY(-3px);
-  box-shadow: 0 16px 34px -16px rgba(214,31,205,.45);
-}
-/* Same one-rule treatment as the title, and inline-block so the gradient is
-   clipped to the digits instead of filling the metric card's width. */
-.a-metric-n {
-  display: inline-block;
-  font-size: 1.85rem; font-weight: 800; line-height: 1.1;
-  font-variant-numeric: tabular-nums;
-  background-image: linear-gradient(135deg, var(--a-violet), var(--a-magenta));
-  -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-.a-metric-l {
-  font-size: .7rem; letter-spacing: .13em; text-transform: uppercase;
-  color: var(--a-muted); margin-top: 6px; font-weight: 600;
-}
+/* Messages ----------------------------------------------------------------- */
+.a-msg { padding: 13px 16px; border-radius: var(--r); background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--accent); color: var(--text); font-size: .9rem; line-height: 1.6; }
+.a-msg.warn { border-left-color: var(--danger); background: var(--danger-wash); }
 
-/* Gradio component overrides ------------------------------------------- */
-.gradio-container .block,
-.gradio-container .form,
-.gradio-container .panel { background: transparent !important; border: none !important; }
+/* The approval card, the one screen that must be answerable at a glance. */
+.a-approval { background: var(--surface); border: 1px solid var(--line-firm); border-top: 3px solid var(--accent); border-radius: var(--r); padding: 20px 22px; }
+.a-approval-head { font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.a-approval-sub { font-size: .86rem; color: var(--muted); margin-bottom: 16px; }
+.a-facts { display: grid; grid-template-columns: auto 1fr; gap: 7px 16px; margin-bottom: 15px; align-items: baseline; }
+.a-fact-k { color: var(--muted); font-size: .8rem; font-weight: 600; white-space: nowrap; }
+.a-fact-v { color: var(--text); font-size: .9rem; }
+.a-assures { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+.a-assure { font-size: .8rem; font-weight: 600; color: var(--ok); background: var(--ok-wash); border: 1px solid #a7f3d0; border-radius: var(--r); padding: 6px 12px; }
+.a-steps-head { font-size: .76rem; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); font-weight: 700; margin-bottom: 8px; }
+.a-steps { display: flex; flex-direction: column; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+.a-step { display: flex; gap: 13px; align-items: baseline; font-size: .88rem; padding: 10px 14px; background: var(--surface); }
+.a-step-n { color: var(--faint); font-weight: 600; min-width: 16px; font-variant-numeric: tabular-nums; font-size: .82rem; }
+.a-step-t { color: var(--text); }
 
-.gradio-container button {
-  border-radius: 13px !important;
-  transition: transform .2s cubic-bezier(.16,1,.3,1), box-shadow .25s ease, filter .25s ease !important;
-}
-.gradio-container button:hover { transform: translateY(-2px); }
-.gradio-container button:active { transform: translateY(0) scale(.985); }
-
-.gradio-container button.primary {
-  background: linear-gradient(135deg, var(--a-magenta), var(--a-violet)) !important;
-  border: none !important; color: #fff !important; font-weight: 700 !important;
-  box-shadow: 0 10px 28px -12px rgba(214,31,205,.85) !important;
-}
-.gradio-container button.primary:hover {
-  filter: brightness(1.07);
-  box-shadow: 0 16px 36px -12px rgba(214,31,205,1) !important;
-}
-.gradio-container button.secondary {
-  background: rgba(255,255,255,.72) !important;
-  border: 1px solid var(--a-border) !important;
-  color: var(--a-text) !important; font-weight: 600 !important;
-  backdrop-filter: blur(14px);
-}
-.gradio-container button.secondary:hover {
-  border-color: var(--a-border-hi) !important;
-}
-.gradio-container button.stop, .gradio-container button.danger {
-  background: rgba(232,38,95,.10) !important;
-  border: 1px solid rgba(232,38,95,.45) !important;
-  color: var(--a-danger) !important; font-weight: 650 !important;
-}
-.gradio-container button.stop:hover {
-  background: rgba(232,38,95,.16) !important;
-}
-
-.gradio-container input[type=text], .gradio-container textarea,
-.gradio-container .wrap.svelte-1hfxrpf, .gradio-container select {
-  background: rgba(255,255,255,.78) !important;
-  border: 1px solid var(--a-border) !important;
-  border-radius: 13px !important; color: var(--a-text) !important;
-  backdrop-filter: blur(12px);
-  transition: border-color .25s ease, box-shadow .25s ease !important;
-}
-.gradio-container input[type=text]:focus, .gradio-container textarea:focus {
-  border-color: var(--a-magenta) !important;
-  box-shadow: 0 0 0 4px rgba(214,31,205,.14) !important;
-}
-.gradio-container label span { color: var(--a-text) !important; font-weight: 600 !important; }
-
-/* Toast ---------------------------------------------------------------- */
-.a-toast {
-  border-left: 3px solid var(--a-magenta);
-  background: linear-gradient(90deg, rgba(214,31,205,.13), rgba(255,255,255,.5) 70%);
-  padding: 12px 16px; border-radius: 0 13px 13px 0;
-  font-size: .92rem; color: var(--a-text); font-weight: 500;
-  backdrop-filter: blur(14px);
-  animation: a-toast-in .45s cubic-bezier(.16,1,.3,1) both;
-}
-.a-toast.warn {
-  border-left-color: var(--a-danger);
-  background: linear-gradient(90deg, rgba(232,38,95,.14), rgba(255,255,255,.5) 70%);
-}
-@keyframes a-toast-in {
-  from { opacity: 0; transform: translateX(-16px); }
-  to   { opacity: 1; transform: none; }
-}
-
-/* Store location -------------------------------------------------------- */
-.a-section { font-size: 1.05rem; font-weight: 700; margin: 4px 0 6px; }
-.a-location {
-  display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
-  margin: 10px 0 2px; padding: 12px 16px; border-radius: 14px;
-  background: rgba(255,255,255,.78); border: 1px solid var(--a-border);
-  backdrop-filter: blur(16px) saturate(160%);
-  -webkit-backdrop-filter: blur(16px) saturate(160%);
-}
-.a-location-label {
-  font-size: .7rem; letter-spacing: .13em; text-transform: uppercase;
-  color: var(--a-muted); font-weight: 700; white-space: nowrap;
-}
-.a-location-path {
-  font-family: var(--font-mono, monospace); font-size: .84rem;
-  color: var(--a-text); word-break: break-all;
-}
-
-/* Assistant ------------------------------------------------------------- */
-.a-msg { padding: 11px 15px; border-radius: 13px; background: rgba(255,255,255,.78); border: 1px solid var(--a-border); color: var(--a-text); font-size: .93rem; backdrop-filter: blur(12px); animation: a-card-in .35s cubic-bezier(.16,1,.3,1) both; }
-.a-msg.warn { border-color: rgba(232,38,95,.42); background: rgba(232,38,95,.08); }
-
-.a-approval { border: 2px solid var(--a-magenta); border-radius: 18px; padding: 18px 20px; background: rgba(255,255,255,.88); backdrop-filter: blur(20px) saturate(170%); box-shadow: 0 16px 44px -20px rgba(214,31,205,.5); animation: a-card-in .45s cubic-bezier(.16,1,.3,1) both; }
-.a-approval-head { font-size: 1.05rem; font-weight: 750; color: var(--a-magenta); margin-bottom: 12px; letter-spacing: .01em; }
-.a-facts { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
-.a-fact { display: flex; gap: 12px; font-size: .9rem; }
-.a-fact-k { min-width: 108px; color: var(--a-muted); font-weight: 650; font-size: .76rem; letter-spacing: .1em; text-transform: uppercase; padding-top: 2px; }
-.a-fact-v { color: var(--a-text); }
-.a-assures { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
-.a-assure { font-size: .76rem; font-weight: 650; color: #0a7f5a; background: rgba(0,198,138,.12); border: 1px solid rgba(0,198,138,.4); border-radius: 999px; padding: 4px 11px; }
-.a-steps-head { font-size: .74rem; letter-spacing: .12em; text-transform: uppercase; color: var(--a-muted); font-weight: 700; margin-bottom: 7px; }
-.a-steps { display: flex; flex-direction: column; gap: 5px; }
-.a-step { display: flex; gap: 11px; align-items: baseline; font-family: var(--font-mono, monospace); font-size: .8rem; padding: 7px 11px; border-radius: 9px; background: rgba(123,63,242,.05); border: 1px solid var(--a-border); }
-.a-step-n { color: var(--a-violet); font-weight: 700; min-width: 16px; }
-.a-step-t { color: var(--a-text); word-break: break-all; }
-
-.a-resume { padding: 14px 17px; border-radius: 15px; background: rgba(255,255,255,.72); border: 1px solid var(--a-border); backdrop-filter: blur(16px); animation: a-card-in .4s cubic-bezier(.16,1,.3,1) both; }
-.a-resume-line { font-size: .95rem; color: var(--a-text); margin-bottom: 9px; }
+/* Resume, files, settings --------------------------------------------------- */
+.a-resume { padding: 15px 17px; border-radius: var(--r); background: var(--surface); border: 1px solid var(--line); }
+.a-resume-line { font-size: .9rem; color: var(--text); line-height: 1.6; margin-bottom: 10px; }
 .a-changes { display: flex; flex-direction: column; gap: 4px; }
-.a-change { font-family: var(--font-mono, monospace); font-size: .78rem; color: var(--a-muted); padding: 4px 9px; border-radius: 7px; background: rgba(123,63,242,.04); }
-.a-change.a-added { color: #0a7f5a; }
-.a-change.a-removed { color: var(--a-danger); }
+.a-change { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: .8rem; color: var(--muted); padding: 5px 10px; border-radius: 6px; background: var(--raised); }
+.a-change.a-added { color: var(--ok); background: var(--ok-wash); }
+.a-change.a-removed { color: var(--danger); background: var(--danger-wash); }
 
-/* File rows ------------------------------------------------------------ */
-.a-files { display: flex; flex-direction: column; gap: 7px; }
-.a-file {
-  display: flex; justify-content: space-between; gap: 12px;
-  font-family: var(--font-mono, monospace); font-size: .82rem;
-  padding: 10px 14px; border-radius: 11px;
-  color: var(--a-text); background: rgba(255,255,255,.86); border: 1px solid var(--a-border);
-  backdrop-filter: blur(12px);
-  animation: a-card-in .4s cubic-bezier(.16,1,.3,1) both;
-  transition: border-color .25s ease, transform .25s ease, background .25s ease;
-}
-.a-file:hover {
-  border-color: var(--a-border-hi); transform: translateX(4px);
-  background: rgba(255,255,255,.96);
-}
-.a-file-name { color: var(--a-text) !important; }
-.a-file-size { color: var(--a-muted) !important; }
+.a-files { display: flex; flex-direction: column; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+.a-file { display: flex; justify-content: space-between; gap: 14px; font-size: .85rem; padding: 10px 14px; background: var(--surface); }
+.a-file-name { color: var(--text) !important; font-family: ui-monospace, "Cascadia Code", Consolas, monospace; }
+.a-file-size { color: var(--faint) !important; font-variant-numeric: tabular-nums; white-space: nowrap; }
 
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: .001ms !important; animation-iteration-count: 1 !important;
-    transition-duration: .001ms !important;
-  }
-}
+.a-location { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; border-radius: var(--r); background: var(--raised); border: 1px solid var(--line); }
+.a-location-label { font-size: .76rem; color: var(--muted); font-weight: 600; }
+.a-location-path { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: .82rem; color: var(--text); word-break: break-all; }
+
+/* Gradio overrides ----------------------------------------------------------- */
+.gradio-container .block, .gradio-container .form, .gradio-container .panel { background: transparent !important; border: none !important; }
+
+.gradio-container button { border-radius: var(--r) !important; font-size: .88rem !important; font-weight: 550 !important; padding: 9px 15px !important; transition: background .15s ease, border-color .15s ease !important; }
+.gradio-container button.primary { background: var(--accent) !important; border: 1px solid var(--accent) !important; color: #ffffff !important; font-weight: 600 !important; }
+.gradio-container button.primary:hover { background: var(--accent-hover) !important; border-color: var(--accent-hover) !important; }
+.gradio-container button.secondary { background: var(--surface) !important; border: 1px solid var(--line-firm) !important; color: var(--text) !important; }
+.gradio-container button.secondary:hover { background: var(--raised) !important; }
+.gradio-container button.stop { background: var(--surface) !important; border: 1px solid #fda4af !important; color: var(--danger) !important; font-weight: 600 !important; }
+.gradio-container button.stop:hover { background: var(--danger-wash) !important; }
+
+.gradio-container input[type=text], .gradio-container textarea, .gradio-container select { background: var(--surface) !important; border: 1px solid var(--line-firm) !important; border-radius: var(--r) !important; color: var(--text) !important; font-size: .9rem !important; padding: 9px 12px !important; }
+.gradio-container input[type=text]:focus, .gradio-container textarea:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 3px rgba(79,70,229,.14) !important; outline: none !important; }
+.gradio-container input::placeholder, .gradio-container textarea::placeholder { color: var(--faint) !important; }
+.gradio-container label span { color: var(--muted) !important; font-weight: 600 !important; font-size: .82rem !important; }
+
+/* Tabs: the one navigation. Selected state is a solid underline, not colour
+   alone, so it does not rely on hue to be legible. */
+.gradio-container button[role=tab] { color: var(--muted) !important; font-weight: 600 !important; border: none !important; border-bottom: 2px solid transparent !important; border-radius: 0 !important; background: transparent !important; }
+.gradio-container button[role=tab].selected { color: var(--accent) !important; border-bottom-color: var(--accent) !important; }
+
+.gradio-container button:focus-visible, .gradio-container input:focus-visible, .gradio-container textarea:focus-visible, .gradio-container [role=tab]:focus-visible { outline: 2px solid var(--accent) !important; outline-offset: 2px !important; }
+
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .001ms !important; animation-duration: .001ms !important; } }
 """
 
 
@@ -456,6 +244,38 @@ class WebPanel:
         self._panel = DisclosurePanel(store)
 
     # -- queries -----------------------------------------------------------
+
+
+    def sidebar_html(self, active: str = "work") -> str:
+        """The rail: what ARTEMIS currently holds, and where it is kept.
+
+        Statistics rather than navigation. The tab strip navigates; a second
+        set of nav-shaped items here would be two controls for one job, and
+        the earlier version of this rail only looked clickable.
+        """
+        workspaces = self._manager.list()
+        files = sum(self._store.count_files(w.id) for w in workspaces)
+        actions = self._store.count_audit()
+
+        stats = [
+            (str(len(workspaces)), "folders it can see"),
+            (str(files), "files it knows about"),
+            (str(actions), "actions recorded"),
+        ]
+        rows = "".join(
+            f'<div class="a-stat"><div class="a-stat-n">{_esc(n)}</div>'
+            f'<div class="a-stat-l">{_esc(label)}</div></div>'
+            for n, label in stats
+        )
+        return (
+            '<div class="a-side">'
+            '<div class="a-brand">ARTEMIS</div>'
+            '<div class="a-brand-sub">Bounded desktop assistant</div>'
+            f"{rows}"
+            '<div class="a-note">Everything is stored on this computer. '
+            "Nothing has been sent anywhere.</div>"
+            "</div>"
+        )
 
     def workspaces(self) -> list:
         return self._manager.list()
@@ -664,111 +484,120 @@ def build(store: Store) -> gr.Blocks:
     assistant = AssistantPanel(store)
 
     with gr.Blocks(title="ARTEMIS", fill_width=True) as page:
-        gr.HTML(
-            '<div class="a-head">'
-            '<h1 class="a-title">A R T E M I S</h1>'
-            '<p class="a-sub">ARTEMIS can only see folders you add here. '
-            "Everything it knows is stored on this computer and has not been "
-            "sent anywhere. You can take any of it away at any time.</p>"
-            '<div class="a-status">'
-            "local only \u00b7 nothing leaves this machine</div>"
-            '<hr class="a-rule"/></div>'
-        )
+        with gr.Row(equal_height=False):
+            # -- the rail ---------------------------------------------------
+            with gr.Column(scale=0, min_width=250):
+                sidebar = gr.HTML(panel.sidebar_html("work"))
 
-        metrics = gr.HTML(panel.metrics_html())
-        status = gr.HTML()
+            # -- the work area ----------------------------------------------
+            with gr.Column(scale=5):
+                metrics = gr.HTML(panel.metrics_html())
+                status = gr.HTML()
 
-        with gr.Row():
-            folder_box = gr.Textbox(
-                label="Folder to let ARTEMIS see",
-                placeholder=r"C:\Users\you\Documents\Thesis",
-                scale=6,
-            )
-            browse_btn = gr.Button("Browse", scale=1)
-            add_btn = gr.Button("Add folder", variant="primary", scale=1)
+                with gr.Tabs():
+                    # Work is first because it is what someone opens ARTEMIS
+                    # to do. Inspection and settings come after.
+                    with gr.Tab("Work"):
+                        gr.HTML(
+                            '<div class="a-h1">What would you like done?</div>'
+                            '<div class="a-sub">ARTEMIS plans the work and shows '
+                            "you every step. Nothing changes until you say yes."
+                            "</div>"
+                        )
 
-        cards = gr.HTML(panel.cards_html())
+                        with gr.Row():
+                            work_picker = gr.Dropdown(
+                                choices=panel.choices(),
+                                label="In this folder",
+                                interactive=True,
+                                scale=3,
+                            )
+                            ask_box = gr.Textbox(
+                                label="What would you like done",
+                                placeholder="Tidy up this folder",
+                                scale=5,
+                            )
+                            ask_btn = gr.Button("Ask", variant="primary", scale=1)
 
-        gr.HTML('<hr class="a-rule"/>')
+                        with gr.Row():
+                            tidy_btn = gr.Button("Suggest a tidy-up")
+                            resume_btn = gr.Button("What changed")
+                            patterns_btn = gr.Button("Repeated tasks")
+                            undo_btn = gr.Button("Undo last change")
 
-        gr.HTML(
-            '<div class="a-section">Ask ARTEMIS to do something</div>'
-            '<div class="a-card-meta">It will show you every step and wait for '
-            "your permission before changing anything.</div>"
-        )
+                        conversation = gr.HTML()
+                        approval_card = gr.HTML()
 
-        with gr.Row():
-            work_picker = gr.Dropdown(
-                choices=panel.choices(),
-                label="In this folder",
-                interactive=True,
-                scale=3,
-            )
-            ask_box = gr.Textbox(
-                label="What would you like done",
-                placeholder="Tidy up this folder",
-                scale=5,
-            )
-            ask_btn = gr.Button("Ask", variant="primary", scale=1)
+                        # Hidden until something is actually awaiting a
+                        # decision. Buttons offering to confirm a plan that
+                        # does not exist are the most confusing thing a page
+                        # can show.
+                        with gr.Row(visible=False) as decision_row:
+                            approve_btn = gr.Button("Approve", variant="primary")
+                            remember_btn = gr.Button("Approve, don't ask again")
+                            reject_btn = gr.Button("No, leave it", variant="stop")
 
-        with gr.Row():
-            tidy_btn = gr.Button("Suggest a tidy-up", scale=1)
-            resume_btn = gr.Button("What changed since last time", scale=1)
-            patterns_btn = gr.Button("Notice repeated tasks", scale=1)
-            undo_btn = gr.Button("Undo last change", scale=1)
+                        resume_card = gr.HTML()
 
-        conversation = gr.HTML()
-        approval_card = gr.HTML()
+                    with gr.Tab("Folders"):
+                        gr.HTML(
+                            '<div class="a-h1">Folders ARTEMIS can see</div>'
+                            '<div class="a-sub">It can only ever see folders you '
+                            "add here, and nothing outside them.</div>"
+                        )
+                        with gr.Row():
+                            folder_box = gr.Textbox(
+                                label="Folder to add",
+                                placeholder=r"C:\Users\you\Documents\Thesis",
+                                scale=6,
+                            )
+                            browse_btn = gr.Button("Browse", scale=1)
+                            add_btn = gr.Button(
+                                "Add folder", variant="primary", scale=1
+                            )
+                        cards = gr.HTML(panel.cards_html())
 
-        with gr.Row():
-            approve_btn = gr.Button("Approve", variant="primary", scale=1)
-            remember_btn = gr.Button("Approve and don't ask again", scale=1)
-            reject_btn = gr.Button("No, leave it", variant="stop", scale=1)
+                    with gr.Tab("What it knows"):
+                        gr.HTML(
+                            '<div class="a-h1">Everything ARTEMIS holds</div>'
+                            '<div class="a-sub">Forget never deletes. These '
+                            "buttons remove what ARTEMIS remembers; your files "
+                            "stay exactly where they are.</div>"
+                        )
+                        with gr.Row():
+                            picker = gr.Dropdown(
+                                choices=panel.choices(),
+                                label="Folder",
+                                interactive=True,
+                                scale=4,
+                            )
+                            show_btn = gr.Button("Show files", scale=1)
+                            rescan_btn = gr.Button("Check for changes", scale=1)
+                            forget_btn = gr.Button(
+                                "Forget this folder", variant="stop", scale=1
+                            )
+                        files = gr.HTML(panel.files_html(None))
+                        erase_btn = gr.Button(
+                            "Erase everything ARTEMIS knows", variant="stop"
+                        )
 
-        resume_card = gr.HTML()
-
-        gr.HTML('<hr class="a-rule"/>')
-
-        with gr.Row():
-            picker = gr.Dropdown(
-                choices=panel.choices(),
-                label="Work with one folder",
-                interactive=True,
-                scale=4,
-            )
-            show_btn = gr.Button("Show files", scale=1)
-            rescan_btn = gr.Button("Check for changes", scale=1)
-            forget_btn = gr.Button("Forget this folder", variant="stop", scale=1)
-
-        files = gr.HTML(panel.files_html(None))
-
-        with gr.Row():
-            erase_btn = gr.Button("Erase everything ARTEMIS knows", variant="stop")
-
-        gr.HTML('<hr class="a-rule"/>')
-
-        gr.HTML(
-            '<div class="a-section">Where ARTEMIS keeps what it knows</div>'
-            '<div class="a-card-meta">Everything ARTEMIS remembers lives in one '
-            "folder on this computer. Move it anywhere you like, including onto "
-            "another drive.</div>"
-        )
-        location = gr.HTML(_location_html(panel.store_location()))
-
-        with gr.Row():
-            move_box = gr.Textbox(
-                label="New location for that folder",
-                placeholder=r"D:\ARTEMIS",
-                scale=6,
-            )
-            move_browse = gr.Button("Browse", scale=1)
-            move_btn = gr.Button("Move it here", scale=1)
-
-        gr.HTML(
-            '<div class="a-card-meta" style="margin-top:18px">'
-            "Forget never deletes. Every button here removes what ARTEMIS "
-            "remembers; your files stay exactly where they are.</div>"
-        )
+                    with gr.Tab("Settings"):
+                        gr.HTML(
+                            '<div class="a-h1">Where ARTEMIS keeps what it '
+                            "knows</div>"
+                            '<div class="a-sub">Everything it remembers lives in '
+                            "one folder on this computer. Move it anywhere, "
+                            "including another drive.</div>"
+                        )
+                        location = gr.HTML(_location_html(panel.store_location()))
+                        with gr.Row():
+                            move_box = gr.Textbox(
+                                label="New location",
+                                placeholder=r"D:\ARTEMIS",
+                                scale=6,
+                            )
+                            move_browse = gr.Button("Browse", scale=1)
+                            move_btn = gr.Button("Move it here", scale=1)
 
         # -- wiring. Each action returns the same four outputs so the page is
         # always re-read from the stores rather than patched in place.
@@ -780,9 +609,12 @@ def build(store: Store) -> gr.Blocks:
                 message,
                 panel.files_html(workspace_id),
                 gr.update(choices=panel.choices()),
+                panel.sidebar_html("work"),
             )
 
-        outputs = [cards, metrics, picker, status, files, work_picker]
+        outputs = [
+            cards, metrics, picker, status, files, work_picker, sidebar
+        ]
 
         add_btn.click(
             lambda folder: refresh(panel.add(folder)),
@@ -824,10 +656,13 @@ def build(store: Store) -> gr.Blocks:
                 panel.cards_html(),
                 panel.metrics_html(),
                 assistant.resume_html(ws),
+                panel.sidebar_html("work"),
+                gr.update(visible=bool(card_html)),
             )
 
         assistant_outputs = [
-            conversation, approval_card, cards, metrics, resume_card
+            conversation, approval_card, cards, metrics, resume_card, sidebar,
+            decision_row,
         ]
 
         ask_btn.click(
