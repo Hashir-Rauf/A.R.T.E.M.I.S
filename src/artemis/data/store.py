@@ -339,6 +339,20 @@ class Store:
             (workspace_id,),
         )
 
+    def last_closed_session(self, workspace_id: int) -> sqlite3.Row | None:
+        """The most recent session that was closed with a snapshot.
+
+        Distinct from `latest_session`, which returns whatever is newest and is
+        normally the session currently open. "What changed since last time"
+        needs the last *completed* one, because only a closed session carries
+        the file snapshot to compare against.
+        """
+        return self.query_one(
+            "SELECT * FROM sessions WHERE workspace_id = ? AND ended_at IS NOT NULL "
+            "ORDER BY id DESC LIMIT 1",
+            (workspace_id,),
+        )
+
     def list_sessions(self, workspace_id: int, limit: int = 10) -> list[sqlite3.Row]:
         return self.query(
             "SELECT * FROM sessions WHERE workspace_id = ? ORDER BY id DESC LIMIT ?",

@@ -129,6 +129,40 @@ class ResumeService:
             detail={"session_id": session_id, "had_note": bool(note)},
         )
 
+    def checkpoint(
+        self,
+        workspace_id: int,
+        note: str = "",
+        recent_files: list[str] | None = None,
+    ) -> int:
+        """Record where things stand now, and leave a session open.
+
+        A desktop application does not get a reliable chance to close anything:
+        the window is shut, the machine sleeps, the process is killed. Waiting
+        for a clean shutdown to write the snapshot means it is usually never
+        written, and "pick up where you left off" then has nothing to replay.
+
+        So the snapshot is taken as the user works. The currently open session
+        is closed with the state as it is now, and a fresh one is opened, which
+        means there is always a completed session to compare against and the
+        comparison is never older than the last thing the user did.
+
+        Returns the id of the newly opened session.
+        """
+        current = self._store.latest_session(workspace_id)
+        if current is not None and not current["ended_at"]:
+            self.close_session(
+                current["id"], workspace_id, note=note, recent_files=recent_files
+            )
+        else:
+            # No session was open, so there is nothing to snapshot against yet.
+            # Open and immediately close one to establish a baseline.
+            session_id = self.open_session(workspace_id)
+            self.close_session(
+                session_id, workspace_id, note=note, recent_files=recent_files
+            )
+        return self.open_session(workspace_id)
+
     def _snapshot_index(self, workspace_id: int) -> dict[str, list]:
         """Path to [mtime, size], as the index currently sees the workspace."""
         return {
@@ -150,7 +184,11 @@ class ResumeService:
             )
 
         name = workspace["name"]
-        session = self._store.latest_session(workspace_id)
+        # The last *closed* session, not the newest one: a checkpoint leaves a
+        # session open, and only a closed session carries the snapshot this
+        # compares against. Asking for the newest returned the open session and
+        # reported "first visit" forever.
+        session = self._store.last_closed_session(workspace_id)
         if session is None or not session["ended_at"]:
             return ResumeReport(
                 workspace_id=workspace_id,

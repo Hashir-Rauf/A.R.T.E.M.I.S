@@ -28,6 +28,7 @@ gateway never acts on prose.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -122,11 +123,16 @@ class Gateway:
         user_text: str,
         session_id: int | None = None,
         token_budget: int = 3000,
+        on_token: Callable[[int, int], None] | None = None,
     ) -> TurnOutcome:
         """Take one request as far as it may go without the user's permission.
 
         Reads run. Anything that changes a file or leaves the machine stops at
         the approval broker and comes back as a preview.
+
+        `on_token` is passed straight through to the planner so an interface can
+        show progress while the model is still thinking. It changes nothing
+        about what the turn is permitted to do.
         """
         self.store.append_audit(
             event="gateway.turn",
@@ -146,7 +152,7 @@ class Gateway:
             session_id=session_id,
         )
 
-        planning = self.planner.plan(workspace_id, context)
+        planning = self.planner.plan(workspace_id, context, on_token=on_token)
         plan = planning.plan
 
         if not plan.calls:

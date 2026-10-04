@@ -164,6 +164,74 @@ class ModelRouter:
             "no model could answer. Tried: " + ", ".join(attempted or ["nothing"])
         )
 
+    def stream(self, workspace_id: int, prompt: str, max_tokens: int = 512):
+        """Yield the answer in pieces, through the same gates as `complete`.
+
+        Failover is only honest before the first piece is handed out. Once the
+        caller has displayed text, switching providers would splice two
+        different answers together, so a provider that fails mid-stream raises
+        instead of silently falling back. Failures before the first piece fall
+        back exactly as `complete` does.
+        """
+        permitted = self.permitted_tiers(workspace_id)
+        if not permitted:
+            raise NoModelAvailable(
+                "no model is configured for this workspace. ARTEMIS needs a "
+                "local model, or permission to use a cloud one."
+            )
+
+        attempted: list[str] = []
+        failures: list[str] = []
+
+        for provider in permitted:
+            self.check_egress(workspace_id, provider)
+
+            if not provider.available():
+                attempted.append(provider.name)
+                failures.append(f"{provider.name}: not reachable")
+                continue
+
+            attempted.append(provider.name)
+            started = False
+            pieces: list[str] = []
+            try:
+                for piece in provider.stream(prompt, max_tokens=max_tokens):
+                    started = True
+                    pieces.append(piece)
+                    yield piece
+            except ProviderError as exc:
+                failures.append(str(exc))
+                if started:
+                    # Text is already on screen. Falling back now would stitch
+                    # two answers together, so the caller is told instead.
+                    raise
+                continue
+
+            if provider.tier != ModelTier.LOCAL:
+                self.store.append_audit(
+                    event="router.egress",
+                    outcome="sent",
+                    workspace_id=workspace_id,
+                    detail={
+                        "provider": provider.name,
+                        "tier": int(provider.tier),
+                        "model": provider.model,
+                        "streamed": True,
+                        "chars_out": sum(len(piece) for piece in pieces),
+                    },
+                )
+            return
+
+        self.store.append_audit(
+            event="router.stream",
+            outcome="failed",
+            workspace_id=workspace_id,
+            detail={"attempted": attempted, "failures": failures},
+        )
+        raise NoModelAvailable(
+            "no model could answer. Tried: " + ", ".join(attempted or ["nothing"])
+        )
+
     def describe_tiers(self, workspace_id: int) -> list[dict]:
         """What the user would see if they asked which models are in play."""
         permitted = {p.name for p in self.permitted_tiers(workspace_id)}

@@ -76,6 +76,35 @@ class Provider(ABC):
     def complete(self, prompt: str, max_tokens: int = 512) -> Completion:
         """Send a prompt and return the answer, or raise ProviderError."""
 
+    def stream(self, prompt: str, max_tokens: int = 512):
+        """Yield the answer in pieces as it arrives.
+
+        The default implementation simply yields the whole completion, so a
+        provider that cannot stream still satisfies the interface and callers
+        never need to ask which kind they have.
+        """
+        yield self.complete(prompt, max_tokens=max_tokens).text
+
+
+#: Generation settings shared by the blocking and streaming calls.
+#:
+#: `repeat_penalty` is the important one. Asked to tidy a folder, the local
+#: model writes one move per file, completes the JSON, and then starts the whole
+#: block again, running to the token ceiling every time: about twenty seconds a
+#: request, with the reply truncated mid-object at the end.
+#:
+#: A stop sequence cannot express "the second time you write a fence", and
+#: stopping on a fence halts at the opening one and returns nothing, so the loop
+#: is discouraged here rather than cut. The planner also salvages whole steps
+#: from a truncated reply, so a model that loops anyway still yields a plan.
+#:
+#: Low temperature because this is structured output, not prose: the planner
+#: wants the same answer twice for the same request.
+_OLLAMA_OPTIONS: dict = {
+    "temperature": 0.1,
+    "repeat_penalty": 1.25,
+}
+
 
 @dataclass
 class OllamaProvider(Provider):
@@ -114,7 +143,7 @@ class OllamaProvider(Provider):
                 "model": self.model,
                 "prompt": prompt,
                 "stream": False,
-                "options": {"num_predict": max_tokens, "temperature": 0.1},
+                "options": {"num_predict": max_tokens, **_OLLAMA_OPTIONS},
             }
         ).encode()
         request = urllib.request.Request(
@@ -136,6 +165,42 @@ class OllamaProvider(Provider):
             tokens_in=body.get("prompt_eval_count", 0) or 0,
             tokens_out=body.get("eval_count", 0) or 0,
         )
+
+    def stream(self, prompt: str, max_tokens: int = 512):
+        """Yield text as the model produces it.
+
+        The work takes the same time either way; what changes is that the
+        caller can show progress after about a second instead of after six.
+        """
+        payload = json.dumps(
+            {
+                "model": self.model,
+                "prompt": prompt,
+                "stream": True,
+                "options": {"num_predict": max_tokens, **_OLLAMA_OPTIONS},
+            }
+        ).encode()
+        request = urllib.request.Request(
+            f"{self.host}/api/generate",
+            data=payload,
+            headers={"Content-Type": "application/json"},
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=self.timeout_s) as response:
+                for line in response:
+                    if not line.strip():
+                        continue
+                    try:
+                        chunk = json.loads(line)
+                    except ValueError:
+                        continue
+                    piece = chunk.get("response", "")
+                    if piece:
+                        yield piece
+                    if chunk.get("done"):
+                        return
+        except (urllib.error.URLError, OSError, TimeoutError) as exc:
+            raise ProviderError(f"{self.name}: {exc}") from exc
 
     def warm(self) -> bool:
         """Load the model into memory without asking it for anything.
@@ -248,6 +313,14 @@ class StubProvider(Provider):
     def available(self) -> bool:
         return self.reachable
 
+    def stream(self, prompt: str, max_tokens: int = 512):
+        """Yield the scripted reply in a few pieces, as a real one would."""
+        completion = self.complete(prompt, max_tokens=max_tokens)
+        text = completion.text
+        size = max(1, len(text) // 3)
+        for index in range(0, len(text), size):
+            yield text[index : index + size]
+
     def complete(self, prompt: str, max_tokens: int = 512) -> Completion:
         self.calls.append(prompt)
         if self.fail_with:
@@ -261,3 +334,54 @@ class StubProvider(Provider):
             tokens_in=len(prompt.split()),
             tokens_out=len(text.split()),
         )
+
+#: Cloud providers ARTEMIS knows how to reach, in fallback order.
+#:
+#: Every one of these speaks the OpenAI chat-completions shape, so adding
+#: another is an entry here rather than a new class. The order matches the
+#: fallback chain in the proposal: Gemini, then OpenAI, then Anthropic.
+CLOUD_CATALOGUE: tuple[dict, ...] = (
+    {
+        "name": "gemini",
+        "label": "Google Gemini",
+        "tier": ModelTier.GEMINI,
+        "model": "gemini-2.0-flash",
+        "base_url": "https://generativelanguage.googleapis.com/v1beta/openai",
+        "key_hint": "AIza...",
+    },
+    {
+        "name": "openai",
+        "label": "OpenAI",
+        "tier": ModelTier.OPENAI,
+        "model": "gpt-4o-mini",
+        "base_url": "https://api.openai.com/v1",
+        "key_hint": "sk-...",
+    },
+    {
+        "name": "anthropic",
+        "label": "Anthropic Claude",
+        "tier": ModelTier.ANTHROPIC,
+        "model": "claude-sonnet-4-20250514",
+        "base_url": "https://api.anthropic.com/v1",
+        "key_hint": "sk-ant-...",
+    },
+)
+
+
+def cloud_provider(name: str, api_key: str) -> OpenAICompatibleProvider:
+    """Build a configured provider from the catalogue.
+
+    Raises KeyError for an unknown name rather than inventing a default, so a
+    typo in a provider name fails loudly instead of quietly reaching an
+    unexpected endpoint.
+    """
+    entry = next((e for e in CLOUD_CATALOGUE if e["name"] == name), None)
+    if entry is None:
+        raise KeyError(f"unknown cloud provider: {name}")
+    return OpenAICompatibleProvider(
+        name=entry["name"],
+        tier=entry["tier"],
+        model=entry["model"],
+        base_url=entry["base_url"],
+        api_key=api_key,
+    )

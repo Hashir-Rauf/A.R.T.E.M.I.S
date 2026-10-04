@@ -47,6 +47,9 @@ from artemis.core.errors import WorkspaceError
 from artemis.core.indexer import Indexer
 from artemis.core.workspace import WorkspaceManager
 from artemis.data import paths
+from artemis.core.providers import CLOUD_CATALOGUE
+from artemis.data import credentials
+from artemis.services.resume import ResumeService
 from artemis.data.store import Store
 from artemis.ui.assistant import AssistantPanel
 
@@ -151,6 +154,21 @@ CSS = """
 /* Messages ----------------------------------------------------------------- */
 .a-msg { padding: 13px 16px; border-radius: var(--r); background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--accent); color: var(--text); font-size: .9rem; line-height: 1.6; }
 .a-msg.warn { border-left-color: var(--danger); background: var(--danger-wash); }
+.a-msg.a-thinking { color: var(--muted); display: flex; align-items: center; gap: 10px; }
+.a-cloud { border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; margin-bottom: 12px; }
+.a-cloud-row { display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-bottom: 1px solid var(--line); background: var(--surface); }
+.a-cloud-row:last-child { border-bottom: none; }
+.a-cloud-name { font-weight: 600; color: var(--text); font-size: .9rem; min-width: 150px; }
+.a-cloud-model { color: var(--muted); font-size: .82rem; font-family: ui-monospace, monospace; flex: 1; }
+.a-cloud-on { color: #166534; background: #dcfce7; border-radius: 999px; padding: 3px 10px; font-size: .75rem; font-weight: 600; }
+.a-cloud-off { color: #475569; background: #f1f5f9; border-radius: 999px; padding: 3px 10px; font-size: .75rem; font-weight: 600; }
+.a-cloud-note { color: var(--muted); font-size: .82rem; line-height: 1.6; margin-bottom: 14px; }
+.a-quote { margin-top: 8px; padding: 12px 14px; background: var(--raised); border-left: 3px solid var(--line-firm); border-radius: 6px; color: var(--text); font-size: .85rem; line-height: 1.6; white-space: pre-wrap; max-height: 320px; overflow-y: auto; }
+.a-dots { display: inline-flex; gap: 4px; }
+.a-dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); display: inline-block; animation: a-bounce 1.2s ease-in-out infinite; }
+.a-dots i:nth-child(2) { animation-delay: .15s; }
+.a-dots i:nth-child(3) { animation-delay: .3s; }
+@keyframes a-bounce { 0%, 80%, 100% { opacity: .25; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-3px); } }
 
 /* The approval card, the one screen that must be answerable at a glance. */
 .a-approval { background: var(--surface); border: 1px solid var(--line-firm); border-top: 3px solid var(--accent); border-radius: var(--r); padding: 20px 22px; }
@@ -216,6 +234,11 @@ def _esc(value: object) -> str:
     return html.escape(str(value), quote=True)
 
 
+def _say_html(message: str) -> str:
+    """A short confirmation under the settings controls."""
+    return f'<div class="a-msg">{_esc(message)}</div>' if message else ""
+
+
 def _location_html(path: str) -> str:
     """The current store location, shown as a path the user can read."""
     return (
@@ -242,6 +265,7 @@ class WebPanel:
         self._broker = WorkspaceBroker(store)
         self._indexer = Indexer(store, self._broker)
         self._panel = DisclosurePanel(store)
+        self._resume = ResumeService(store, self._broker)
 
     # -- queries -----------------------------------------------------------
 
@@ -371,6 +395,10 @@ class WebPanel:
         except WorkspaceError as exc:
             return self.toast(str(exc), warn=True)
         count = self._indexer.scan(ws.id)
+        # Establish the baseline "pick up where you left off" compares against.
+        # Without this there is no completed session to diff, and the feature
+        # reports "first time" forever however much the folder changes.
+        self._resume.checkpoint(ws.id)
         return self.toast(
             f"Added '{ws.name}'. ARTEMIS now knows about "
             f"{_plural(count, 'file')} in it."
@@ -415,6 +443,71 @@ class WebPanel:
     @staticmethod
     def store_location() -> str:
         return str(paths.artemis_home())
+
+    def cloud_html(self) -> str:
+        """Which cloud models are set up, without ever showing a key.
+
+        The panel is allowed to know that a credential exists and nothing more:
+        keys live in the operating system keyring, and this asks `has_key`
+        rather than reading them.
+        """
+        rows = []
+        for entry in CLOUD_CATALOGUE:
+            ready = credentials.has_key(entry["name"])
+            state = "Key saved" if ready else "Not set up"
+            tone = "a-cloud-on" if ready else "a-cloud-off"
+            rows.append(
+                f'<div class="a-cloud-row"><span class="a-cloud-name">'
+                f'{_esc(entry["label"])}</span>'
+                f'<span class="a-cloud-model">{_esc(entry["model"])}</span>'
+                f'<span class="{tone}">{state}</span></div>'
+            )
+        return (
+            '<div class="a-cloud">' + "".join(rows) + "</div>"
+            '<div class="a-cloud-note">Keys are kept in the Windows Credential '
+            "Manager, never in the ARTEMIS folder. A cloud model is only used "
+            "for a folder you have set to allow it.</div>"
+        )
+
+    def provider_choices(self) -> list[tuple[str, str]]:
+        """The providers a key can be saved for, as (label, name) pairs."""
+        return [(entry["label"], entry["name"]) for entry in CLOUD_CATALOGUE]
+
+    @staticmethod
+    def save_key(provider: str, key: str) -> str:
+        """Store an API key for a provider.
+
+        The key is not echoed back, logged, or written to the database. If the
+        keyring is unavailable this says so rather than quietly falling back to
+        a file, because a silent downgrade to plaintext would break the promise
+        the interface just made.
+        """
+        provider = (provider or "").strip()
+        key = (key or "").strip()
+        if not provider:
+            return "Choose which service the key is for."
+        if not key:
+            return "Paste the key first."
+        try:
+            credentials.set_key(provider, key)
+        except credentials.KeyringUnavailable as exc:
+            return f"The key could not be stored safely, so it was not saved. {exc}"
+        label = next(
+            (e["label"] for e in CLOUD_CATALOGUE if e["name"] == provider), provider
+        )
+        return f"Saved the key for {label}. It is in the Windows Credential Manager."
+
+    @staticmethod
+    def forget_cloud_key(provider: str) -> str:
+        """Remove a stored key."""
+        provider = (provider or "").strip()
+        if not provider:
+            return "Choose which service to forget."
+        credentials.forget_key(provider)
+        label = next(
+            (e["label"] for e in CLOUD_CATALOGUE if e["name"] == provider), provider
+        )
+        return f"Removed the key for {label}."
 
     def move_store(self, destination: str) -> str:
         """Move everything ARTEMIS knows to a new folder.
@@ -599,6 +692,31 @@ def build(store: Store) -> gr.Blocks:
                             move_browse = gr.Button("Browse", scale=1)
                             move_btn = gr.Button("Move it here", scale=1)
 
+                        gr.HTML(
+                            '<div class="a-h1" style="margin-top:28px">Cloud '
+                            "models</div>"
+                            '<div class="a-sub">ARTEMIS uses the model on this '
+                            "computer by default. A cloud model is faster, but "
+                            "your request leaves this machine, so it is only "
+                            "used for folders you have set to allow it.</div>"
+                        )
+                        cloud_state = gr.HTML(panel.cloud_html())
+                        with gr.Row():
+                            cloud_pick = gr.Dropdown(
+                                choices=panel.provider_choices(),
+                                label="Service",
+                                scale=3,
+                            )
+                            key_box = gr.Textbox(
+                                label="API key",
+                                placeholder="Paste the key here",
+                                type="password",
+                                scale=5,
+                            )
+                            save_key_btn = gr.Button("Save key", scale=2)
+                            forget_key_btn = gr.Button("Forget key", scale=2)
+                        cloud_note = gr.HTML()
+
         # -- wiring. Each action returns the same four outputs so the page is
         # always re-read from the stores rather than patched in place.
         def refresh(message: str = "", workspace_id: int | None = None):
@@ -665,14 +783,25 @@ def build(store: Store) -> gr.Blocks:
             decision_row,
         ]
 
+        def ask_progressively(ws, text):
+            """Stream the turn to the page.
+
+            A generator event handler, so Gradio pushes each yield to the
+            browser as it arrives. The local model needs about six seconds for a
+            plan but produces its first output in about one, which is the
+            difference between a frozen page and a visibly working one.
+            """
+            for message_html, card_html in assistant.ask_streaming(ws, text):
+                yield refresh_after_change(message_html, card_html, ws)
+
         ask_btn.click(
-            lambda ws, text: refresh_after_change(*assistant.ask(ws, text), ws),
+            ask_progressively,
             inputs=[work_picker, ask_box],
             outputs=assistant_outputs,
         ).then(lambda: "", outputs=ask_box)
 
         ask_box.submit(
-            lambda ws, text: refresh_after_change(*assistant.ask(ws, text), ws),
+            ask_progressively,
             inputs=[work_picker, ask_box],
             outputs=assistant_outputs,
         ).then(lambda: "", outputs=ask_box)
@@ -728,6 +857,26 @@ def build(store: Store) -> gr.Blocks:
             lambda ws: assistant.resume_html(ws),
             inputs=work_picker,
             outputs=resume_card,
+        )
+
+        def _save_key(provider, key):
+            # The key is not echoed back into the box, and the box is cleared,
+            # so a pasted secret is not left sitting on screen.
+            message = panel.save_key(provider, key)
+            return panel.cloud_html(), _say_html(message), ""
+
+        def _forget_key(provider):
+            return panel.cloud_html(), _say_html(panel.forget_cloud_key(provider)), ""
+
+        save_key_btn.click(
+            _save_key,
+            inputs=[cloud_pick, key_box],
+            outputs=[cloud_state, cloud_note, key_box],
+        )
+        forget_key_btn.click(
+            _forget_key,
+            inputs=[cloud_pick],
+            outputs=[cloud_state, cloud_note, key_box],
         )
 
         move_browse.click(_browse, outputs=move_box)

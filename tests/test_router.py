@@ -16,7 +16,7 @@ from pathlib import Path
 
 import pytest
 
-from artemis.core.providers import ModelTier, StubProvider
+from artemis.core.providers import ModelTier, ProviderError, StubProvider
 from artemis.core.router import (
     EgressRefused,
     ModelRouter,
@@ -205,3 +205,78 @@ def test_describe_tiers_says_what_is_permitted_and_what_leaves(
     assert described["ollama"]["leaves_machine"] is False
     assert described["gemini"]["permitted"] is False
     assert described["gemini"]["leaves_machine"] is True
+
+
+# -- streaming -----------------------------------------------------------------
+#
+# Streaming goes through the same egress gate as a blocking call. The one rule
+# that differs is failover: once a piece has been handed to the caller it is on
+# screen, and switching providers would splice two different answers together.
+
+
+def test_stream_yields_the_pieces(store: Store, local_workspace: int) -> None:
+    router = _router(store, _local(replies=["one two three"]))
+    assert "".join(router.stream(local_workspace, "go")) == "one two three"
+
+
+def test_stream_will_not_reach_a_cloud_model_for_a_local_only_workspace(
+    store: Store, local_workspace: int
+) -> None:
+    """The gate is not bypassed by using the streaming path.
+
+    A cloud provider is filtered out of the permitted tiers before egress is
+    even considered, so this reports that no model is available rather than
+    refusing a provider it was about to use. Either way nothing is sent.
+    """
+    router = _router(store, _cloud(replies=["leaked"]))
+    cloud = router._providers[0] if hasattr(router, "_providers") else None
+    with pytest.raises(NoModelAvailable):
+        list(router.stream(local_workspace, "go"))
+    if cloud is not None:
+        assert cloud.calls == []
+
+
+def test_stream_falls_back_before_the_first_piece(
+    store: Store, cloud_workspace: int
+) -> None:
+    """A provider that fails before producing anything is replaced."""
+    router = _router(
+        store, _local(fail_with="down"), _cloud(replies=["from the cloud"])
+    )
+    assert "".join(router.stream(cloud_workspace, "go")) == "from the cloud"
+
+
+def test_stream_does_not_fall_back_once_text_has_been_shown(
+    store: Store, cloud_workspace: int
+) -> None:
+    """A failure after the first piece is raised, not papered over.
+
+    Falling back here would append a second provider's answer to the half of
+    the first one the user can already read.
+    """
+
+    class HalfWay(StubProvider):
+        def stream(self, prompt: str, max_tokens: int = 512):
+            yield "the beginning"
+            raise ProviderError("died halfway")
+
+    router = _router(
+        store,
+        HalfWay(name="ollama", tier=ModelTier.LOCAL, model="gemma"),
+        _cloud(replies=["should not be used"]),
+    )
+    seen: list[str] = []
+    with pytest.raises(ProviderError):
+        for piece in router.stream(cloud_workspace, "go"):
+            seen.append(piece)
+    assert seen == ["the beginning"]
+
+
+def test_stream_records_egress_in_the_audit_log(
+    store: Store, cloud_workspace: int
+) -> None:
+    """Anything that left the machine is recorded, streamed or not."""
+    router = _router(store, _cloud(replies=["hello"]))
+    list(router.stream(cloud_workspace, "go"))
+    events = [row["event"] for row in store.query("SELECT event FROM audit_log")]
+    assert "router.egress" in events

@@ -206,3 +206,76 @@ def test_the_page_assembles(store: Store) -> None:
     page = build(store)
     assert page is not None
     assert page.title == "ARTEMIS"
+
+
+# -- cloud settings ------------------------------------------------------------
+#
+# The interface may say that a key exists. It may never show the key, and the
+# page must not change what a local-only folder is allowed to do.
+
+
+@pytest.fixture
+def fake_keyring(monkeypatch: pytest.MonkeyPatch):
+    from artemis.data import credentials
+
+    saved: dict[tuple[str, str], str] = {}
+
+    class Fake:
+        def set_password(self, service, name, value):
+            saved[(service, name)] = value
+
+        def get_password(self, service, name):
+            return saved.get((service, name))
+
+        def delete_password(self, service, name):
+            del saved[(service, name)]
+
+    monkeypatch.setattr(credentials, "_keyring", lambda: Fake())
+    return saved
+
+
+def test_cloud_panel_lists_every_service(panel: WebPanel, fake_keyring) -> None:
+    html = panel.cloud_html()
+    assert "Google Gemini" in html
+    assert "OpenAI" in html
+    assert "Anthropic" in html
+
+
+def test_cloud_panel_shows_nothing_set_up_at_first(
+    panel: WebPanel, fake_keyring
+) -> None:
+    assert "Not set up" in panel.cloud_html()
+    assert "Key saved" not in panel.cloud_html()
+
+
+def test_saving_a_key_is_reflected_without_showing_it(
+    panel: WebPanel, fake_keyring
+) -> None:
+    """The important half of this test is the assertion that the key is absent."""
+    message = panel.save_key("openai", "sk-very-secret")
+    html = panel.cloud_html()
+    assert "Key saved" in html
+    assert "sk-very-secret" not in html
+    assert "sk-very-secret" not in message
+
+
+def test_saving_without_a_key_explains_itself(panel: WebPanel, fake_keyring) -> None:
+    assert "Paste the key" in panel.save_key("openai", "   ")
+
+
+def test_saving_without_a_service_explains_itself(
+    panel: WebPanel, fake_keyring
+) -> None:
+    assert "Choose which service" in panel.save_key("", "sk-key")
+
+
+def test_forgetting_a_key_updates_the_panel(panel: WebPanel, fake_keyring) -> None:
+    panel.save_key("gemini", "sk-key")
+    assert "Key saved" in panel.cloud_html()
+    panel.forget_cloud_key("gemini")
+    assert "Key saved" not in panel.cloud_html()
+
+
+def test_provider_choices_are_label_and_name_pairs(panel: WebPanel) -> None:
+    choices = panel.provider_choices()
+    assert ("Google Gemini", "gemini") in choices

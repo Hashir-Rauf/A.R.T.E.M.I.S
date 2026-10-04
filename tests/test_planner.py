@@ -230,3 +230,83 @@ def test_json_wrapped_in_prose_and_fences_is_recovered() -> None:
 
 def test_a_reply_with_no_json_yields_nothing() -> None:
     assert _parse_steps("I cannot help with that") == []
+
+
+# -- truncated replies -------------------------------------------------------
+#
+# These exist because a local model given a folder of files writes one move per
+# file, runs past the token ceiling, and leaves the JSON unterminated. The reply
+# is full of perfectly good steps and the parser returned nothing for all of
+# them, so the user was told "I could not turn that into steps" about a plan
+# that was almost entirely complete.
+
+
+def test_truncated_reply_keeps_the_steps_it_finished() -> None:
+    """A reply cut off mid-object still yields the steps that are whole."""
+    raw = (
+        '```json\n{\n  "steps": [\n'
+        '    {"operation": "create_dir", "paths": ["pdfs"], "arguments": {}},\n'
+        '    {"operation": "move_file", "paths": ["a.pdf"],'
+        ' "arguments": {"destination": "pdfs/a.pdf"}},\n'
+        '    {"operation": "move_file", "paths": ["b.pd'
+    )
+    steps = _parse_steps(raw)
+    assert [step["operation"] for step in steps] == ["create_dir", "move_file"]
+
+
+def test_truncated_reply_drops_the_half_written_step() -> None:
+    """Nothing is invented to complete a step the model did not finish."""
+    raw = (
+        '{"steps": [{"operation": "move_file", "paths": ["a.pdf"],'
+        ' "arguments": {"destination": "pdfs/a.pdf"}},'
+        ' {"operation": "move_file", "paths": ["b.pdf"'
+    )
+    steps = _parse_steps(raw)
+    assert len(steps) == 1
+    assert steps[0]["arguments"]["destination"] == "pdfs/a.pdf"
+
+
+def test_a_looping_reply_is_not_executed_twice() -> None:
+    """A model that repeats itself must not produce duplicate operations.
+
+    The same model that truncates also stutters, re-emitting an identical block
+    until it runs out of budget. Executing those twice would move a file and
+    then fail to move it again, or create a folder that already exists.
+    """
+    one = '{"operation": "create_dir", "paths": ["pdfs"], "arguments": {}}'
+    raw = '{"steps": [' + ", ".join([one] * 4)
+    assert len(_parse_steps(raw)) == 1
+
+
+def test_an_explicitly_empty_plan_stays_empty() -> None:
+    """A model that correctly says "no steps" is not second-guessed.
+
+    Salvage must not turn a deliberate refusal into invented work, so a
+    well-formed wrapper with an empty list is taken at its word.
+    """
+    assert _parse_steps('{"steps": []}') == []
+
+
+def test_prose_without_json_yields_nothing() -> None:
+    assert _parse_steps("I am afraid I cannot help with that.") == []
+
+
+def test_complete_replies_are_unaffected() -> None:
+    """The ordinary path must not change because of the salvage fallback."""
+    raw = '```json\n{"steps": [{"operation": "list_dir", "paths": ["."]}]}\n```'
+    steps = _parse_steps(raw)
+    assert [step["operation"] for step in steps] == ["list_dir"]
+
+
+def test_prompt_asks_for_one_line_of_json() -> None:
+    """Guards the measurement that made planning ten times faster.
+
+    Pretty-printed JSON spent the whole token budget on indentation: twenty-two
+    seconds to produce a truncated reply that parsed to nothing. Reformatting
+    this prompt for readability would quietly restore that, so the requirement
+    is asserted rather than left to a comment.
+    """
+    from artemis.core.planner import PROMPT
+
+    assert "one line of compact JSON" in PROMPT
+    assert "No line breaks" in PROMPT
