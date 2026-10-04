@@ -48,6 +48,7 @@ from artemis.core.indexer import Indexer
 from artemis.core.workspace import WorkspaceManager
 from artemis.data import paths
 from artemis.data.store import Store
+from artemis.ui.assistant import AssistantPanel
 
 # --------------------------------------------------------------------------
 # Style
@@ -370,6 +371,31 @@ CSS = """
   color: var(--a-text); word-break: break-all;
 }
 
+/* Assistant ------------------------------------------------------------- */
+.a-msg { padding: 11px 15px; border-radius: 13px; background: rgba(255,255,255,.78); border: 1px solid var(--a-border); color: var(--a-text); font-size: .93rem; backdrop-filter: blur(12px); animation: a-card-in .35s cubic-bezier(.16,1,.3,1) both; }
+.a-msg.warn { border-color: rgba(232,38,95,.42); background: rgba(232,38,95,.08); }
+
+.a-approval { border: 2px solid var(--a-magenta); border-radius: 18px; padding: 18px 20px; background: rgba(255,255,255,.88); backdrop-filter: blur(20px) saturate(170%); box-shadow: 0 16px 44px -20px rgba(214,31,205,.5); animation: a-card-in .45s cubic-bezier(.16,1,.3,1) both; }
+.a-approval-head { font-size: 1.05rem; font-weight: 750; color: var(--a-magenta); margin-bottom: 12px; letter-spacing: .01em; }
+.a-facts { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.a-fact { display: flex; gap: 12px; font-size: .9rem; }
+.a-fact-k { min-width: 108px; color: var(--a-muted); font-weight: 650; font-size: .76rem; letter-spacing: .1em; text-transform: uppercase; padding-top: 2px; }
+.a-fact-v { color: var(--a-text); }
+.a-assures { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.a-assure { font-size: .76rem; font-weight: 650; color: #0a7f5a; background: rgba(0,198,138,.12); border: 1px solid rgba(0,198,138,.4); border-radius: 999px; padding: 4px 11px; }
+.a-steps-head { font-size: .74rem; letter-spacing: .12em; text-transform: uppercase; color: var(--a-muted); font-weight: 700; margin-bottom: 7px; }
+.a-steps { display: flex; flex-direction: column; gap: 5px; }
+.a-step { display: flex; gap: 11px; align-items: baseline; font-family: var(--font-mono, monospace); font-size: .8rem; padding: 7px 11px; border-radius: 9px; background: rgba(123,63,242,.05); border: 1px solid var(--a-border); }
+.a-step-n { color: var(--a-violet); font-weight: 700; min-width: 16px; }
+.a-step-t { color: var(--a-text); word-break: break-all; }
+
+.a-resume { padding: 14px 17px; border-radius: 15px; background: rgba(255,255,255,.72); border: 1px solid var(--a-border); backdrop-filter: blur(16px); animation: a-card-in .4s cubic-bezier(.16,1,.3,1) both; }
+.a-resume-line { font-size: .95rem; color: var(--a-text); margin-bottom: 9px; }
+.a-changes { display: flex; flex-direction: column; gap: 4px; }
+.a-change { font-family: var(--font-mono, monospace); font-size: .78rem; color: var(--a-muted); padding: 4px 9px; border-radius: 7px; background: rgba(123,63,242,.04); }
+.a-change.a-added { color: #0a7f5a; }
+.a-change.a-removed { color: var(--a-danger); }
+
 /* File rows ------------------------------------------------------------ */
 .a-files { display: flex; flex-direction: column; gap: 7px; }
 .a-file {
@@ -635,6 +661,7 @@ def _browse() -> str:
 def build(store: Store) -> gr.Blocks:
     """Assemble the interface. Separated from launch so tests can build it."""
     panel = WebPanel(store)
+    assistant = AssistantPanel(store)
 
     with gr.Blocks(title="ARTEMIS", fill_width=True) as page:
         gr.HTML(
@@ -661,6 +688,44 @@ def build(store: Store) -> gr.Blocks:
             add_btn = gr.Button("Add folder", variant="primary", scale=1)
 
         cards = gr.HTML(panel.cards_html())
+
+        gr.HTML('<hr class="a-rule"/>')
+
+        gr.HTML(
+            '<div class="a-section">Ask ARTEMIS to do something</div>'
+            '<div class="a-card-meta">It will show you every step and wait for '
+            "your permission before changing anything.</div>"
+        )
+
+        with gr.Row():
+            work_picker = gr.Dropdown(
+                choices=panel.choices(),
+                label="In this folder",
+                interactive=True,
+                scale=3,
+            )
+            ask_box = gr.Textbox(
+                label="What would you like done",
+                placeholder="Tidy up this folder",
+                scale=5,
+            )
+            ask_btn = gr.Button("Ask", variant="primary", scale=1)
+
+        with gr.Row():
+            tidy_btn = gr.Button("Suggest a tidy-up", scale=1)
+            resume_btn = gr.Button("What changed since last time", scale=1)
+            patterns_btn = gr.Button("Notice repeated tasks", scale=1)
+            undo_btn = gr.Button("Undo last change", scale=1)
+
+        conversation = gr.HTML()
+        approval_card = gr.HTML()
+
+        with gr.Row():
+            approve_btn = gr.Button("Approve", variant="primary", scale=1)
+            remember_btn = gr.Button("Approve and don't ask again", scale=1)
+            reject_btn = gr.Button("No, leave it", variant="stop", scale=1)
+
+        resume_card = gr.HTML()
 
         gr.HTML('<hr class="a-rule"/>')
 
@@ -714,9 +779,10 @@ def build(store: Store) -> gr.Blocks:
                 gr.update(choices=panel.choices()),
                 message,
                 panel.files_html(workspace_id),
+                gr.update(choices=panel.choices()),
             )
 
-        outputs = [cards, metrics, picker, status, files]
+        outputs = [cards, metrics, picker, status, files, work_picker]
 
         add_btn.click(
             lambda folder: refresh(panel.add(folder)),
@@ -744,6 +810,90 @@ def build(store: Store) -> gr.Blocks:
         def do_move(destination: str):
             message = panel.move_store(destination)
             return (*refresh(message), _location_html(panel.store_location()))
+
+        # -- the assistant ------------------------------------------------
+        # Every handler returns the conversation line and the approval card
+        # together, so the card is always cleared by whatever answers it. A
+        # stale approval card offering to run a plan that was already decided
+        # would be the worst possible bug in this surface.
+
+        def refresh_after_change(message_html: str, card_html: str, ws):
+            return (
+                message_html,
+                card_html,
+                panel.cards_html(),
+                panel.metrics_html(),
+                assistant.resume_html(ws),
+            )
+
+        assistant_outputs = [
+            conversation, approval_card, cards, metrics, resume_card
+        ]
+
+        ask_btn.click(
+            lambda ws, text: refresh_after_change(*assistant.ask(ws, text), ws),
+            inputs=[work_picker, ask_box],
+            outputs=assistant_outputs,
+        ).then(lambda: "", outputs=ask_box)
+
+        ask_box.submit(
+            lambda ws, text: refresh_after_change(*assistant.ask(ws, text), ws),
+            inputs=[work_picker, ask_box],
+            outputs=assistant_outputs,
+        ).then(lambda: "", outputs=ask_box)
+
+        tidy_btn.click(
+            lambda ws: refresh_after_change(*assistant.suggest_tidy(ws), ws),
+            inputs=work_picker,
+            outputs=assistant_outputs,
+        )
+
+        approve_btn.click(
+            lambda ws: refresh_after_change(*assistant.approve(remember=False), ws),
+            inputs=work_picker,
+            outputs=assistant_outputs,
+        )
+
+        remember_btn.click(
+            lambda ws: refresh_after_change(*assistant.approve(remember=True), ws),
+            inputs=work_picker,
+            outputs=assistant_outputs,
+        )
+
+        reject_btn.click(
+            lambda ws: refresh_after_change(*assistant.reject(), ws),
+            inputs=work_picker,
+            outputs=assistant_outputs,
+        )
+
+        undo_btn.click(
+            lambda ws: refresh_after_change(assistant.undo_last(), "", ws),
+            inputs=work_picker,
+            outputs=assistant_outputs,
+        )
+
+        resume_btn.click(
+            lambda ws: assistant.resume_html(ws),
+            inputs=work_picker,
+            outputs=resume_card,
+        )
+
+        patterns_btn.click(
+            lambda ws: (
+                assistant.look_for_patterns(ws),
+                assistant.patterns_html(ws),
+            ),
+            inputs=work_picker,
+            outputs=[conversation, resume_card],
+        )
+
+        # Choosing a folder shows what changed while the user was away, which
+        # is F1 arriving unprompted rather than behind a button.
+        work_picker.change(
+            lambda ws: assistant.resume_html(ws),
+            inputs=work_picker,
+            outputs=resume_card,
+        )
 
         move_browse.click(_browse, outputs=move_box)
         move_btn.click(
