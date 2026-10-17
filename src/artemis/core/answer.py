@@ -11,9 +11,11 @@ from dataclasses import dataclass
 
 from artemis.core.broker import Operation, WorkspaceBroker
 from artemis.core.context import Chunk, ContextEngine, Provenance
+from artemis.core.embedder import EmbedError
 from artemis.core.errors import BoundaryRefusal
 from artemis.core.grounding import Claim, check_answer, render_answer
 from artemis.core.router import ModelRouter, NoModelAvailable
+from artemis.core.vector_index import VectorIndex
 
 MAX_CHARS_PER_FILE = 3000
 
@@ -41,10 +43,22 @@ class AnswerService:
         engine: ContextEngine,
         broker: WorkspaceBroker,
         router: ModelRouter,
+        vectors: VectorIndex | None = None,
     ) -> None:
         self.engine = engine
         self.broker = broker
         self.router = router
+        self.vectors = vectors
+
+    def find_passages(self, workspace_id: int, question: str) -> list[Chunk]:
+        if self.vectors is not None:
+            try:
+                found = self.vectors.search(workspace_id, question)
+            except EmbedError:
+                found = []
+            if found:
+                return found
+        return self.read_passages(workspace_id, question)
 
     def read_passages(self, workspace_id: int, question: str) -> list[Chunk]:
         passages = []
@@ -71,7 +85,7 @@ class AnswerService:
         return passages
 
     def ask(self, workspace_id: int, question: str) -> Answer:
-        passages = self.read_passages(workspace_id, question)
+        passages = self.find_passages(workspace_id, question)
         context = self.engine.assemble(workspace_id, question, retrieved=passages)
         prompt = PROMPT.format(context=context.render(), question=question)
         try:

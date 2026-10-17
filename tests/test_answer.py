@@ -68,3 +68,37 @@ def test_a_file_outside_the_grant_is_never_sent(
     service, stub = make_service(store, broker, "I could not find it.")
     service.ask(workspace_id, "what is in secrets")
     assert "do not read" not in stub.calls[0]
+    
+
+
+def test_the_vector_index_is_used_when_there_is_one(
+    store: Store, broker: WorkspaceBroker, workspace_id: int, sandbox: Path, indexer
+) -> None:
+    from artemis.core.embedder import FakeEmbedder
+    from artemis.core.vector_index import VectorIndex
+
+    (sandbox / "notes" / "q3.md").write_text("profits rose sharply in autumn", encoding="utf-8")
+    indexer.scan(workspace_id)
+    vectors = VectorIndex(store, broker, FakeEmbedder())
+    vectors.index_workspace(workspace_id)
+    router = ModelRouter(store=store)
+    stub = StubProvider(replies=["Profits rose [2]."])
+    router.register(stub)
+    service = AnswerService(ContextEngine(store), broker, router, vectors)
+    service.ask(workspace_id, "did profits rise")
+    assert "profits rose sharply in autumn" in stub.calls[0]
+
+
+def test_it_falls_back_to_file_names_when_the_embedder_is_down(
+    store: Store, broker: WorkspaceBroker, workspace_id: int
+) -> None:
+    from artemis.core.embedder import OllamaEmbedder
+    from artemis.core.vector_index import VectorIndex
+
+    vectors = VectorIndex(store, broker, OllamaEmbedder(host="http://127.0.0.1:9", timeout_s=1))
+    router = ModelRouter(store=store)
+    stub = StubProvider(replies=["Revenue grew 10% [2]."])
+    router.register(stub)
+    service = AnswerService(ContextEngine(store), broker, router, vectors)
+    answer = service.ask(workspace_id, "what did revenue say")
+    assert "notes/revenue.md" in answer.text
