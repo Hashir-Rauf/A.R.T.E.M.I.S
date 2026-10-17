@@ -21,6 +21,9 @@ dependencies = [
     "rich>=13.0",
     "PySide6>=6.6",
     "gradio>=6.0",
+    "keyring>=25.0",
+    "platformdirs>=4.0",
+    "langgraph>=0.2",
 ]
 
 [project.optional-dependencies]
