@@ -24,6 +24,7 @@ dependencies = [
     "langgraph>=0.2",
     "platformdirs>=4.0",
     "keyring>=25.0",
+    "numpy>=1.26",
 ]
 
 [project.optional-dependencies]

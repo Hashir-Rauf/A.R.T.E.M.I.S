@@ -118,3 +118,79 @@ def test_revoking_a_workspace_deletes_its_index(
     assert (paths.index_dir(workspace_id) / "vectors.db").exists()
     manager.revoke(workspace_id)
     assert not paths.index_dir(workspace_id).exists()
+    
+
+
+
+# -- speed and the in-memory copy ----------------------------------------------
+
+
+def fill(index: VectorIndex, workspace_id: int, chunks: int, size: int) -> None:
+    import numpy as np
+
+    random = np.random.default_rng(1)
+    vectors = random.random((chunks, size)).astype("float32")
+    vectors /= np.linalg.norm(vectors, axis=1, keepdims=True)
+    db = index.connect(workspace_id)
+    db.executemany(
+        "INSERT INTO chunks (rel_path, line_start, line_end, content_hash, text, vector)"
+        " VALUES (?, 1, 5, ?, 'some text', ?)",
+        [(f"f{n // 5}.md", f"h{n}", vectors[n].tobytes()) for n in range(chunks)],
+    )
+    db.commit()
+    db.close()
+
+
+def test_search_stays_fast_with_thousands_of_chunks(
+    store: Store, broker: WorkspaceBroker, workspace_id: int
+) -> None:
+    import time
+
+    index = VectorIndex(store, broker, FakeEmbedder(size=768))
+    fill(index, workspace_id, chunks=5000, size=768)
+    started = time.time()
+    first = index.search(workspace_id, "some text query")
+    cold = time.time() - started
+    started = time.time()
+    index.search(workspace_id, "some text query")
+    warm = time.time() - started
+    assert first
+    assert cold < 3.0
+    assert warm < 0.2
+
+
+def test_a_change_to_the_index_is_seen_by_the_next_search(
+    index: VectorIndex, workspace_id: int, sandbox: Path
+) -> None:
+    index.index_workspace(workspace_id)
+    assert index.search(workspace_id, "dragons castle") == []
+    (sandbox / "notes" / "story.md").write_text("dragons guard the castle", encoding="utf-8")
+    Indexer(index.store, index.broker).scan(workspace_id)
+    index.index_workspace(workspace_id)
+    assert index.search(workspace_id, "dragons castle")[0].source == "notes/story.md"
+
+
+def test_vectors_from_a_different_model_are_ignored(
+    store: Store, broker: WorkspaceBroker, workspace_id: int
+) -> None:
+    index = VectorIndex(store, broker, FakeEmbedder(size=64))
+    index.index_workspace(workspace_id)
+    other = VectorIndex(store, broker, FakeEmbedder(size=32))
+    assert other.search(workspace_id, "readme hello") == []
+
+
+def test_an_index_from_an_older_version_is_rebuilt_not_read(
+    index: VectorIndex, workspace_id: int
+) -> None:
+    import sqlite3
+
+    folder = paths.index_dir(workspace_id)
+    folder.mkdir(parents=True, exist_ok=True)
+    old = sqlite3.connect(folder / "vectors.db")
+    old.execute("CREATE TABLE chunks (id INTEGER PRIMARY KEY, vector TEXT)")
+    old.execute("INSERT INTO chunks (vector) VALUES ('[0.1, 0.2]')")
+    old.commit()
+    old.close()
+    assert index.search(workspace_id, "readme hello") == []
+    index.index_workspace(workspace_id)
+    assert index.search(workspace_id, "readme hello")
