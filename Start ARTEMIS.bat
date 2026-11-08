@@ -38,13 +38,13 @@ if not defined RUNNER (
 
 rem Check dependencies before starting, so a missing package produces an
 rem explanation instead of a stack trace.
-%RUNNER% -c "import gradio, watchdog" >nul 2>&1
+%RUNNER% -c "import gradio, watchdog, platformdirs, keyring, langgraph" >nul 2>&1
 if errorlevel 1 (
     echo.
     echo   Setting up ARTEMIS for first use.
     echo   This happens once and takes a few minutes.
     echo.
-    %RUNNER% -m pip install --quiet gradio watchdog typer rich
+    %RUNNER% -m pip install --quiet gradio watchdog typer rich platformdirs keyring langgraph
     if errorlevel 1 (
         echo.
         echo   Setup did not finish. Check the internet connection and try again.

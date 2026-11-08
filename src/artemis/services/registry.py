@@ -74,6 +74,13 @@ def handle_write_file(context: ExecutionContext) -> int:
     """Write content to a file. The undo journal has already snapshotted it."""
     content = str(context.call.arguments.get("content", ""))
     target = context.resolved[0]
+    # The document drafter asks for a brand-new file (FR-27). If something has
+    # appeared at that name since the plan was made, refuse instead of
+    # overwriting it.
+    if context.call.arguments.get("create_only") and target.exists():
+        raise ValueError(
+            f"{target.name} already exists. ARTEMIS will not overwrite it."
+        )
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(content, encoding="utf-8")
     return len(content)
