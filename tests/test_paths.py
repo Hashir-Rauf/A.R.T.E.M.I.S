@@ -187,3 +187,21 @@ def test_moving_while_the_database_is_open(
         assert any(
             row["event"] == "test.open-during-move" for row in reopened.list_audit()
         )
+
+
+def test_the_same_store_object_keeps_working_after_a_move(
+    pointer_isolated: Path, tmp_path: Path
+) -> None:
+    """The assistant, gateway and panel all hold one Store; a move must not strand them."""
+    paths.set_home(tmp_path / "start", move_existing=False)
+    store = Store()
+    store.append_audit("before.move", "recorded")
+
+    store.close()
+    paths.set_home(tmp_path / "destination", move_existing=True)
+    store.reopen()
+
+    assert store.db_path == tmp_path / "destination" / "artemis.db"
+    assert any(row["event"] == "before.move" for row in store.list_audit())
+    store.append_audit("after.move", "recorded")  # would raise on a closed connection
+    store.close()

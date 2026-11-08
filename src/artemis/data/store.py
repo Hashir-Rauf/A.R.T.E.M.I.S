@@ -196,6 +196,23 @@ class Store:
         with self._lock:
             self._conn.close()
 
+    def reopen(self) -> None:
+        """Reconnect this same object to wherever the store now lives.
+
+        Everything that captured the store (the assistant, the gateway, the panel)
+        keeps working after the store is moved. Building a second Store instead
+        left those holding the closed one, so every later page load failed with
+        "Cannot operate on a closed database".
+        """
+        with self._lock:
+            self.db_path = paths.database_path()
+            self.db_path.parent.mkdir(parents=True, exist_ok=True)
+            self._conn = sqlite3.connect(self.db_path, check_same_thread=False)
+            self._conn.row_factory = sqlite3.Row
+            self._conn.execute("PRAGMA foreign_keys = ON")
+            self._conn.execute("PRAGMA journal_mode = WAL")
+        self._migrate()
+
     def __enter__(self) -> Store:
         return self
 

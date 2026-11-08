@@ -65,7 +65,8 @@ _FILE_TASKS = re.compile(
 #: Looking at the folder rather than changing it. Always a file task, even when
 #: phrased as a question.
 _LIST_TASKS = re.compile(
-    r"\b(list|how many files|what files|files do i have|what'?s in|what is in|"
+    r"\b(list (me |all |the |my |every |of )*(files?|folders?|director(y|ies)|contents?|documents?)\b|"
+    r"how many files|what files|files do i have|what'?s in|what is in|"
     r"show me (the )?files|search (my|the) (files|folder|documents))",
     re.IGNORECASE,
 )

@@ -163,6 +163,8 @@ class PolicyEngine:
         """
         if call.operation in OUTWARD_OPS or call.operation in DESTRUCTIVE_OPS:
             return
+        if self._remembered_decision(call) is not None:
+            return  # one rule per operation per folder, not one per step
         with self._store._write() as conn:  # noqa: SLF001 - store-owned table
             conn.execute(
                 "INSERT INTO policy_rules (workspace_id, operation, decision, created_at)"
@@ -178,7 +180,13 @@ class PolicyEngine:
 
     def forget_rule(self, rule_id: int) -> None:
         with self._store._write() as conn:  # noqa: SLF001
-            conn.execute("DELETE FROM policy_rules WHERE id = ?", (rule_id,))
+            # Every rule for the same operation in the same folder goes together, so
+            # one press really does mean "ask me again" (older stores kept duplicates).
+            conn.execute(
+                "DELETE FROM policy_rules WHERE (workspace_id, operation) IN"
+                " (SELECT workspace_id, operation FROM policy_rules WHERE id = ?)",
+                (rule_id,),
+            )
 
     def rules(self, workspace_id: int | None = None) -> list:
         if workspace_id is None:

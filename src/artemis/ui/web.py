@@ -793,6 +793,13 @@ class WebPanel:
         address = (address or "").strip()
         if not address:
             return self.toast("Type your email address first.", warn=True)
+        try:
+            address = mailsvc.validate_address(address)
+        except mailsvc.MailError:
+            return self.toast(
+                "That does not look like an email address. It should look like you@gmail.com.",
+                warn=True,
+            )
         preset = MAIL_PRESETS.get(provider or "")
         if preset and preset[0]:
             host, port, security = preset[0], preset[1], preset[2]
@@ -897,12 +904,12 @@ class WebPanel:
         self._store.close()
 
     def _reopen_store(self) -> None:
-        """Rebuild the store handle and everything that captured it."""
-        self._store = Store()
-        self._manager = WorkspaceManager(self._store)
-        self._broker = WorkspaceBroker(self._store)
-        self._indexer = Indexer(self._store, self._broker)
-        self._panel = DisclosurePanel(self._store)
+        """Point the one shared store at its new location.
+
+        The same object is kept, because the assistant, gateway and panel all hold
+        it; replacing it would leave them using the closed connection.
+        """
+        self._store.reopen()
 
 
 def _browse() -> str:
@@ -1283,13 +1290,16 @@ def build(store: Store) -> gr.Blocks:
             return gr.update(visible=True), text, "erase", ""
 
         def confirmed(action, ws):
+            chats = (gr.update(), gr.update())
             if action == "forget":
                 message = panel.forget_workspace(ws)
             elif action == "erase":
                 message = panel.forget_everything()
+                # the saved chats were erased too, so the list and the open chat must go
+                chats = (assistant.new_chat(), gr.update(choices=assistant.chat_choices(), value=None))
             else:
-                return (*refresh(""), gr.update(visible=False), "")
-            return (*refresh(message, clear=True), gr.update(visible=False), "")
+                return (*refresh(""), gr.update(visible=False), "", *chats)
+            return (*refresh(message, clear=True), gr.update(visible=False), "", *chats)
 
         def cancelled():
             return (
@@ -1307,7 +1317,7 @@ def build(store: Store) -> gr.Blocks:
         )
         confirm_yes.click(
             confirmed, inputs=[pending_action, picker],
-            outputs=[*outputs, confirm_row, pending_action],
+            outputs=[*outputs, confirm_row, pending_action, conversation, chat_list],
         )
         confirm_no.click(cancelled, outputs=[confirm_row, pending_action, status])
 

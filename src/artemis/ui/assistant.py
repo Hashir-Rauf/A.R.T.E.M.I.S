@@ -1027,10 +1027,14 @@ class AssistantPanel:
             "write_file": "saving files",
             "append_file": "adding to files",
         }
-        return [
-            (f"Do not ask before {words.get(r['operation'], r['operation'])}", r["id"])
-            for r in self._gateway.policy.rules(workspace_id)
-        ]
+        seen: set[str] = set()
+        listed: list[tuple[str, int]] = []
+        for r in self._gateway.policy.rules(workspace_id):
+            if r["operation"] in seen:
+                continue
+            seen.add(r["operation"])
+            listed.append((f"Do not ask before {words.get(r['operation'], r['operation'])}", r["id"]))
+        return listed
 
     def revoke_rule(self, rule_id: int | None) -> str:
         if not rule_id:

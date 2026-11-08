@@ -302,3 +302,14 @@ def test_the_whole_page_can_be_built(store) -> None:
     from artemis.ui.web import build
 
     assert build(store) is not None
+
+
+def test_a_mail_address_that_is_not_one_is_refused_and_nothing_is_saved(panel: WebPanel, monkeypatch) -> None:
+    from artemis.data import paths
+    from artemis.services import mail
+
+    saved = []
+    monkeypatch.setattr(mail, "set_password", lambda user, pw: saved.append(user))
+    message = panel.save_mail("Gmail", "not-an-address", "secret", "", 465, "ssl")
+    assert "does not look like an email address" in message
+    assert saved == [] and not paths.config_path().exists()

@@ -206,3 +206,16 @@ def test_a_move_to_a_folder_inside_the_workspace_is_still_gated_normally(
         ToolCall("move_file", workspace_id, ("readme.txt",), {"destination": "Docs/readme.txt"})
     )
     assert verdict.decision is Decision.GATE
+
+
+def test_remembering_many_steps_keeps_one_rule_and_one_press_revokes_it(
+    policy: PolicyEngine, workspace_id: int
+) -> None:
+    """A tidy-up moves several files; that is one choice, not one rule per file."""
+    for name in ("a.txt", "b.txt", "c.txt"):
+        policy.remember(ToolCall("move_file", workspace_id, (name,)), AUTO)
+    rules = policy.rules(workspace_id)
+    assert len(rules) == 1
+
+    policy.forget_rule(rules[0]["id"])
+    assert policy.classify(ToolCall("move_file", workspace_id, ("d.txt",))).decision is Decision.GATE

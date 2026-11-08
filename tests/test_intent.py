@@ -107,3 +107,21 @@ def test_a_general_question_is_a_question_not_a_file_task(text: str) -> None:
 def test_a_request_to_delete_still_reaches_the_boundary_explanation() -> None:
     assert classify("Delete todo.txt", FILES).kind == PLAN
     assert classify("Delete all the old report drafts to free space", FILES).kind == PLAN
+
+
+@pytest.mark.parametrize("text", [
+    "List three fruits as bullet points and make the names bold",
+    "list the planets in order",
+    "List some ideas for my project",
+])
+def test_the_word_list_alone_does_not_make_it_a_file_task(text: str) -> None:
+    assert classify(text, FILES).kind != PLAN
+
+
+@pytest.mark.parametrize("text", [
+    "List the files in this folder",
+    "list all files",
+    "list my documents",
+])
+def test_listing_files_is_still_a_file_task(text: str) -> None:
+    assert classify(text, FILES).kind == PLAN
