@@ -211,7 +211,24 @@ CSS = """
 .a-chat { display: flex; flex-direction: column-reverse; gap: 14px; max-height: 520px; overflow-y: auto; padding: 4px 2px; }
 .a-turn { display: flex; flex-direction: column; gap: 8px; }
 .a-user { align-self: flex-end; max-width: 80%; background: var(--accent); color: #fff; border-radius: 14px 14px 2px 14px; padding: 9px 14px; font-size: .9rem; line-height: 1.5; white-space: pre-wrap; }
+/* Explicit colours: inside Gradio's HTML blocks text inherited a pale theme
+   colour on some browsers and the reply was close to invisible on white. */
+.a-chat-text, .a-msg, .a-msg *, .a-claim, .a-claim *, .a-quote, .a-diff, .a-diff div { color: var(--text) !important; }
+.a-msg .a-cite, .a-msg .a-flag, .a-msg .a-model, .a-msg .a-card-meta, .a-msg.warn, .a-d-add, .a-d-del, .a-d-hunk { color: revert-layer; }
+.a-card-meta, .a-card-meta *, .a-sub, .a-sub *, .a-h1, .a-h2, .a-cloud-note { color: var(--muted) !important; }
+.a-card-meta strong, .a-h1, .a-h2 { color: var(--text) !important; }
+.gradio-container .label-wrap, .gradio-container .label-wrap *, .gradio-container button.label-wrap { color: var(--text) !important; background: transparent !important; }
+.gradio-container .wrap, .gradio-container .wrap-inner, .gradio-container .secondary-wrap { background: var(--surface) !important; }
+.gradio-container .accordion, .gradio-container .block.padded { background: transparent !important; }
 .a-chat-text { white-space: pre-wrap; line-height: 1.65; }
+.a-user, .a-user * { color: #ffffff !important; }
+.a-model { color: var(--faint) !important; }
+.a-cite { color: var(--accent) !important; }
+.a-flag { color: var(--danger) !important; }
+.a-d-add { color: #065f46 !important; }
+.a-d-del { color: #9f1239 !important; }
+.a-d-hunk, .a-d-head { color: var(--muted) !important; }
+.a-msg.warn, .a-msg.warn * { color: var(--text) !important; }
 .a-model { margin-top: 8px; font-size: .74rem; color: var(--faint); font-family: ui-monospace, Consolas, monospace; }
 .a-local { display: grid; grid-template-columns: 1fr auto; gap: 6px 14px; padding: 13px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); font-size: .88rem; }
 .a-local .k { color: var(--muted); font-weight: 600; }
@@ -246,9 +263,10 @@ CSS = """
 .gradio-container button.stop { background: var(--surface) !important; border: 1px solid #fda4af !important; color: var(--danger) !important; font-weight: 600 !important; }
 .gradio-container button.stop:hover { background: var(--danger-wash) !important; }
 
-.gradio-container input[type=text], .gradio-container textarea, .gradio-container select { background: var(--surface) !important; border: 1px solid var(--line-firm) !important; border-radius: var(--r) !important; color: var(--text) !important; font-size: .9rem !important; padding: 9px 12px !important; }
+.gradio-container input[type=text], .gradio-container input[type=password], .gradio-container input[type=number], .gradio-container input[role=listbox], .gradio-container textarea, .gradio-container select { background: var(--surface) !important; border: 1px solid var(--line-firm) !important; border-radius: var(--r) !important; color: var(--text) !important; font-size: .9rem !important; padding: 9px 12px !important; }
 .gradio-container input[type=text]:focus, .gradio-container textarea:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 3px rgba(79,70,229,.14) !important; outline: none !important; }
 .gradio-container input::placeholder, .gradio-container textarea::placeholder { color: var(--faint) !important; }
+.gradio-container label span, .gradio-container .block label, .gradio-container [data-testid=block-info] { color: var(--muted) !important; }
 .gradio-container label span { color: var(--muted) !important; font-weight: 600 !important; font-size: .82rem !important; }
 
 /* Tabs: the one navigation. Selected state is a solid underline, not colour
@@ -281,6 +299,21 @@ LOAD_HEAD = """<script>
   }, 250);
 })();
 </script>"""
+
+
+#: Common email providers, so nobody has to know what a "server" or a "port" is.
+#: Each is (server, port, security, a hint shown to the person).
+MAIL_PRESETS = {
+    "Gmail": ("smtp.gmail.com", 465, "ssl",
+              "Gmail needs an app password, not your normal one. Google account > Security > 2-Step Verification > App passwords."),
+    "Outlook / Hotmail": ("smtp-mail.outlook.com", 587, "starttls",
+                          "Use your normal Outlook password, or an app password if you use two-step sign-in."),
+    "Yahoo": ("smtp.mail.yahoo.com", 465, "ssl",
+              "Yahoo needs an app password: Account security > Generate app password."),
+    "iCloud": ("smtp.mail.me.com", 587, "starttls",
+               "iCloud needs an app password from appleid.apple.com."),
+    "Other": ("", 465, "ssl", "Ask your email provider for the outgoing (SMTP) server, or open Advanced below."),
+}
 
 
 def _esc(value: object) -> str:
@@ -612,29 +645,46 @@ class WebPanel:
     def mail_html() -> str:
         current = mailsvc.load_settings()
         if current is None:
-            return '<div class="a-card-meta">No mail account is set up yet. Emails cannot be sent until one is.</div>'
+            return '<div class="a-card-meta">Email is not connected yet, so ARTEMIS cannot send emails.</div>'
         return (
-            '<div class="a-card-meta">Sending from <strong>'
-            f"{_esc(current.from_addr)}</strong> through {_esc(current.host)}:{current.port}. "
-            "The password is in the Windows Credential Manager.</div>"
+            '<div class="a-card-meta">Connected. ARTEMIS sends email as <strong>'
+            f"{_esc(current.from_addr)}</strong>. "
+            "Your password is stored safely by Windows.</div>"
         )
 
-    def save_mail(self, host, port, username, password, security) -> str:
+    @staticmethod
+    def mail_hint(provider: str) -> str:
+        preset = MAIL_PRESETS.get(provider or "")
+        if not preset:
+            return ""
+        return f'<div class="a-card-meta">{_esc(preset[3])}</div>'
+
+    def save_mail(self, provider, address, password, host, port, security) -> str:
+        address = (address or "").strip()
+        if not address:
+            return self.toast("Type your email address first.", warn=True)
+        preset = MAIL_PRESETS.get(provider or "")
+        if preset and preset[0]:
+            host, port, security = preset[0], preset[1], preset[2]
+        if not (host or "").strip():
+            return self.toast(
+                "Pick your email provider from the list. If yours is not there, choose Other and open Advanced.",
+                warn=True,
+            )
+        if not password:
+            return self.toast("Type your password first.", warn=True)
         try:
             mailsvc.save_settings(
-                mailsvc.MailSettings(
-                    (host or "").strip(), int(port or 0), (username or "").strip(),
-                    (username or "").strip(), security or "ssl",
-                ),
-                password or "",
+                mailsvc.MailSettings(host.strip(), int(port or 0), address, address, security or "ssl"),
+                password,
             )
         except (mailsvc.MailError, ValueError) as exc:
             return self.toast(str(exc), warn=True)
-        return self.toast("Mail account saved. The password is kept in the Windows Credential Manager.")
+        return self.toast("Done. ARTEMIS can now send email from " + address + ". Your password is kept safely in Windows, not in a file.")
 
     def forget_mail(self) -> str:
         mailsvc.forget_settings()
-        return self.toast("Mail account removed.")
+        return self.toast("Email disconnected.")
 
     def provider_choices(self) -> list[tuple[str, str]]:
         """The providers a key can be saved for, as (label, name) pairs."""
@@ -947,20 +997,29 @@ def build(store: Store) -> gr.Blocks:
                         cloud_note = gr.HTML()
 
                         gr.HTML(
-                            '<div class="a-h1" style="margin-top:28px">Email account</div>'
-                            '<div class="a-sub">Needed before ARTEMIS can send an email. '
-                            "The password goes to the Windows Credential Manager, never to a file.</div>"
+                            '<div class="a-h1" style="margin-top:28px">Email</div>'
+                            '<div class="a-sub">So ARTEMIS can send emails for you. It always shows you the '
+                            "email first and only sends it if you say yes.</div>"
                         )
                         mail_state = gr.HTML(panel.mail_html())
+                        mail_provider = gr.Dropdown(
+                            label="Who provides your email?",
+                            choices=list(MAIL_PRESETS),
+                            value="Gmail",
+                            interactive=True,
+                        )
+                        mail_hint = gr.HTML(panel.mail_hint("Gmail"))
                         with gr.Row():
-                            mail_host = gr.Textbox(label="Mail server", placeholder="smtp.gmail.com", scale=4)
-                            mail_port = gr.Number(label="Port", value=465, precision=0, scale=1)
-                            mail_security = gr.Dropdown(label="Security", choices=["ssl", "starttls"], value="ssl", scale=1)
+                            mail_user = gr.Textbox(label="Your email address", placeholder="you@gmail.com", scale=4)
+                            mail_pass = gr.Textbox(label="Your password", type="password", scale=4)
+                        with gr.Accordion("Advanced: type the server details yourself", open=False):
+                            with gr.Row():
+                                mail_host = gr.Textbox(label="Outgoing mail server", placeholder="smtp.example.com", scale=4)
+                                mail_port = gr.Number(label="Port", value=465, precision=0, scale=1)
+                                mail_security = gr.Dropdown(label="Security", choices=["ssl", "starttls"], value="ssl", scale=1)
                         with gr.Row():
-                            mail_user = gr.Textbox(label="Your email address", placeholder="you@example.com", scale=4)
-                            mail_pass = gr.Textbox(label="Password or app password", type="password", scale=4)
-                            mail_save = gr.Button("Save account", scale=1)
-                            mail_forget = gr.Button("Remove", scale=1)
+                            mail_save = gr.Button("Connect my email", variant="primary")
+                            mail_forget = gr.Button("Disconnect")
                         mail_note = gr.HTML()
 
         # -- wiring. Each action returns the same four outputs so the page is
@@ -1238,10 +1297,11 @@ def build(store: Store) -> gr.Blocks:
         )
 
         mail_save.click(
-            lambda h, pt, u, pw, s: (panel.save_mail(h, pt, u, pw, s), panel.mail_html(), ""),
-            inputs=[mail_host, mail_port, mail_user, mail_pass, mail_security],
+            lambda pr, u, pw, h, pt, s: (panel.save_mail(pr, u, pw, h, pt, s), panel.mail_html(), ""),
+            inputs=[mail_provider, mail_user, mail_pass, mail_host, mail_port, mail_security],
             outputs=[mail_note, mail_state, mail_pass],
         )
+        mail_provider.change(lambda pr: panel.mail_hint(pr), inputs=mail_provider, outputs=mail_hint)
         mail_forget.click(lambda: (panel.forget_mail(), panel.mail_html()), outputs=[mail_note, mail_state])
 
 
