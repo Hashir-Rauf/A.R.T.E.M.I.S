@@ -240,6 +240,11 @@ CSS = """
 .a-pill-on { color: #166534; background: #dcfce7; border-radius: 999px; padding: 2px 10px; font-size: .75rem; font-weight: 600; }
 .a-pill-off { color: var(--danger); background: var(--danger-wash); border-radius: 999px; padding: 2px 10px; font-size: .75rem; font-weight: 600; }
 
+.a-guide { background: var(--accent-wash); border: 1px solid #c7d2fe; border-radius: var(--r); padding: 14px 18px; }
+.a-guide-head { font-weight: 700; margin-bottom: 4px; }
+.a-guide ol { margin: 8px 0 0 20px; padding: 0; line-height: 1.75; font-size: .9rem; }
+.a-guide, .a-guide *, .a-guide-head { color: var(--text) !important; }
+
 /* Status banner, answers with sources, and diffs. */
 .a-status-slot { min-height: 46px; }
 .a-toast { padding: 11px 15px; border-radius: var(--r); background: var(--ok-wash); border: 1px solid #a7f3d0; border-left: 3px solid var(--ok); color: var(--text); font-size: .9rem; line-height: 1.5; }
@@ -318,6 +323,55 @@ MAIL_PRESETS = {
     "iCloud": ("smtp.mail.me.com", 587, "starttls",
                "iCloud needs an app password from appleid.apple.com."),
     "Other": ("", 465, "ssl", "Ask your email provider for the outgoing (SMTP) server, or open Advanced below."),
+}
+
+
+#: Step-by-step help for each provider, in plain words. Gmail, Yahoo and iCloud do
+#: not accept a normal password from a program like ARTEMIS; they want an "app
+#: password", a separate password made just for it.
+MAIL_GUIDE = {
+    "Gmail": (
+        "Gmail does not let programs use your normal password. You make a special one, once:",
+        [
+            "Open <b>myaccount.google.com/apppasswords</b> in your browser and sign in.",
+            "(If it says the page is not available: go to <b>Security</b> and turn on <b>2-Step Verification</b> first, then try again.)",
+            "Type a name such as <b>ARTEMIS</b> and press <b>Create</b>.",
+            "Google shows 16 letters in a yellow box. Copy them. Google only shows them once.",
+            "Paste them in <b>Your password</b> below. Spaces do not matter.",
+            "Press <b>Connect my email</b>, then <b>Test connection</b>.",
+        ],
+    ),
+    "Outlook / Hotmail": (
+        "Outlook usually accepts your normal password. If it does not (because you use two-step sign-in), make an app password:",
+        [
+            "Sign in at <b>account.microsoft.com</b> and open <b>Security</b>.",
+            "Open <b>Advanced security options</b> and choose <b>Create a new app password</b>.",
+            "Paste it in <b>Your password</b> below, then press <b>Connect my email</b> and <b>Test connection</b>.",
+        ],
+    ),
+    "Yahoo": (
+        "Yahoo needs a special app password:",
+        [
+            "Sign in at <b>login.yahoo.com</b> and open <b>Account security</b>.",
+            "Choose <b>Generate app password</b>, name it <b>ARTEMIS</b>, and copy it.",
+            "Paste it in <b>Your password</b> below, then press <b>Connect my email</b> and <b>Test connection</b>.",
+        ],
+    ),
+    "iCloud": (
+        "iCloud needs a special app password:",
+        [
+            "Sign in at <b>appleid.apple.com</b> and open <b>Sign-In and Security</b>.",
+            "Choose <b>App-Specific Passwords</b>, press <b>+</b>, name it <b>ARTEMIS</b>, and copy it.",
+            "Paste it in <b>Your password</b> below, then press <b>Connect my email</b> and <b>Test connection</b>.",
+        ],
+    ),
+    "Other": (
+        "Ask your email provider for the outgoing mail (SMTP) server, or look it up on their help page.",
+        [
+            "Open <b>Advanced</b> below and type the server name and port they give you.",
+            "Type your address and password, then press <b>Connect my email</b> and <b>Test connection</b>.",
+        ],
+    ),
 }
 
 
@@ -659,10 +713,17 @@ class WebPanel:
 
     @staticmethod
     def mail_hint(provider: str) -> str:
-        preset = MAIL_PRESETS.get(provider or "")
-        if not preset:
+        guide = MAIL_GUIDE.get(provider or "")
+        if not guide:
             return ""
-        return f'<div class="a-card-meta">{_esc(preset[3])}</div>'
+        intro, steps = guide
+        items = "".join(f"<li>{s}</li>" for s in steps)  # the steps are written here, not typed by a person
+        return (
+            '<div class="a-guide">'
+            f'<div class="a-guide-head">How to connect {_esc(provider)}</div>'
+            f'<div class="a-card-meta">{_esc(intro)}</div>'
+            f"<ol>{items}</ol></div>"
+        )
 
     def save_mail(self, provider, address, password, host, port, security) -> str:
         address = (address or "").strip()
