@@ -252,4 +252,6 @@ def test_stage_gate_the_gateway_uses_the_capability_registry(
 
     assert "read_metadata" in registered
     assert "append_file" in registered
-    assert registered == set(registry.capability_handlers())
+    # Sprint 7 added the first outward handlers on top of the Sprint 5 set.
+    assert set(registry.capability_handlers()) <= registered
+    assert {"send_mail", "web_search"} <= registered
