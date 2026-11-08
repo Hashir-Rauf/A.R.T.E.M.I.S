@@ -210,7 +210,15 @@ class PolicyEngine:
             if call.operation in REVERSIBLE_OPS or call.operation in DESTRUCTIVE_OPS
             else Operation.READ
         )
-        for path in call.paths:
+        # A move or rename also names where the file is going. Checking only the
+        # source let "move this into ../elsewhere" through as an ordinary plan,
+        # to be stopped only when it ran. The destination is part of what the
+        # call touches, so it is checked here, before the user is asked.
+        targets = list(call.paths)
+        destination = call.arguments.get("destination")
+        if destination:
+            targets.append(str(destination))
+        for path in targets:
             try:
                 self._broker.resolve(call.workspace_id, path, wanted)
             except BoundaryRefusal:

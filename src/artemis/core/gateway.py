@@ -92,6 +92,10 @@ class Gateway:
     journal: UndoJournal
     dispatcher: ToolDispatcher
     planner: AgentPlanner
+    #: The outward services, kept here so the interface proposes plans with the
+    #: same instances the dispatcher will run them with.
+    search: SearchService | None = None
+    mail: MailService | None = None
 
     @classmethod
     def build(cls, store: Store, router: ModelRouter) -> Gateway:
@@ -108,11 +112,9 @@ class Gateway:
         register_capabilities(dispatcher)
         # Sprint 7: the first outward handlers. Both are still T2, so the policy
         # engine gates them and the dispatcher needs a recorded approval.
-        register_outward(
-            dispatcher,
-            SearchService(store, DuckDuckGoProvider()),
-            MailService(store),
-        )
+        search = SearchService(store, DuckDuckGoProvider())
+        mail = MailService(store)
+        register_outward(dispatcher, search, mail)
         return cls(
             store=store,
             broker=broker,
@@ -123,6 +125,8 @@ class Gateway:
             journal=journal,
             dispatcher=dispatcher,
             planner=AgentPlanner(store=store, router=router),
+            search=search,
+            mail=mail,
         )
 
     # -- the lifecycle -----------------------------------------------------
@@ -165,6 +169,38 @@ class Gateway:
         planning = self.planner.plan(workspace_id, context, on_token=on_token)
         plan = planning.plan
 
+        return self._dispose(plan, context, planning)
+
+    def submit_plan(
+        self,
+        workspace_id: int,
+        plan: Plan,
+        user_text: str = "",
+        notes: tuple[str, ...] = (),
+    ) -> TurnOutcome:
+        """Take a plan a service built, rather than the model, through the gates.
+
+        The drafter, the mail composer and the web search each build their own
+        plan. Those plans are not a special case: they are classified, held for
+        approval and run by exactly the code a planned request goes through, so
+        there is no second, quieter way to reach the dispatcher.
+        """
+        self.store.append_audit(
+            event="gateway.turn",
+            outcome="received",
+            workspace_id=workspace_id,
+            detail={"text": (user_text or plan.intent)[:200], "source": "service"},
+        )
+        context = self.context_engine.assemble(workspace_id, user_text or plan.intent)
+        planning = PlanningResult(
+            plan=plan, cycles=0, elapsed_s=0.0, converged=True, notes=notes
+        )
+        return self._dispose(plan, context, planning)
+
+    def _dispose(
+        self, plan: Plan, context: AssembledContext, planning: PlanningResult
+    ) -> TurnOutcome:
+        """Classify a plan, then hold it, run it, or report that it is empty."""
         if not plan.calls:
             return TurnOutcome(
                 plan=plan,

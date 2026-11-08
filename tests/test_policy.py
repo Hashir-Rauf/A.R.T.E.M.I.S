@@ -183,3 +183,26 @@ def test_refusals_are_written_to_the_audit_log(
     ]
     assert len(refusals) == 1
     assert store.verify_audit_chain()
+
+
+# -- a move names where it is going as well as where it came from --------------
+
+
+def test_a_move_to_outside_the_workspace_is_refused_before_anyone_is_asked(
+    policy: PolicyEngine, workspace_id: int
+) -> None:
+    """It used to be previewed as an ordinary plan and stopped only when it ran."""
+    verdict = policy.classify(
+        ToolCall("move_file", workspace_id, ("readme.txt",), {"destination": "../elsewhere/readme.txt"})
+    )
+    assert verdict.decision is Decision.DENY
+    assert "outside" in verdict.reason
+
+
+def test_a_move_to_a_folder_inside_the_workspace_is_still_gated_normally(
+    policy: PolicyEngine, workspace_id: int
+) -> None:
+    verdict = policy.classify(
+        ToolCall("move_file", workspace_id, ("readme.txt",), {"destination": "Docs/readme.txt"})
+    )
+    assert verdict.decision is Decision.GATE

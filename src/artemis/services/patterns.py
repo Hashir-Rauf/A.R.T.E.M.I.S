@@ -76,13 +76,18 @@ class PatternWatcher:
         """
         cutoff = datetime.now(timezone.utc) - timedelta(days=WINDOW_DAYS)
         rows = self._store.query(
-            "SELECT ts, detail FROM audit_log"
+            "SELECT id, ts, detail FROM audit_log"
             " WHERE workspace_id = ? AND event = 'dispatch.execute'"
             " AND outcome = 'executed' ORDER BY id DESC LIMIT ?",
             (workspace_id, limit),
         )
 
-        counts: Counter[str] = Counter()
+        # Repetition means the user chose to do the same thing again, not that
+        # one approved plan contained nine similar steps. So each signature is
+        # counted once per plan, and a plan the user took back counts for
+        # nothing: undoing a tidy-up is the opposite of forming a habit.
+        undone = self._undone_plan_ids(workspace_id)
+        plans_seen: dict[str, set[str]] = {}
         examples: dict[str, str] = {}
 
         for row in rows:
@@ -98,9 +103,17 @@ class PatternWatcher:
             if operation not in WATCHED_OPERATIONS:
                 continue
 
+            plan_id = str(detail.get("plan_id") or f"row-{row['id']}")
+            if plan_id in undone:
+                continue
+
             signature = _signature(operation, call)
-            counts[signature] += 1
+            plans_seen.setdefault(signature, set()).add(plan_id)
             examples.setdefault(signature, call)
+
+        counts: Counter[str] = Counter(
+            {signature: len(ids) for signature, ids in plans_seen.items()}
+        )
 
         declined = self._declined_signatures(workspace_id)
 
@@ -191,6 +204,23 @@ class PatternWatcher:
         ]
 
     # -- internals ---------------------------------------------------------
+
+    def _undone_plan_ids(self, workspace_id: int) -> set[str]:
+        """Plans the user took back, from the audit log."""
+        undone: set[str] = set()
+        rows = self._store.query(
+            "SELECT detail FROM audit_log"
+            " WHERE workspace_id = ? AND event = 'undo.plan'",
+            (workspace_id,),
+        )
+        for row in rows:
+            try:
+                plan_id = json.loads(row["detail"]).get("plan_id")
+            except (json.JSONDecodeError, TypeError, AttributeError):
+                continue
+            if plan_id:
+                undone.add(str(plan_id))
+        return undone
 
     def _known_signatures(self, workspace_id: int) -> set[str]:
         """Signatures already proposed, accepted or declined."""

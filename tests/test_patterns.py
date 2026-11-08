@@ -199,3 +199,44 @@ def test_one_workspace_pattern_does_not_leak_into_another(
     _did(store, workspace_id, "move_file(Documents/a.pdf)", times=3)
 
     assert watcher.detect(other_id) == []
+
+
+# -- repetition means separate decisions, not steps inside one plan -------------
+
+
+def _plan(store: Store, workspace_id: int, plan_id: str, call: str, steps: int = 1) -> None:
+    for _ in range(steps):
+        store.append_audit(
+            event="dispatch.execute",
+            outcome="executed",
+            workspace_id=workspace_id,
+            detail={"call": call, "tier": "T1", "plan_id": plan_id},
+        )
+
+
+def test_one_plan_with_many_similar_steps_is_not_a_habit(
+    watcher: PatternWatcher, store: Store, workspace_id: int
+) -> None:
+    """A single approved tidy-up of nine PDFs was reported as a repeated task."""
+    _plan(store, workspace_id, "plan-1", "move_file(Documents/a.pdf)", steps=9)
+    assert watcher.detect(workspace_id) == []
+
+
+def test_three_separate_plans_are_a_habit(
+    watcher: PatternWatcher, store: Store, workspace_id: int
+) -> None:
+    for n in range(REPEAT_THRESHOLD):
+        _plan(store, workspace_id, f"plan-{n}", "move_file(Documents/a.pdf)")
+    assert len(watcher.detect(workspace_id)) == 1
+
+
+def test_a_plan_the_user_undid_does_not_count(
+    watcher: PatternWatcher, store: Store, workspace_id: int
+) -> None:
+    for n in range(REPEAT_THRESHOLD):
+        _plan(store, workspace_id, f"plan-{n}", "move_file(Documents/a.pdf)")
+    store.append_audit(
+        event="undo.plan", outcome="reversed", workspace_id=workspace_id,
+        detail={"plan_id": "plan-0"},
+    )
+    assert watcher.detect(workspace_id) == []

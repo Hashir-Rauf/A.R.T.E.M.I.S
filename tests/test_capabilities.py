@@ -215,18 +215,27 @@ def test_stage_gate_repeated_tidies_produce_an_offer_not_an_action(
     indexer.scan(workspace_id)
 
     gateway = _gateway(store)
-    plan = TidyService(store, broker).to_plan(
-        TidyService(store, broker).propose(workspace_id)
-    )
-    verdicts = gateway.policy.classify_plan(plan)
-    gateway.approvals.submit(plan, verdicts)
-    gateway.approvals.approve(plan.plan_id)
-    gateway.dispatcher.execute_plan(plan, verdicts)
+
+    def run(plan) -> None:
+        verdicts = gateway.policy.classify_plan(plan)
+        gateway.approvals.submit(plan, verdicts)
+        gateway.approvals.approve(plan.plan_id)
+        gateway.dispatcher.execute_plan(plan, verdicts)
+
+    from artemis.core.actions import Plan, ToolCall
+
+    run(Plan(calls=(ToolCall("create_dir", workspace_id, ("Documents",)),)))
+    # Repetition is the user choosing to do it again: three separate approved
+    # plans. Three moves inside one plan are one decision, not a habit.
+    for name in ("a.pdf", "b.pdf", "c.pdf"):
+        run(Plan(calls=(ToolCall(
+            "move_file", workspace_id, (name,), {"destination": f"Documents/{name}"}
+        ),)))
 
     watcher = PatternWatcher(store)
     proposed = watcher.propose_new(workspace_id)
 
-    assert proposed, "four moves of the same kind should be noticed"
+    assert proposed, "three separate moves of the same kind should be noticed"
     assert store.list_rules(workspace_id, status=ACCEPTED) == []
 
 

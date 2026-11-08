@@ -238,3 +238,24 @@ def test_a_second_checkpoint_moves_the_comparison_forward(
 
     resume.checkpoint(workspace_id)
     assert not resume.report(workspace_id).changes
+
+
+# -- wording ---------------------------------------------------------------------
+
+
+def test_one_minute_is_not_plural() -> None:
+    from datetime import datetime, timedelta, timezone
+
+    from artemis.services.resume import _friendly
+
+    ago = (datetime.now(timezone.utc) - timedelta(seconds=100)).isoformat()
+    assert _friendly(ago) == "a minute ago"
+    assert "1 minutes" not in _friendly(ago)
+
+
+def test_an_open_proposal_never_shows_its_internal_key(
+    resume: ResumeService, store: Store, workspace_id: int
+) -> None:
+    store.propose_rule(workspace_id, "move_file::txt | moving TXT files")
+    report = resume.report(workspace_id)
+    assert report.open_proposals == ("moving TXT files",)

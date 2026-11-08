@@ -185,7 +185,10 @@ def test_resume_reports_what_changed(
     html = assistant.resume_html(messy)
 
     assert "a-resume" in html
-    assert "first time" in html or "new" in html
+    # ARTEMIS's own tidy is reported as its own action, and is not mistaken for
+    # a change somebody else made behind its back.
+    assert "ARTEMIS last did this here" in html
+    assert "Nothing has changed outside ARTEMIS" in html
 
 
 def test_patterns_are_offered_never_applied(
@@ -222,7 +225,7 @@ def test_an_already_tidy_folder_is_not_nagged(
 
 def test_asking_without_a_folder_is_explained(assistant: AssistantPanel) -> None:
     message, card = assistant.ask(None, "tidy up")
-    assert "Choose a folder" in message
+    assert "Folders tab" in message or "Choose a folder" in message
     assert card == ""
 
 

@@ -25,16 +25,26 @@ is added, and even then it only ever looks inside the folders chosen.
 
 | To do this | Press |
 | --- | --- |
-| Let ARTEMIS see a folder | **Add a folder** |
-| See what it knows about in one folder | **Show files** on that folder |
+| Let ARTEMIS see a folder | **Folders** tab, then **Add a folder** |
+| Tidy a folder | **Work** tab, choose the folder, **Suggest a tidy-up** |
+| Ask about your files, ask for a code fix, a draft, a web search or an email | Type it on the **Work** tab and press **Ask** |
+| See what it knows about in one folder | **What it knows** tab, **Show files** |
 | Look for files added or removed since last time | **Check for changes** |
-| Make it forget one file | **Show files**, pick the file, **Forget selected file** |
-| Make it forget a whole folder | **Forget this folder** on that folder |
-| Make it forget everything | **Erase everything ARTEMIS knows** |
+| Make it forget a whole folder | **Forget this folder**, then **Yes, forget it** |
+| Make it forget everything | **Erase everything ARTEMIS knows**, then **Yes, forget it** |
 
-**Forget never deletes.** Every one of those buttons removes what ARTEMIS
-remembers. Files on the computer are left exactly where they are. The
-confirmation box says so each time.
+Anything that changes a file, sends an email or searches the web is shown first
+and waits for **Approve**. File changes can be undone with **Undo last change**.
+
+**Forget never deletes.** Both forget buttons ask you to confirm first, and
+they only remove what ARTEMIS remembers. Files on the computer are left exactly
+where they are. The activity log is kept, so you can always check what ARTEMIS
+did.
+
+Questions are answered with the file each point came from. A point with no
+source is labelled as unsupported. Code fixes are shown as a proposed change and
+are never applied by ARTEMIS. For answers based on meaning rather than file
+names, install an embedding model once: `ollama pull nomic-embed-text`.
 
 ## For the command line, if preferred
 

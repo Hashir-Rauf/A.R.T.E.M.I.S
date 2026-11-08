@@ -113,7 +113,7 @@ CSS = """
 }
 
 .gradio-container, body, gradio-app { background: var(--page) !important; color: var(--text) !important; font-size: 15px !important; }
-.gradio-container { max-width: 1280px !important; margin: 0 auto !important; }
+.gradio-container { width: 100% !important; max-width: 1280px !important; margin: 0 auto !important; }
 
 /* Sidebar ---------------------------------------------------------------- */
 .a-side { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 20px 16px; }
@@ -180,7 +180,7 @@ CSS = """
 .a-assures { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
 .a-assure { font-size: .8rem; font-weight: 600; color: var(--ok); background: var(--ok-wash); border: 1px solid #a7f3d0; border-radius: var(--r); padding: 6px 12px; }
 .a-steps-head { font-size: .76rem; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); font-weight: 700; margin-bottom: 8px; }
-.a-steps { display: flex; flex-direction: column; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+.a-steps { display: flex; flex-direction: column; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--r); max-height: 300px; overflow-y: auto; }
 .a-step { display: flex; gap: 13px; align-items: baseline; font-size: .88rem; padding: 10px 14px; background: var(--surface); }
 .a-step-n { color: var(--faint); font-weight: 600; min-width: 16px; font-variant-numeric: tabular-nums; font-size: .82rem; }
 .a-step-t { color: var(--text); }
@@ -201,6 +201,23 @@ CSS = """
 .a-location { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; border-radius: var(--r); background: var(--raised); border: 1px solid var(--line); }
 .a-location-label { font-size: .76rem; color: var(--muted); font-weight: 600; }
 .a-location-path { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: .82rem; color: var(--text); word-break: break-all; }
+
+/* Status banner, answers with sources, and diffs. */
+.a-status-slot { min-height: 46px; }
+.a-toast { padding: 11px 15px; border-radius: var(--r); background: var(--ok-wash); border: 1px solid #a7f3d0; border-left: 3px solid var(--ok); color: var(--text); font-size: .9rem; line-height: 1.5; }
+.a-toast.warn { background: var(--danger-wash); border-color: #fecdd3; border-left-color: var(--danger); }
+.a-warn-line { margin: 0 0 16px; padding: 9px 13px; border-radius: var(--r); background: var(--danger-wash); border: 1px solid #fecdd3; color: var(--danger); font-size: .85rem; font-weight: 600; }
+.a-claim { padding: 8px 0; border-bottom: 1px solid var(--line); line-height: 1.6; font-size: .9rem; }
+.a-claim:last-of-type { border-bottom: none; }
+.a-cite { color: var(--accent); font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: .78rem; background: var(--accent-wash); border-radius: 4px; padding: 1px 6px; word-break: break-all; }
+.a-unsupported { color: var(--muted); }
+.a-flag { color: var(--danger); background: var(--danger-wash); border: 1px solid #fecdd3; border-radius: 4px; padding: 1px 7px; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; margin-right: 6px; }
+.a-diff { margin-top: 8px; border: 1px solid var(--line); border-radius: var(--r); overflow-x: auto; font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: .8rem; line-height: 1.6; background: var(--surface); }
+.a-diff div { padding: 1px 12px; white-space: pre; }
+.a-d-add { background: #ecfdf5; color: #065f46; }
+.a-d-del { background: #fff1f2; color: #9f1239; }
+.a-d-hunk { background: var(--raised); color: var(--muted); }
+.a-d-head { color: var(--faint); font-weight: 700; }
 
 /* Gradio overrides ----------------------------------------------------------- */
 .gradio-container .block, .gradio-container .form, .gradio-container .panel { background: transparent !important; border: none !important; }
@@ -273,29 +290,14 @@ class WebPanel:
     def sidebar_html(self, active: str = "work") -> str:
         """The rail: what ARTEMIS currently holds, and where it is kept.
 
-        Statistics rather than navigation. The tab strip navigates; a second
-        set of nav-shaped items here would be two controls for one job, and
-        the earlier version of this rail only looked clickable.
+        The counts used to be repeated here and in the cards across the top,
+        which showed the same three numbers twice. They live in the cards now;
+        this holds the name and the promise.
         """
-        workspaces = self._manager.list()
-        files = sum(self._store.count_files(w.id) for w in workspaces)
-        actions = self._store.count_audit()
-
-        stats = [
-            (str(len(workspaces)), "folders it can see"),
-            (str(files), "files it knows about"),
-            (str(actions), "actions recorded"),
-        ]
-        rows = "".join(
-            f'<div class="a-stat"><div class="a-stat-n">{_esc(n)}</div>'
-            f'<div class="a-stat-l">{_esc(label)}</div></div>'
-            for n, label in stats
-        )
         return (
             '<div class="a-side">'
             '<div class="a-brand">ARTEMIS</div>'
             '<div class="a-brand-sub">Bounded desktop assistant</div>'
-            f"{rows}"
             '<div class="a-note">Everything is stored on this computer. '
             "Nothing has been sent anywhere.</div>"
             "</div>"
@@ -386,7 +388,16 @@ class WebPanel:
 
     # -- actions -----------------------------------------------------------
 
+    def first_workspace_id(self) -> int | None:
+        found = self._manager.list()
+        return found[0].id if found else None
+
+    def workspace_name(self, workspace_id: int | None) -> str:
+        ws = self._manager.get(workspace_id) if workspace_id else None
+        return ws.name if ws else ""
+
     def add(self, folder: str) -> str:
+        self.last_added: int | None = None
         folder = (folder or "").strip().strip('"')
         if not folder:
             return self.toast("Type or browse to a folder first.", warn=True)
@@ -399,6 +410,7 @@ class WebPanel:
         # Without this there is no completed session to diff, and the feature
         # reports "first time" forever however much the folder changes.
         self._resume.checkpoint(ws.id)
+        self.last_added = ws.id
         return self.toast(
             f"Added '{ws.name}'. ARTEMIS now knows about "
             f"{_plural(count, 'file')} in it."
@@ -407,13 +419,32 @@ class WebPanel:
     def rescan(self, workspace_id: int | None) -> str:
         if not workspace_id:
             return self.toast("Choose a folder first.", warn=True)
-        before = self._store.count_files(workspace_id)
-        after = self._indexer.scan(workspace_id)
-        if after == before:
+        def snapshot() -> dict:
+            return {
+                r["rel_path"]: (r["mtime"], r["size"])
+                for r in self._store.list_files(workspace_id)
+            }
+
+        before = snapshot()
+        self._indexer.scan(workspace_id)
+        after = snapshot()
+        # Said in terms of what changed, not how many files there are. Comparing
+        # only the totals reported "nothing has changed" for a folder where one
+        # file was added and another removed, because the count came out equal.
+        report = self._resume.report(workspace_id)
+        if not report.is_first_visit:
+            return self.toast("Checked. " + report.summary())
+        added = len(after.keys() - before.keys())
+        gone = len(before.keys() - after.keys())
+        edited = sum(1 for k in before.keys() & after.keys() if before[k] != after[k])
+        if not (added or gone or edited):
             return self.toast("Checked. Nothing has changed since last time.")
-        delta = after - before
-        verb = "now knows about" if delta > 0 else "has forgotten"
-        return self.toast(f"Checked. ARTEMIS {verb} {_plural(abs(delta), 'more file')}.")
+        bits = [
+            f"{n} {label}"
+            for n, label in ((added, "new"), (edited, "changed"), (gone, "gone"))
+            if n
+        ]
+        return self.toast("Checked. " + ", ".join(bits) + ".")
 
     def forget_workspace(self, workspace_id: int | None) -> str:
         if not workspace_id:
@@ -585,12 +616,12 @@ def build(store: Store) -> gr.Blocks:
             # -- the work area ----------------------------------------------
             with gr.Column(scale=5):
                 metrics = gr.HTML(panel.metrics_html())
-                status = gr.HTML()
+                status = gr.HTML(elem_classes=["a-status-slot"])
 
-                with gr.Tabs():
+                with gr.Tabs() as tabs:
                     # Work is first because it is what someone opens ARTEMIS
                     # to do. Inspection and settings come after.
-                    with gr.Tab("Work"):
+                    with gr.Tab("Work", id="work"):
                         gr.HTML(
                             '<div class="a-h1">What would you like done?</div>'
                             '<div class="a-sub">ARTEMIS plans the work and shows '
@@ -632,7 +663,7 @@ def build(store: Store) -> gr.Blocks:
 
                         resume_card = gr.HTML()
 
-                    with gr.Tab("Folders"):
+                    with gr.Tab("Folders", id="folders"):
                         gr.HTML(
                             '<div class="a-h1">Folders ARTEMIS can see</div>'
                             '<div class="a-sub">It can only ever see folders you '
@@ -650,7 +681,7 @@ def build(store: Store) -> gr.Blocks:
                             )
                         cards = gr.HTML(panel.cards_html())
 
-                    with gr.Tab("What it knows"):
+                    with gr.Tab("What it knows", id="knows"):
                         gr.HTML(
                             '<div class="a-h1">Everything ARTEMIS holds</div>'
                             '<div class="a-sub">Forget never deletes. These '
@@ -669,12 +700,25 @@ def build(store: Store) -> gr.Blocks:
                             forget_btn = gr.Button(
                                 "Forget this folder", variant="stop", scale=1
                             )
+                        # Forgetting asks first. These buttons used to act on a
+                        # single click, which a misplaced click could not undo.
+                        with gr.Row(visible=False) as confirm_row:
+                            confirm_text = gr.HTML()
+                            confirm_yes = gr.Button("Yes, forget it", variant="stop")
+                            confirm_no = gr.Button("Cancel")
+                        pending_action = gr.State("")
                         files = gr.HTML(panel.files_html(None))
+                        gr.HTML(
+                            '<div class="a-card-meta">Erasing removes everything '
+                            "ARTEMIS remembers about your folders. The activity "
+                            "log is kept, so you can always check what ARTEMIS "
+                            "did.</div>"
+                        )
                         erase_btn = gr.Button(
                             "Erase everything ARTEMIS knows", variant="stop"
                         )
 
-                    with gr.Tab("Settings"):
+                    with gr.Tab("Settings", id="settings"):
                         gr.HTML(
                             '<div class="a-h1">Where ARTEMIS keeps what it '
                             "knows</div>"
@@ -719,14 +763,26 @@ def build(store: Store) -> gr.Blocks:
 
         # -- wiring. Each action returns the same four outputs so the page is
         # always re-read from the stores rather than patched in place.
-        def refresh(message: str = "", workspace_id: int | None = None):
+        def refresh(
+            message: str = "",
+            workspace_id: int | None = None,
+            select: int | None = None,
+            clear: bool = False,
+        ):
+            def pick():
+                if clear:
+                    return gr.update(choices=panel.choices(), value=None)
+                if select is not None:
+                    return gr.update(choices=panel.choices(), value=select)
+                return gr.update(choices=panel.choices())
+
             return (
                 panel.cards_html(),
                 panel.metrics_html(),
-                gr.update(choices=panel.choices()),
+                pick(),
                 message,
                 panel.files_html(workspace_id),
-                gr.update(choices=panel.choices()),
+                pick(),
                 panel.sidebar_html("work"),
             )
 
@@ -734,11 +790,19 @@ def build(store: Store) -> gr.Blocks:
             cards, metrics, picker, status, files, work_picker, sidebar
         ]
 
-        add_btn.click(
-            lambda folder: refresh(panel.add(folder)),
-            inputs=folder_box,
-            outputs=outputs,
-        ).then(lambda: "", outputs=folder_box)
+        def add_folder(folder):
+            message = panel.add(folder)
+            new_id = panel.last_added
+            if new_id:
+                assistant.index_in_background(new_id)
+            # The new folder is chosen for the person: they added it in order to
+            # use it, and an empty dropdown on the Work tab looked like nothing
+            # had happened.
+            return refresh(message, new_id, select=new_id)
+
+        add_btn.click(add_folder, inputs=folder_box, outputs=outputs).then(
+            lambda: "", outputs=folder_box
+        )
 
         browse_btn.click(_browse, outputs=folder_box)
 
@@ -748,12 +812,60 @@ def build(store: Store) -> gr.Blocks:
         rescan_btn.click(
             lambda ws: refresh(panel.rescan(ws), ws), inputs=picker, outputs=outputs
         )
+        def ask_to_forget(ws):
+            if not ws:
+                return (
+                    gr.update(visible=False), "", "",
+                    panel.toast("Choose a folder first.", warn=True),
+                )
+            name = panel.workspace_name(ws)
+            text = (
+                f'<div class="a-msg warn">Forget \u201c{_esc(name)}\u201d? ARTEMIS will '
+                "stop knowing about this folder. Your files in it are not touched.</div>"
+            )
+            return gr.update(visible=True), text, "forget", ""
+
+        def ask_to_erase():
+            count = len(panel.workspaces())
+            if not count:
+                return (
+                    gr.update(visible=False), "", "",
+                    panel.toast("There is nothing to forget.", warn=True),
+                )
+            text = (
+                f'<div class="a-msg warn">Forget all {_plural(count, "folder")}? '
+                "None of your files are touched. The activity log is kept.</div>"
+            )
+            return gr.update(visible=True), text, "erase", ""
+
+        def confirmed(action, ws):
+            if action == "forget":
+                message = panel.forget_workspace(ws)
+            elif action == "erase":
+                message = panel.forget_everything()
+            else:
+                return (*refresh(""), gr.update(visible=False), "")
+            return (*refresh(message, clear=True), gr.update(visible=False), "")
+
+        def cancelled():
+            return (
+                gr.update(visible=False), "",
+                panel.toast("Left as it was. Nothing was forgotten."),
+            )
+
         forget_btn.click(
-            lambda ws: refresh(panel.forget_workspace(ws)),
-            inputs=picker,
-            outputs=outputs,
+            ask_to_forget, inputs=picker,
+            outputs=[confirm_row, confirm_text, pending_action, status],
         )
-        erase_btn.click(lambda: refresh(panel.forget_everything()), outputs=outputs)
+        erase_btn.click(
+            ask_to_erase,
+            outputs=[confirm_row, confirm_text, pending_action, status],
+        )
+        confirm_yes.click(
+            confirmed, inputs=[pending_action, picker],
+            outputs=[*outputs, confirm_row, pending_action],
+        )
+        confirm_no.click(cancelled, outputs=[confirm_row, pending_action, status])
 
         # Moving the store changes where every later query reads from, so the
         # whole page is refreshed afterwards, not just the location line.
@@ -775,13 +887,19 @@ def build(store: Store) -> gr.Blocks:
                 panel.metrics_html(),
                 assistant.resume_html(ws),
                 panel.sidebar_html("work"),
-                gr.update(visible=bool(card_html)),
             )
 
         assistant_outputs = [
             conversation, approval_card, cards, metrics, resume_card, sidebar,
-            decision_row,
         ]
+
+        # The Approve and No buttons are shown from what is actually waiting,
+        # read once the answer has finished. They used to be shown by a flag
+        # carried inside the streamed answer, and on that path the page never
+        # applied it: the card asked "Approve these changes?" with nothing to
+        # press. A separate step after the answer is reliable on every path.
+        def sync_decision():
+            return gr.update(visible=assistant.has_pending)
 
         def ask_progressively(ws, text):
             """Stream the turn to the page.
@@ -798,43 +916,43 @@ def build(store: Store) -> gr.Blocks:
             ask_progressively,
             inputs=[work_picker, ask_box],
             outputs=assistant_outputs,
-        ).then(lambda: "", outputs=ask_box)
+        ).then(sync_decision, outputs=decision_row).then(lambda: "", outputs=ask_box)
 
         ask_box.submit(
             ask_progressively,
             inputs=[work_picker, ask_box],
             outputs=assistant_outputs,
-        ).then(lambda: "", outputs=ask_box)
+        ).then(sync_decision, outputs=decision_row).then(lambda: "", outputs=ask_box)
 
         tidy_btn.click(
             lambda ws: refresh_after_change(*assistant.suggest_tidy(ws), ws),
             inputs=work_picker,
             outputs=assistant_outputs,
-        )
+        ).then(sync_decision, outputs=decision_row)
 
         approve_btn.click(
             lambda ws: refresh_after_change(*assistant.approve(remember=False), ws),
             inputs=work_picker,
             outputs=assistant_outputs,
-        )
+        ).then(sync_decision, outputs=decision_row)
 
         remember_btn.click(
             lambda ws: refresh_after_change(*assistant.approve(remember=True), ws),
             inputs=work_picker,
             outputs=assistant_outputs,
-        )
+        ).then(sync_decision, outputs=decision_row)
 
         reject_btn.click(
             lambda ws: refresh_after_change(*assistant.reject(), ws),
             inputs=work_picker,
             outputs=assistant_outputs,
-        )
+        ).then(sync_decision, outputs=decision_row)
 
         undo_btn.click(
             lambda ws: refresh_after_change(assistant.undo_last(), "", ws),
             inputs=work_picker,
             outputs=assistant_outputs,
-        )
+        ).then(sync_decision, outputs=decision_row)
 
         resume_btn.click(
             lambda ws: assistant.resume_html(ws),
@@ -877,6 +995,37 @@ def build(store: Store) -> gr.Blocks:
             _forget_key,
             inputs=[cloud_pick],
             outputs=[cloud_state, cloud_note, key_box],
+        )
+
+        # The page was built once, when the server started, so a browser refresh
+        # used to show that moment: no folders, an empty dropdown, "ARTEMIS
+        # cannot see anything", while the data was all still there. Reading the
+        # stores again on every page load makes the page match what is held.
+        def on_load():
+            first = panel.first_workspace_id()
+            return (
+                panel.cards_html(),
+                panel.metrics_html(),
+                gr.update(choices=panel.choices(), value=first),
+                panel.files_html(first),
+                gr.update(choices=panel.choices(), value=first),
+                panel.sidebar_html("work"),
+                assistant.resume_html(first),
+                panel.cloud_html(),
+                _location_html(panel.store_location()),
+                # A first-time person lands on Work with nothing to work on.
+                # Say what to do rather than leave an empty dropdown. (Switching
+                # the tab for them from here makes this version of Gradio loop
+                # forever, so the message does the job instead.)
+                "" if first else assistant.welcome_html(),
+            )
+
+        page.load(
+            on_load,
+            outputs=[
+                cards, metrics, picker, files, work_picker, sidebar, resume_card,
+                cloud_state, location, conversation,
+            ],
         )
 
         move_browse.click(_browse, outputs=move_box)

@@ -113,7 +113,23 @@ def test_rescan_notices_a_new_file(panel: WebPanel, sandbox: Path) -> None:
     panel.add(str(sandbox))
     ws = panel.workspaces()[0]
     (sandbox / "late.txt").write_text("new", encoding="utf-8")
-    assert "1 more file" in panel.rescan(ws.id)
+    assert "1 new" in panel.rescan(ws.id)
+
+
+def test_rescan_reports_an_added_and_a_removed_file_not_a_net_zero(
+    panel: WebPanel, sandbox: Path
+) -> None:
+    """One file in and one out used to read as "nothing has changed"."""
+    panel.add(str(sandbox))
+    ws = panel.workspaces()[0]
+    (sandbox / "late.txt").write_text("new", encoding="utf-8")
+    victim = next(p for p in sandbox.iterdir() if p.is_file() and p.name != "late.txt")
+    victim.unlink()
+
+    message = panel.rescan(ws.id)
+
+    assert "Nothing has changed" not in message
+    assert "1 new" in message and "1 gone" in message
 
 
 def test_forgetting_a_folder_leaves_the_files_alone(

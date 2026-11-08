@@ -104,7 +104,14 @@ class TidyProposal:
             bits.append(f"create {folders} folder{'' if folders == 1 else 's'}")
         tail = ""
         if self.left_alone:
-            tail = f", leaving {len(self.left_alone)} where they are"
+            # Name them when there are few. "Leaving 1 where they are" leaves
+            # the person guessing which file was skipped, and why matters less
+            # than knowing it is not about to move.
+            if len(self.left_alone) <= 3:
+                names = ", ".join(Path(p).name for p in self.left_alone)
+                tail = f", leaving {names} where {'it is' if len(self.left_alone) == 1 else 'they are'}"
+            else:
+                tail = f", leaving {len(self.left_alone)} where they are"
         return f"Would {' and '.join(bits)}{tail}. Nothing is deleted."
 
 

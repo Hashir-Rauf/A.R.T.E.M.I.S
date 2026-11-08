@@ -170,3 +170,16 @@ def test_the_service_has_no_way_to_delete(tidy: TidyService) -> None:
     source = inspect.getsource(tidy_module)
     for forbidden in ("unlink(", "rmtree(", "os.remove", "shutil.rmtree"):
         assert forbidden not in source, f"tidy service can call {forbidden}"
+
+
+def test_the_summary_names_a_file_it_leaves_alone(tidy: TidyService, messy: int) -> None:
+    """"Leaving 1 where they are" left the person guessing which file."""
+    from artemis.services.tidy import TidyProposal
+
+    proposal = TidyProposal(
+        workspace_id=messy,
+        moves=tidy.propose(messy).moves,
+        new_folders=("Documents",),
+        left_alone=("calc.py",),
+    )
+    assert "leaving calc.py where it is" in proposal.summary()

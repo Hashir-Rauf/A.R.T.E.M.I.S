@@ -27,18 +27,30 @@ from __future__ import annotations
 
 import html
 import queue
+import re
 import threading
 import time
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
-from artemis.core.actions import OUTWARD_OPS, READ_OPS, ToolCall
+from artemis.core.actions import OUTWARD_OPS, READ_OPS, REVERSIBLE_OPS, Plan, ToolCall
+from artemis.core.answer import Answer, AnswerService
+from artemis.core.code_diff import CodeAssistant, DiffResult
+from artemis.core.embedder import OllamaEmbedder
+from artemis.core.index_worker import IndexWorker
+from artemis.core.indexer import Indexer
+from artemis.core.intent import CODE, DRAFT, MAIL, QUESTION, SEARCH, classify
 from artemis.core.gateway import Gateway, TurnOutcome
 from artemis.core.router import ModelRouter, NoModelAvailable
 from artemis.core.providers import OllamaProvider
 from artemis.data.store import Store
+from artemis.services.drafter import DocumentDrafter
+from artemis.services.mail import MailError
+from artemis.services.mail import load_settings as load_mail_settings
 from artemis.services.patterns import PatternWatcher
 from artemis.services.resume import ResumeService
+from artemis.services.search import SearchError
 from artemis.services.tidy import TidyService
 
 
@@ -78,6 +90,8 @@ def _in_plain_words(step: dict[str, Any], outcome: TurnOutcome) -> str:
             return f"Move {first} {where}"
         return f"Move {first}"
     if operation == "write_file":
+        if call and call.arguments.get("create_only"):
+            return f"Save a new file called “{first}”"
         return f"Write to {first}"
     if operation == "append_file":
         return f"Add to the end of {first}"
@@ -90,9 +104,12 @@ def _in_plain_words(step: dict[str, Any], outcome: TurnOutcome) -> str:
     if operation == "search_index":
         return "Search this folder"
     if operation == "web_search":
-        return "Search the web"
+        query = str(call.arguments.get("query", "")) if call else ""
+        return f"Search the web for “{query}”" if query else "Search the web"
     if operation == "send_mail":
-        return "Send an email"
+        to = call.arguments.get("to", []) if call else []
+        who = ", ".join(to) if isinstance(to, (list, tuple)) else str(to)
+        return f"Send an email to {who}" if who else "Send an email"
     return describe
 
 
@@ -126,32 +143,71 @@ def _details_html(details: dict[str, Any]) -> str:
     return f"<span {style}>{_esc(chr(10).join(lines))}</span>"
 
 
-def _outcome_in_plain_words(plan) -> str:
-    """What a finished plan did, counted by kind rather than by function name.
+def _outcome_in_plain_words(plan, would: bool = False) -> str:
+    """A plan counted by kind rather than by function name.
 
     `plan.summarise()` is written for logs and reads as "2 create dirs, 5 move
     files". Both the approval card and the result line show this instead, so
-    the person reading them never meets an operation name.
+    the person reading them never meets an operation name. `would` picks the
+    future form for something not yet approved ("create 2 folders") over the
+    past form for something that ran ("2 folders created"): "This would 2
+    folders created" was the sentence the person was shown before.
     """
     counts: dict[str, int] = {}
     for call in plan:
         counts[call.operation] = counts.get(call.operation, 0) + 1
 
-    words = {
-        "create_dir": ("folder created", "folders created"),
-        "move_file": ("file moved", "files moved"),
-        "rename": ("file renamed", "files renamed"),
-        "write_file": ("file written", "files written"),
-        "append_file": ("file added to", "files added to"),
-    }
+    if would:
+        words = {
+            "create_dir": ("create {n} folder", "create {n} folders"),
+            "move_file": ("move {n} file", "move {n} files"),
+            "rename": ("rename {n} file", "rename {n} files"),
+            "write_file": ("save {n} new file", "save {n} new files"),
+            "append_file": ("add to {n} file", "add to {n} files"),
+            "web_search": ("search the web", "search the web {n} times"),
+            "send_mail": ("send {n} email", "send {n} emails"),
+        }
+    else:
+        words = {
+            "create_dir": ("{n} folder created", "{n} folders created"),
+            "move_file": ("{n} file moved", "{n} files moved"),
+            "rename": ("{n} file renamed", "{n} files renamed"),
+            "write_file": ("{n} file saved", "{n} files saved"),
+            "append_file": ("{n} file added to", "{n} files added to"),
+            "web_search": ("searched the web", "searched the web {n} times"),
+            "send_mail": ("{n} email sent", "{n} emails sent"),
+        }
     parts = []
     for operation, count in counts.items():
-        singular, plural = words.get(
-            operation, (operation.replace("_", " "), operation.replace("_", " "))
-        )
-        parts.append(f"{count} {singular if count == 1 else plural}")
+        fallback = operation.replace("_", " ")
+        singular, plural = words.get(operation, (fallback, fallback))
+        parts.append((singular if count == 1 else plural).format(n=count))
     return ", ".join(parts) if parts else "nothing"
 
+
+def _plain_reason(reason: str) -> str:
+    """A refusal reason a person can follow, not a policy rule name."""
+    lowered = reason.lower()
+    if "outside" in lowered:
+        return "it would reach outside the folders ARTEMIS can see"
+    if "destroys data" in lowered or "not available" in lowered:
+        return "ARTEMIS never deletes or overwrites files"
+    if "already exists" in lowered or "create_only" in lowered:
+        return "a file with that name already exists"
+    if "no handler" in lowered:
+        return "ARTEMIS cannot do that yet"
+    return reason.rstrip(".")
+
+
+def _draft_filename(request: str) -> str:
+    """A short file name for a draft, from the words of the request."""
+    skip = {
+        "a", "an", "the", "one", "page", "from", "my", "of", "for", "on", "about",
+        "please", "draft", "write", "compose", "create", "make", "me", "up", "and",
+        "to", "with", "using", "short", "new", "first", "based", "into", "in",
+    }
+    words = [w for w in re.findall(r"[A-Za-z0-9]+", request.lower()) if w not in skip]
+    return "-".join(words[:4]) or "draft"
 
 
 #: Input that is plainly not a request for work. Matched whole, lowercased and
@@ -346,6 +402,9 @@ class AssistantState:
     outcome: TurnOutcome | None = None
     last_plan_id: str | None = None
     last_summary: str = ""
+    #: The last plan that ran, in plain words, for the line under the buttons.
+    last_words: str = ""
+    last_workspace_id: int | None = None
 
 
 class AssistantPanel:
@@ -359,9 +418,100 @@ class AssistantPanel:
         self._resume = ResumeService(store, self._gateway.broker)
         self._tidy = TidyService(store, self._gateway.broker)
         self._patterns = PatternWatcher(store)
+        self._indexer = Indexer(store, self._gateway.broker)
+        self._drafter = DocumentDrafter(store, self._gateway.broker, self._router)
+        self._code = CodeAssistant(self._gateway.broker, self._router)
+        # Meaning-based search is optional. It needs numpy and an embedding
+        # model on this computer; without either, answers fall back to matching
+        # file names, which is the documented behaviour, not a failure.
+        self._index_worker: IndexWorker | None = None
+        vectors = None
+        try:
+            from artemis.core.vector_index import VectorIndex
+
+            vectors = VectorIndex(store, self._gateway.broker, OllamaEmbedder())
+            self._index_worker = IndexWorker(store, vectors)
+        except ImportError:
+            pass
+        self._answers = AnswerService(
+            self._gateway.context_engine,
+            self._gateway.broker,
+            self._router,
+            vectors,
+        )
         self.state = AssistantState()
 
     # -- asking ------------------------------------------------------------
+
+    def _prepare(self, workspace_id: int | None, text: str):
+        """Decide how a typed request is answered.
+
+        Returns ("now", (conversation, card)) for an answer that needs no model,
+        or ("work", job) where `job(on_token)` does the model work and returns
+        the same pair. Keeping the decision in one place means `ask` and
+        `ask_streaming` cannot route the same words differently.
+        """
+        text = (text or "").strip()
+        if not workspace_id:
+            if self._store.list_workspaces():
+                return "now", (self._say("Choose a folder from the list first."), "")
+            return "now", (
+                self._say(
+                    "There is no folder to work in yet. Open the Folders tab, "
+                    "add one, then come back here."
+                ),
+                "",
+            )
+        if not text:
+            return "now", (self._say("Type what you would like ARTEMIS to do."), "")
+
+        chat = _conversational_reply(text)
+        if chat is not None:
+            return "now", (self._say(chat), "")
+
+        # Tidying is a rule, not a judgement. Answer it directly.
+        cleaned = text.strip().lower().rstrip("!.?").strip()
+        if cleaned in _TIDY_PHRASES:
+            return "now", self.suggest_tidy(workspace_id)
+
+        # "What changed?" is a question about recorded facts, not a plan.
+        if cleaned in _RESUME_PHRASES:
+            return "now", self.answer_what_changed(workspace_id)
+
+        # Say what ARTEMIS cannot do, rather than planning something adjacent.
+        refusal = _boundary_reply(text)
+        if refusal is not None:
+            return "now", (self._say(refusal, warn=True), "")
+
+        outside = self._outside_reference(workspace_id, text)
+        if outside is not None:
+            return "now", (self._say(outside, warn=True), "")
+
+        files = [row["rel_path"] for row in self._store.list_files(workspace_id)]
+        intent = classify(text, files)
+
+        if intent.kind == SEARCH:
+            return "now", self._propose_search(workspace_id, intent)
+        if intent.kind == MAIL:
+            if not intent.recipients:
+                return "now", (
+                    self._say(
+                        "Who should it go to? Include their email address, for "
+                        "example: email sam@example.com to say I will be late."
+                    ),
+                    "",
+                )
+            return "work", lambda on_token: self._propose_mail(workspace_id, intent)
+        if intent.kind == DRAFT:
+            return "work", lambda on_token: self._propose_draft(workspace_id, intent)
+        if intent.kind == CODE and intent.file:
+            return "work", lambda on_token: self._suggest_code_change(workspace_id, intent)
+        if intent.kind == QUESTION:
+            return "work", lambda on_token: self._answer_question(workspace_id, intent)
+
+        return "work", lambda on_token: self._render_outcome(
+            self._gateway.handle(workspace_id, text, on_token=on_token), text
+        )
 
     def ask_streaming(self, workspace_id: int | None, text: str):
         """`ask`, but yielding progress while the model works.
@@ -371,38 +521,13 @@ class AssistantPanel:
         real answer. The work is not faster. What changes is that the page shows
         something after about a second instead of greying out for six.
 
-        The gateway call is blocking, so it runs on a worker thread and reports
-        progress through a queue. Every decision still happens inside the
-        gateway on that thread; this method only renders what it reports.
+        The work is blocking, so it runs on a worker thread and reports progress
+        through a queue. Every decision still happens inside the gateway on that
+        thread; this method only renders what it reports.
         """
-        text = (text or "").strip()
-        if not workspace_id:
-            yield self._say("Choose a folder first, so ARTEMIS knows where to look."), ""
-            return
-        if not text:
-            yield self._say("Type what you would like ARTEMIS to do."), ""
-            return
-
-        chat = _conversational_reply(text)
-        if chat is not None:
-            yield self._say(chat), ""
-            return
-
-        # Tidying is a rule, not a judgement. Answer it directly.
-        cleaned = text.strip().lower().rstrip("!.?").strip()
-        if cleaned in _TIDY_PHRASES:
-            yield self.suggest_tidy(workspace_id)
-            return
-
-        # "What changed?" is a question about recorded facts, not a plan.
-        if cleaned in _RESUME_PHRASES:
-            yield self.answer_what_changed(workspace_id)
-            return
-
-        # Say what ARTEMIS cannot do, rather than planning something adjacent.
-        refusal = _boundary_reply(text)
-        if refusal is not None:
-            yield self._say(refusal, warn=True), ""
+        mode, payload = self._prepare(workspace_id, text)
+        if mode == "now":
+            yield payload
             return
 
         progress: queue.Queue[int] = queue.Queue()
@@ -410,11 +535,7 @@ class AssistantPanel:
 
         def work() -> None:
             try:
-                box["outcome"] = self._gateway.handle(
-                    workspace_id,
-                    text,
-                    on_token=lambda cycle, pieces: progress.put(pieces),
-                )
+                box["result"] = payload(lambda cycle, pieces: progress.put(pieces))
             except BaseException as exc:  # reported, never swallowed
                 box["error"] = exc
             finally:
@@ -448,7 +569,7 @@ class AssistantPanel:
             yield self._say(f"Something went wrong: {error}", warn=True), ""
             return
 
-        yield self._render_outcome(box["outcome"], text)
+        yield box["result"]
 
     @staticmethod
     def _thinking(pieces: int, elapsed: float) -> str:
@@ -465,43 +586,210 @@ class AssistantPanel:
             "</div>"
         )
 
-    def _render_outcome(self, outcome: TurnOutcome, text: str) -> tuple[str, str]:
+    # -- reaching outside the folder --------------------------------------
+
+    def _outside_reference(self, workspace_id: int, text: str) -> str | None:
+        """An explanation if the request names a path outside the folder.
+
+        Checked before any model is asked. The boundary would stop such a step
+        anyway, but a request to read "../Private/passwords.txt" used to come
+        back as "I could not turn that into steps", which does not tell the
+        person why, and "Nothing ran", which does not tell them anything.
+        """
+        row = self._store.get_workspace(workspace_id)
+        if row is None:
+            return None
+        root = Path(row["root"]).resolve()
+        reaches = bool(re.search(r"(^|[\s\"'(])\.\.[\\/]", text))
+        for match in re.finditer(r"[A-Za-z]:[\\/][^\s\"']*|\\\\[^\s\"']+", text):
+            try:
+                Path(match.group()).resolve().relative_to(root)
+            except (ValueError, OSError):
+                reaches = True
+        if not reaches:
+            return None
+        return (
+            f"ARTEMIS can only see inside the folders you have added. That "
+            f"reaches outside “{row['name']}”, so it was not done. "
+            "Nothing was read, moved or changed."
+        )
+
+    # -- questions, code, drafts, mail and search -------------------------
+
+    def _answer_question(self, workspace_id: int, intent) -> tuple[str, str]:
+        """Answer a question from the folder's files, labelling what is unsupported."""
+        self.state.outcome = None
+        answer = self._answers.ask(workspace_id, intent.text)
+        return self._answer_html(answer), ""
+
+    def _answer_html(self, answer: Answer) -> str:
+        if not answer.claims:
+            return self._say(
+                answer.text or "I could not find anything in these files to answer that.",
+                warn=True,
+            )
+        rows = []
+        for claim in answer.claims:
+            if claim.supported:
+                rows.append(
+                    f'<div class="a-claim">{_esc(claim.text)} '
+                    f'<span class="a-cite">{_esc(", ".join(claim.sources))}</span></div>'
+                )
+            else:
+                rows.append(
+                    '<div class="a-claim a-unsupported"><span class="a-flag">'
+                    f"not found in your files</span> {_esc(claim.text)}</div>"
+                )
+        if answer.sources:
+            foot = "Sources: " + ", ".join(answer.sources)
+        else:
+            foot = "None of this is backed by a file, so treat it with care."
+        return self._show(
+            "".join(rows) + f'<div class="a-card-meta">{_esc(foot)}</div>'
+        )
+
+    def _suggest_code_change(self, workspace_id: int, intent) -> tuple[str, str]:
+        """Show a proposed change to one file as a diff. Never edits it."""
+        self.state.outcome = None
+        result = self._code.ask(workspace_id, intent.file, intent.text)
+        return self._diff_html(result, intent.file), ""
+
+    def _diff_html(self, result: DiffResult, path: str) -> str:
+        if not result.ok:
+            return self._say(
+                f"I could not suggest a safe change to {path}: {result.message}.",
+                warn=True,
+            )
+        if not result.diff:
+            return self._say(f"No change is needed in {path}.")
+        lines = []
+        for line in result.diff.splitlines():
+            if line.startswith("+++") or line.startswith("---"):
+                kind = "a-d-head"
+            elif line.startswith("@@"):
+                kind = "a-d-hunk"
+            elif line.startswith("+"):
+                kind = "a-d-add"
+            elif line.startswith("-"):
+                kind = "a-d-del"
+            else:
+                kind = "a-d-ctx"
+            lines.append(f'<div class="{kind}">{_esc(line) or "&nbsp;"}</div>')
+        return self._show(
+            f"A proposed change to {_esc(path)}:"
+            f'<div class="a-diff">{"".join(lines)}</div>'
+            '<div class="a-card-meta">This is a proposal only. ARTEMIS has not '
+            "changed your file, and it never edits code itself.</div>"
+        )
+
+    def _propose_draft(self, workspace_id: int, intent) -> tuple[str, str]:
+        """Write a first draft and offer to save it as a new file."""
+        passages = self._answers.read_passages(workspace_id, intent.text)
+        context = self._gateway.context_engine.assemble(
+            workspace_id, intent.text, retrieved=passages
+        )
+        content = self._drafter.generate(workspace_id, intent.text, context)
+        if not content.strip():
+            return self._say("The model did not write anything. Try again.", warn=True), ""
+        plan = self._drafter.propose(workspace_id, _draft_filename(intent.text), content)
+        outcome = self._gateway.submit_plan(workspace_id, plan, intent.text)
+        return self._render_outcome(outcome, intent.text, from_service=True)
+
+    def _propose_mail(self, workspace_id: int, intent) -> tuple[str, str]:
+        """Write the email, then hold it for approval with its exact text."""
+        subject, body = self._write_mail(workspace_id, intent)
+        if not body:
+            return self._say(
+                "I could not write that email. Try saying what it should say.",
+                warn=True,
+            ), ""
+        try:
+            plan = self._gateway.mail.compose(
+                workspace_id, list(intent.recipients), subject, body
+            )
+        except MailError as exc:
+            return self._say(f"That email cannot be sent: {exc}.", warn=True), ""
+        note = ""
+        if load_mail_settings() is None:
+            note = (
+                " No mail account is set up yet, so sending will fail until one is."
+            )
+        outcome = self._gateway.submit_plan(workspace_id, plan, intent.text)
+        return self._render_outcome(outcome, intent.text, from_service=True, note=note)
+
+    def _write_mail(self, workspace_id: int, intent) -> tuple[str, str]:
+        prompt = (
+            "Write a short, polite email for the user. Reply in exactly this "
+            "format and nothing else:\nSUBJECT: <one line>\nBODY:\n<the email>\n"
+            "Do not use placeholders such as [Name]. End with the word Thanks.\n\n"
+            f"The user asked: {intent.text}\n"
+        )
+        decision = self._router.complete(workspace_id, prompt, max_tokens=400)
+        reply = decision.completion.text.strip()
+        match = re.search(r"SUBJECT:\s*(.+?)\s*\n+\s*BODY:\s*(.+)", reply, re.S | re.I)
+        if not match:
+            return "", ""
+        return match.group(1).strip(), match.group(2).strip()
+
+    def _propose_search(self, workspace_id: int, intent) -> tuple[str, str]:
+        """Hold a web search for approval. It does not search until approved."""
+        try:
+            plan = self._gateway.search.propose(workspace_id, intent.query)
+        except SearchError as exc:
+            return self._say(f"That search cannot be done: {exc}.", warn=True), ""
+        outcome = self._gateway.submit_plan(workspace_id, plan, intent.text)
+        return self._render_outcome(outcome, intent.text, from_service=True)
+
+    def index_in_background(self, workspace_id: int | None) -> None:
+        """Index a folder for meaning-based search without making anyone wait."""
+        if workspace_id and self._index_worker is not None:
+            self._index_worker.start(workspace_id)
+
+    def _render_outcome(
+        self,
+        outcome: TurnOutcome,
+        text: str,
+        from_service: bool = False,
+        note: str = "",
+    ) -> tuple[str, str]:
         """Turn a finished turn into what the page shows.
 
-        Shared by `ask` and `ask_streaming` so the two paths cannot drift: a
-        plan that needs approval must look identical whichever one produced it.
+        Shared by every route so a plan that needs approval looks identical
+        whichever one produced it.
         """
         self.state.outcome = outcome
 
-        # Checked before the approval card is built. A plan whose only step
-        # leaves the machine, for a request that never mentioned the folder, is
-        # the planner reaching for the one operation that could answer
-        # anything: "sing me a song" became a web search with an egress warning
-        # to approve, which misrepresents what ARTEMIS is for.
-        if _is_off_topic(outcome):
+        # Checked before the approval card is built, and only for plans the
+        # *model* made. A plan whose only step leaves the machine, for a request
+        # that never mentioned the folder, is the planner reaching for the one
+        # operation that could answer anything: "sing me a song" became a web
+        # search with an egress warning to approve. A plan a service built after
+        # the user asked for a search or an email is exactly what was asked for.
+        if not from_service and _is_off_topic(outcome):
             self.state.outcome = None
             return self._say(
                 "That is outside what ARTEMIS does. It works with the files in "
-                "folders you have added: tidying them up, telling you what "
-                "changed, and finding things in them."
+                "folders you have added: tidying them up, answering questions "
+                "about them, and finding things in them."
             ), ""
 
         if outcome.needs_approval:
             # Say what the plan would do, not what the user typed. Echoing the
             # request back tells them nothing they do not already know, and the
             # question being asked is about the consequences.
-            return (
-                self._say(
-                    f"This would {_outcome_in_plain_words(outcome.plan)}. "
-                    "Nothing has happened yet."
-                ),
-                self.approval_html(outcome),
-            )
+            message = f"This would {_outcome_in_plain_words(outcome.plan, would=True)}."
+            message += " Nothing has happened yet." + note
+            if outcome.refusals:
+                message += (
+                    f" {_plural(len(outcome.refusals), 'step')} will be skipped: "
+                    + _plain_reason(outcome.refusals[0]) + "."
+                )
+            return self._say(message), self.approval_html(outcome)
 
         # A model that is not running is not an unclear request. Saying "I
         # could not turn that into steps" here sends the user off to rephrase a
         # request that was perfectly clear.
-        if outcome.planning.no_model:
+        if outcome.planning is not None and outcome.planning.no_model:
             return self._say(
                 "ARTEMIS could not reach the model on this computer, so it "
                 "cannot work out what to do. Check that Ollama is running, "
@@ -516,62 +804,80 @@ class AssistantPanel:
             # front of a person: they describe the planner's internals rather
             # than telling the user anything they can act on.
             return self._say(
-                "I could not turn that into steps I am allowed to take. Try "
-                "naming a folder action, such as tidying up or checking what "
-                "changed.",
+                "I could not turn that into steps I am allowed to take. ARTEMIS "
+                "works with files inside your folders. Try something like "
+                "“move the PDFs into a folder called Finance”, or ask a "
+                "question about a file.",
                 warn=True,
             ), ""
 
-        self.state.last_plan_id = outcome.plan.plan_id
-        self.state.last_summary = outcome.plan.summarise()
+        if outcome.result is not None:
+            self._after_run(outcome, outcome.result)
         described = self._describe_result(outcome)
+        if outcome.result is not None and outcome.result.executed and any(
+            v.remembered for v in outcome.verdicts.values()
+        ):
+            described = _Markup(
+                (described if isinstance(described, _Markup) else _esc(described))
+                + " "
+                + _esc("You chose not to be asked about this kind of change here.")
+            )
         if isinstance(described, _Markup):
             return self._show(described), ""
         return self._say(described), ""
 
+    def _after_run(self, outcome: TurnOutcome, result) -> None:
+        """Bookkeeping once a plan has run, shared by every way a plan can run.
+
+        Only a plan that changed files can be undone, so only then is it offered
+        for undo. The index is refreshed straight away: it used to be left
+        showing a moved file at its old place until someone pressed "Check for
+        changes", which made ARTEMIS look wrong about its own work.
+        """
+        ran = set(result.executed)
+        changed = [
+            c for c in outcome.plan if c.call_id in ran and c.operation in REVERSIBLE_OPS
+        ]
+        if not changed:
+            return
+        workspace_id = changed[0].workspace_id
+        self.state.last_plan_id = outcome.plan.plan_id
+        self.state.last_summary = outcome.plan.summarise()
+        self.state.last_words = _outcome_in_plain_words(Plan(calls=tuple(changed)))
+        self.state.last_workspace_id = workspace_id
+        self._rescan(workspace_id)
+        # Snapshot after the change, so "what changed?" reports what ARTEMIS
+        # just did rather than comparing against a folder it has already moved.
+        self._resume.checkpoint(
+            workspace_id,
+            recent_files=[path for call in changed for path in call.paths],
+        )
+        self.index_in_background(workspace_id)
+
+    def _rescan(self, workspace_id: int) -> None:
+        try:
+            self._indexer.scan(workspace_id)
+        except Exception:  # pragma: no cover - a stale index is not worth a crash
+            pass
+
     def ask(self, workspace_id: int | None, text: str) -> tuple[str, str]:
-        """Send a request to the gateway. Returns (conversation, approval card).
+        """Send a request. Returns (conversation, approval card).
 
         Nothing here decides anything. If the plan needs approval the card is
         rendered and the turn is held; if it does not, the gateway has already
         run the reads and this reports what came back.
         """
-        text = (text or "").strip()
-        if not workspace_id:
-            return self._say("Choose a folder first, so ARTEMIS knows where to look."), ""
-        if not text:
-            return self._say("Type what you would like ARTEMIS to do."), ""
-
-        # Answer conversational input without a model call. Planning a greeting
-        # takes about fifteen seconds and always fails.
-        chat = _conversational_reply(text)
-        if chat is not None:
-            return self._say(chat), ""
-
-        # Tidying is a rule, not a judgement. Answer it directly.
-        cleaned = text.strip().lower().rstrip("!.?").strip()
-        if cleaned in _TIDY_PHRASES:
-            return self.suggest_tidy(workspace_id)
-
-        # "What changed?" is a question about recorded facts, not a plan.
-        if cleaned in _RESUME_PHRASES:
-            return self.answer_what_changed(workspace_id)
-
-        # Say what ARTEMIS cannot do, rather than planning something adjacent.
-        refusal = _boundary_reply(text)
-        if refusal is not None:
-            return self._say(refusal, warn=True), ""
-
+        mode, payload = self._prepare(workspace_id, text)
+        if mode == "now":
+            return payload
         try:
-            outcome = self._gateway.handle(workspace_id, text)
+            return payload(None)
         except NoModelAvailable as exc:
             return self._say(
                 f"No model is available right now. {exc}", warn=True
             ), ""
         except Exception as exc:  # pragma: no cover - surfaced, never swallowed
             return self._say(f"Something went wrong: {exc}", warn=True), ""
-
-        return self._render_outcome(outcome, text)
 
     def _describe_result(self, outcome: TurnOutcome) -> str:
         """Report what a turn found, not merely that it ran.
@@ -587,6 +893,10 @@ class AssistantPanel:
         if result is None:
             return "Nothing to do."
         if not result.executed:
+            if outcome.refusals:
+                return _Markup(
+                    _esc("Nothing was done: " + _plain_reason(outcome.refusals[0]) + ".")
+                )
             return "Nothing ran."
 
         found = self._describe_findings(outcome)
@@ -595,10 +905,63 @@ class AssistantPanel:
             # caller shows without escaping a second time.
             return _Markup(found)
 
-        parts = [f"Done: {_outcome_in_plain_words(outcome.plan)}."]
-        if result.skipped:
-            parts.append(f"{_plural(len(result.skipped), 'step')} could not run.")
-        return " ".join(parts)
+        return _Markup(self._run_report(outcome.plan, result))
+
+    def _run_report(self, plan: Plan, result, remember: bool = False) -> str:
+        """What a plan really did, as escaped markup.
+
+        Built from the steps that ran, never from the plan as proposed. It used
+        to say "Done: 1 file moved" for a move the boundary had blocked, because
+        the sentence was counted from the plan. A message that claims a change
+        which did not happen is worse than no message.
+        """
+        ran = set(result.executed)
+        done = Plan(calls=tuple(c for c in plan if c.call_id in ran), intent=plan.intent)
+        lines: list[str] = []
+
+        plain = [c for c in done if c.operation not in ("web_search", "send_mail")]
+        if plain:
+            lines.append(_esc("Done: " + _outcome_in_plain_words(Plan(calls=tuple(plain), intent=plan.intent)) + "."))
+
+        for call in done:
+            value = result.results.get(call.call_id)
+            if call.operation == "web_search" and isinstance(value, list):
+                lines.append(self._search_results_html(call, value))
+            elif call.operation == "send_mail":
+                sent_to = value.get("sent_to", []) if isinstance(value, dict) else []
+                who = ", ".join(sent_to) or "the recipient"
+                lines.append(_esc(f"Email sent to {who}."))
+
+        skipped = [c for c in plan if c.call_id in set(result.skipped)]
+        if skipped:
+            reasons = []
+            for call in skipped:
+                why = result.results.get(call.call_id)
+                reason = why.get("refused", "") if isinstance(why, dict) else ""
+                reasons.append(_plain_reason(str(reason)) if reason else "it could not run")
+            unique = "; ".join(dict.fromkeys(reasons))
+            if not done:
+                lines.insert(0, _esc("Nothing was changed."))
+            lines.append(_esc(f"{_plural(len(skipped), 'step')} did not run: {unique}."))
+        if not lines:
+            lines.append(_esc("Nothing ran."))
+        if remember and done:
+            lines.append(_esc("I will not ask again for this kind of change in this folder."))
+        return " ".join(lines)
+
+    @staticmethod
+    def _search_results_html(call: ToolCall, results: list) -> str:
+        query = str(call.arguments.get("query", ""))
+        if not results:
+            return _esc(f"The search for “{query}” found nothing.")
+        rows = "".join(
+            '<div class="a-claim">'
+            f'<strong>{_esc(r.get("title", ""))}</strong><br>'
+            f'<span class="a-cite">{_esc(r.get("url", ""))}</span><br>'
+            f'{_esc(r.get("snippet", ""))}</div>'
+            for r in results
+        )
+        return f"Results for “{_esc(query)}”:<div class=\"a-changes\">{rows}</div>"
 
     def _describe_findings(self, outcome: TurnOutcome) -> str:
         """What the reads in this plan actually returned, in plain words.
@@ -632,26 +995,9 @@ class AssistantPanel:
             return self._say("There is nothing waiting for an answer.", warn=True), ""
 
         result = self._gateway.approve_and_run(outcome, remember=remember)
-        self.state.last_plan_id = outcome.plan.plan_id
-        self.state.last_summary = outcome.plan.summarise()
         self.state.outcome = None
-
-        # Snapshot after the change, so "what changed?" reports what ARTEMIS
-        # just did rather than comparing against a folder it has already moved.
-        if outcome.plan.calls:
-            self._resume.checkpoint(
-                outcome.plan.calls[0].workspace_id,
-                recent_files=[
-                    path for call in outcome.plan.calls for path in call.paths
-                ],
-            )
-
-        message = f"Done: {_outcome_in_plain_words(outcome.plan)}."
-        if remember:
-            message += " I will not ask again for this kind of change in this folder."
-        if result.skipped:
-            message += f" {_plural(len(result.skipped), 'step')} could not run."
-        return self._say(message), ""
+        self._after_run(outcome, result)
+        return self._show(self._run_report(outcome.plan, result, remember=remember)), ""
 
     def reject(self) -> tuple[str, str]:
         outcome = self.state.outcome
@@ -670,6 +1016,9 @@ class AssistantPanel:
 
         reversed_count, problems = self._gateway.undo(plan_id)
         self.state.last_plan_id = None
+        self.state.last_words = ""
+        if self.state.last_workspace_id:
+            self._rescan(self.state.last_workspace_id)
 
         if problems:
             return self._say(
@@ -686,6 +1035,26 @@ class AssistantPanel:
     @property
     def can_undo(self) -> bool:
         return self.state.last_plan_id is not None
+
+    def welcome_html(self) -> str:
+        """What a person with no folders yet is told to do first."""
+        return self._say(
+            "Welcome. ARTEMIS cannot see any folder yet. Open the Folders tab and "
+            "add one, then come back here to tidy it, ask about its files, or "
+            "draft something from them."
+        )
+
+    @property
+    def has_pending(self) -> bool:
+        """Whether a plan is waiting for the person to answer it.
+
+        The page shows the Approve and No buttons from this, read after the
+        answer has finished, rather than from a visibility flag carried inside a
+        streamed answer. The flag was dropped on the streamed path, which left a
+        card asking "Approve these changes?" with nothing to press.
+        """
+        outcome = self.state.outcome
+        return outcome is not None and outcome.needs_approval
 
     # -- rendering ---------------------------------------------------------
 
@@ -730,7 +1099,7 @@ class AssistantPanel:
 
         facts = [
             ("Folder", preview["workspace"]),
-            ("What it does", _outcome_in_plain_words(outcome.plan)),
+            ("What it does", _outcome_in_plain_words(outcome.plan, would=True).capitalize()),
             ("Risk", risk_word),
         ]
         fact_rows = "".join(
@@ -758,6 +1127,15 @@ class AssistantPanel:
             for i, step in enumerate(preview["steps"], start=1)
         )
 
+        skipped_html = ""
+        if outcome.refusals:
+            reasons = "; ".join(dict.fromkeys(_plain_reason(r) for r in outcome.refusals))
+            skipped_html = (
+                '<div class="a-warn-line">'
+                f"{_esc(_plural(len(outcome.refusals), 'step'))} will be skipped: "
+                f"{_esc(reasons)}.</div>"
+            )
+
         return (
             '<div class="a-approval">'
             '<div class="a-approval-head">Approve these changes?</div>'
@@ -765,6 +1143,7 @@ class AssistantPanel:
             "steps, then choose below.</div>"
             f'<div class="a-facts">{fact_rows}</div>'
             f'<div class="a-assures">{assurance_html}</div>'
+            f"{skipped_html}"
             f'<div class="a-steps-head">Every step, in order</div>'
             f'<div class="a-steps">{steps}</div>'
             "</div>"
@@ -827,12 +1206,24 @@ class AssistantPanel:
                 f'<div class="a-change">{_esc(p)}</div>' for p in report.open_proposals
             )
             proposals = (
-                '<div class="a-steps-head">ARTEMIS asked about this last time</div>'
+                '<div class="a-steps-head">ARTEMIS noticed</div>'
                 f'<div class="a-changes">{items}</div>'
+            )
+
+        last = ""
+        if (
+            self.state.last_plan_id
+            and self.state.last_words
+            and self.state.last_workspace_id == workspace_id
+        ):
+            last = (
+                '<div class="a-resume-line">ARTEMIS last did this here: '
+                f"{_esc(self.state.last_words)}. You can undo it.</div>"
             )
 
         return (
             '<div class="a-resume">'
+            f"{last}"
             f'<div class="a-resume-line">{_esc(report.summary())}</div>'
             f"{changes}{proposals}</div>"
         )
@@ -842,7 +1233,9 @@ class AssistantPanel:
 
         Tidying is a deterministic rule, so asking a model to produce the plan
         would add latency and a chance of error for no benefit. The plan still
-        goes through policy and approval exactly like any other.
+        goes through policy and approval exactly like any other, including a
+        remembered "don't ask again": the button used to ask regardless, which
+        contradicted the promise it had just made.
         """
         if not workspace_id:
             return self._say("Choose a folder first."), ""
@@ -852,19 +1245,11 @@ class AssistantPanel:
             return self._say(proposal.summary()), ""
 
         plan = self._tidy.to_plan(proposal)
-        verdicts = self._gateway.policy.classify_plan(plan)
-        pending = self._gateway.approvals.submit(plan, verdicts)
-
-        outcome = TurnOutcome(
-            plan=plan,
-            verdicts=verdicts,
-            context=self._gateway.context_engine.assemble(workspace_id, "tidy"),
-            planning=None,  # type: ignore[arg-type]
-            pending=pending,
-        )
-        self.state.outcome = outcome
-
-        return self._say(proposal.summary()), self.approval_html(outcome)
+        outcome = self._gateway.submit_plan(workspace_id, plan, "tidy this folder")
+        message, card = self._render_outcome(outcome, "tidy", from_service=True)
+        if outcome.needs_approval:
+            return self._say(proposal.summary()), card
+        return message, card
 
     def patterns_html(self, workspace_id: int | None) -> str:
         """Anything ARTEMIS has noticed you doing repeatedly."""

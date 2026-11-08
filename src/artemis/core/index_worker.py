@@ -7,6 +7,7 @@ path falls back to matching file names.
 
 from __future__ import annotations
 
+import sqlite3
 import threading
 
 from artemis.core.embedder import EmbedError
@@ -36,6 +37,15 @@ class IndexWorker:
             self.thread.join(timeout)
 
     def run(self, workspace_id: int) -> None:
+        try:
+            self._run(workspace_id)
+        except sqlite3.ProgrammingError:
+            # The store was closed while this thread was still working, for
+            # example when the app is shutting down. There is nobody left to
+            # tell, and a background thread must never raise into the process.
+            return
+
+    def _run(self, workspace_id: int) -> None:
         try:
             embedded = self.index.index_workspace(workspace_id)
         except EmbedError as exc:

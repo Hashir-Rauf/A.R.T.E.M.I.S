@@ -62,7 +62,7 @@ class ResumeReport:
         if self.is_first_visit:
             return "This is the first time ARTEMIS has opened this folder."
         if not self.changes and not self.note:
-            return f"Nothing has changed since {self.last_seen}."
+            return f"Nothing has changed outside ARTEMIS since {self.last_seen}."
         parts: list[str] = []
         if self.changes:
             added = sum(1 for c in self.changes if c.change == "added")
@@ -244,8 +244,11 @@ class ResumeService:
         return tuple(changes)
 
     def _open_proposals(self, workspace_id: int) -> tuple[str, ...]:
+        # Stored as "signature | description" so the signature can be matched
+        # later. Only the description is for a person; showing the signature
+        # put an internal key ("move_file::txt") in front of the user.
         return tuple(
-            row["description"]
+            row["description"].split("|", 1)[-1].strip()
             for row in self._store.list_rules(workspace_id, status="proposed")
         )
 
@@ -285,7 +288,8 @@ def _friendly(timestamp: str) -> str:
     if seconds < 90:
         return "a moment ago"
     if seconds < 3600:
-        return f"{int(seconds // 60)} minutes ago"
+        minutes = int(seconds // 60)
+        return "a minute ago" if minutes == 1 else f"{minutes} minutes ago"
     if seconds < 86400:
         hours = int(seconds // 3600)
         return "an hour ago" if hours == 1 else f"{hours} hours ago"
