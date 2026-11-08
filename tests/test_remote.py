@@ -308,7 +308,10 @@ def test_nothing_in_the_core_imports_the_remote_plane() -> None:
             continue
         text = path.read_text(encoding="utf-8")
         if "artemis.remote" in text or "from artemis import remote" in text:
-            offenders.append(str(path.relative_to(SRC)))
+            # The one allowed mention is the optional Settings section, which sits in a try.
+            guarded = path.name == "web.py" and "build_remote_section = None" in text
+            if not guarded:
+                offenders.append(str(path.relative_to(SRC)))
     assert offenders == []
 
 
@@ -325,8 +328,9 @@ def test_artemis_runs_with_the_remote_package_deleted(tmp_path: Path) -> None:
         "from artemis.data.store import Store\n"
         "from artemis.core.workspace import WorkspaceManager\n"
         "from artemis.ui.assistant import AssistantPanel\n"
-        "import artemis.ui.web\n"
+        "import artemis.ui.web as web\n"
         "s = Store(); w = WorkspaceManager(s)\n"
+        "assert web.build(s) is not None\n"
         "p = AssistantPanel(s); assert p is not None\n"
         "print('fine')\n"
     )
@@ -339,3 +343,9 @@ def test_artemis_runs_with_the_remote_package_deleted(tmp_path: Path) -> None:
     )
     assert result.returncode == 0, result.stderr
     assert "fine" in result.stdout
+
+
+def test_the_settings_page_builds_with_the_remote_section_present(store: Store) -> None:
+    from artemis.ui.web import build
+
+    assert build(store) is not None

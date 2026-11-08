@@ -1348,6 +1348,14 @@ def build(store: Store) -> gr.Blocks:
                             mail_forget = gr.Button("Disconnect")
                         mail_note = gr.HTML()
 
+                        # Optional: with the remote package deleted this section is just absent.
+                        try:
+                            from artemis.remote.screen import build_remote_section
+                        except ImportError:
+                            build_remote_section = None
+                        if build_remote_section is not None:
+                            build_remote_section(gr, store, lambda: AssistantPanel(store))
+
         # -- wiring. Each action returns the same four outputs so the page is
         # always re-read from the stores rather than patched in place.
         def refresh(
