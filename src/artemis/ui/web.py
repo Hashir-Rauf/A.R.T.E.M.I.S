@@ -202,6 +202,9 @@ CSS = """
 .a-location-label { font-size: .76rem; color: var(--muted); font-weight: 600; }
 .a-location-path { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: .82rem; color: var(--text); word-break: break-all; }
 
+.a-hidden { display: none !important; }
+.a-decision { position: sticky; bottom: 0; z-index: 20; padding: 12px 0 14px; background: var(--page); border-top: 1px solid var(--line); }
+
 /* Status banner, answers with sources, and diffs. */
 .a-status-slot { min-height: 46px; }
 .a-toast { padding: 11px 15px; border-radius: var(--r); background: var(--ok-wash); border: 1px solid #a7f3d0; border-left: 3px solid var(--ok); color: var(--text); font-size: .9rem; line-height: 1.5; }
@@ -244,6 +247,27 @@ CSS = """
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .001ms !important; animation-duration: .001ms !important; } }
 """
+
+
+#: Presses the hidden refresh button once the page has rendered, so a browser
+#: refresh re-reads what ARTEMIS holds instead of showing the state from when
+#: the server started. Polls briefly because Gradio draws the page after load,
+#: then waits a moment for the button's handler to be attached. Delivered in the
+#: page head: the `js=` option of launch() was accepted but never ran.
+LOAD_HEAD = """<script>
+(function () {
+  var tries = 0;
+  var timer = setInterval(function () {
+    var button = document.getElementById('a-refresh');
+    if (button) {
+      clearInterval(timer);
+      setTimeout(function () { button.click(); }, 700);
+    } else if (++tries > 80) {
+      clearInterval(timer);
+    }
+  }, 250);
+})();
+</script>"""
 
 
 def _esc(value: object) -> str:
@@ -608,6 +632,7 @@ def build(store: Store) -> gr.Blocks:
     assistant = AssistantPanel(store)
 
     with gr.Blocks(title="ARTEMIS", fill_width=True) as page:
+        refresh_on_open = gr.Button("refresh", elem_id="a-refresh", elem_classes=["a-hidden"])
         with gr.Row(equal_height=False):
             # -- the rail ---------------------------------------------------
             with gr.Column(scale=0, min_width=250):
@@ -618,10 +643,10 @@ def build(store: Store) -> gr.Blocks:
                 metrics = gr.HTML(panel.metrics_html())
                 status = gr.HTML(elem_classes=["a-status-slot"])
 
-                with gr.Tabs() as tabs:
+                with gr.Tabs():
                     # Work is first because it is what someone opens ARTEMIS
                     # to do. Inspection and settings come after.
-                    with gr.Tab("Work", id="work"):
+                    with gr.Tab("Work"):
                         gr.HTML(
                             '<div class="a-h1">What would you like done?</div>'
                             '<div class="a-sub">ARTEMIS plans the work and shows '
@@ -656,14 +681,14 @@ def build(store: Store) -> gr.Blocks:
                         # decision. Buttons offering to confirm a plan that
                         # does not exist are the most confusing thing a page
                         # can show.
-                        with gr.Row(visible=False) as decision_row:
+                        with gr.Row(visible=False, elem_classes=["a-decision"]) as decision_row:
                             approve_btn = gr.Button("Approve", variant="primary")
                             remember_btn = gr.Button("Approve, don't ask again")
                             reject_btn = gr.Button("No, leave it", variant="stop")
 
                         resume_card = gr.HTML()
 
-                    with gr.Tab("Folders", id="folders"):
+                    with gr.Tab("Folders"):
                         gr.HTML(
                             '<div class="a-h1">Folders ARTEMIS can see</div>'
                             '<div class="a-sub">It can only ever see folders you '
@@ -681,7 +706,7 @@ def build(store: Store) -> gr.Blocks:
                             )
                         cards = gr.HTML(panel.cards_html())
 
-                    with gr.Tab("What it knows", id="knows"):
+                    with gr.Tab("What it knows"):
                         gr.HTML(
                             '<div class="a-h1">Everything ARTEMIS holds</div>'
                             '<div class="a-sub">Forget never deletes. These '
@@ -718,7 +743,7 @@ def build(store: Store) -> gr.Blocks:
                             "Erase everything ARTEMIS knows", variant="stop"
                         )
 
-                    with gr.Tab("Settings", id="settings"):
+                    with gr.Tab("Settings"):
                         gr.HTML(
                             '<div class="a-h1">Where ARTEMIS keeps what it '
                             "knows</div>"
@@ -1001,14 +1026,22 @@ def build(store: Store) -> gr.Blocks:
         # used to show that moment: no folders, an empty dropdown, "ARTEMIS
         # cannot see anything", while the data was all still there. Reading the
         # stores again on every page load makes the page match what is held.
+        def _pick(first):
+            # Only set a value when there is one. Assigning None to an empty
+            # dropdown as the page loads was one of the things that made this
+            # version of Gradio spin.
+            if first:
+                return gr.update(choices=panel.choices(), value=first)
+            return gr.update(choices=panel.choices())
+
         def on_load():
             first = panel.first_workspace_id()
             return (
                 panel.cards_html(),
                 panel.metrics_html(),
-                gr.update(choices=panel.choices(), value=first),
+                _pick(first),
                 panel.files_html(first),
-                gr.update(choices=panel.choices(), value=first),
+                _pick(first),
                 panel.sidebar_html("work"),
                 assistant.resume_html(first),
                 panel.cloud_html(),
@@ -1020,7 +1053,11 @@ def build(store: Store) -> gr.Blocks:
                 "" if first else assistant.welcome_html(),
             )
 
-        page.load(
+        # Gradio 6.12 freezes the whole page when a tab is clicked if the page
+        # has any load event (reproduced with a one-line load handler on the
+        # previous version of this interface). So the refresh is an ordinary
+        # click on a hidden button, pressed once by LOAD_JS when the page opens.
+        refresh_on_open.click(
             on_load,
             outputs=[
                 cards, metrics, picker, files, work_picker, sidebar, resume_card,
@@ -1045,6 +1082,7 @@ def launch(inbrowser: bool = True, port: int | None = None) -> None:
             # Styling moved to launch() in Gradio 6; on Blocks() it is dropped.
             theme=THEME,
             css=CSS,
+            head=LOAD_HEAD,
             server_name="127.0.0.1",  # loopback only, never a public interface
             server_port=port,
             inbrowser=inbrowser,

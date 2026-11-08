@@ -1019,6 +1019,11 @@ class AssistantPanel:
         self.state.last_words = ""
         if self.state.last_workspace_id:
             self._rescan(self.state.last_workspace_id)
+            # Undoing is ARTEMIS's own change, like the plan it takes back, so
+            # the "what changed" baseline moves too. Otherwise the files coming
+            # back were reported as 12 new and 12 gone, as if somebody else had
+            # done it.
+            self._resume.checkpoint(self.state.last_workspace_id)
 
         if problems:
             return self._say(

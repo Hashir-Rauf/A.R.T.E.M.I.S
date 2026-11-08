@@ -143,6 +143,13 @@ class OllamaProvider(Provider):
                 "model": self.model,
                 "prompt": prompt,
                 "stream": False,
+                # gemma4 reasons before it answers, and that reasoning is counted
+                # against num_predict. On a prompt with a few passages in it the
+                # whole 500-token budget went on reasoning and the reply came
+                # back empty, which the interface reported as "I could not find
+                # anything". Asking for the answer directly returns it in about
+                # a ninth of the tokens.
+                "think": False,
                 "options": {"num_predict": max_tokens, **_OLLAMA_OPTIONS},
             }
         ).encode()
@@ -177,6 +184,7 @@ class OllamaProvider(Provider):
                 "model": self.model,
                 "prompt": prompt,
                 "stream": True,
+                "think": False,
                 "options": {"num_predict": max_tokens, **_OLLAMA_OPTIONS},
             }
         ).encode()
