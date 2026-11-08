@@ -419,10 +419,12 @@ def _capabilities_html() -> str:
     )
 
 
+_REFERS_BACK = re.compile(r"\b(him|her|them|they|same (person|address|one)|again|that address)\b", re.IGNORECASE)
 _ADDRESS_RE = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
 _CANCEL_WORDS = frozenset({"cancel", "never mind", "nevermind", "forget it", "stop", "no", "nope", "skip"})
 
 _MAIL_FILLER = frozenset({
+    "another", "him", "her", "them", "again", "same", "one", "more", "other", "next", "once",
     "draft", "write", "send", "compose", "email", "e-mail", "mail", "message", "an", "a",
     "to", "please", "me", "my", "new", "quick", "short", "the", "for", "and", "can", "you",
     "could", "would", "i", "want", "need", "like", "now",
@@ -480,6 +482,8 @@ class AssistantState:
     #: as the answer instead of as a brand-new request. Without this, "what should
     #: the email say?" was followed by "say hi", which meant nothing on its own.
     pending: dict | None = None
+    #: Who the last email was addressed to, so "send another to him" knows who.
+    last_recipients: tuple = ()
     #: The conversation: (what the person said or pressed, ARTEMIS's reply as
     #: markup). A button press has no typed words, so the first part may be a
     #: label such as "Suggest a tidy-up".
@@ -623,6 +627,8 @@ class AssistantPanel:
 
         if intent.kind == SEARCH:
             return "now", self._propose_search(workspace_id, intent)
+        if intent.kind == MAIL and not intent.recipients and self.state.last_recipients and _REFERS_BACK.search(text):
+            intent = Intent(MAIL, text, recipients=self.state.last_recipients)
         if intent.kind == MAIL:
             if not intent.recipients:
                 self.state.pending = {"kind": "mail", "recipients": (), "text": text}
@@ -1124,6 +1130,7 @@ class AssistantPanel:
             note = (
                 " No mail account is set up yet, so sending will fail until one is."
             )
+        self.state.last_recipients = tuple(intent.recipients)
         outcome = self._gateway.submit_plan(workspace_id, plan, intent.text)
         return self._render_outcome(outcome, intent.text, from_service=True, note=note)
 
@@ -1362,7 +1369,10 @@ class AssistantPanel:
         if not lines:
             lines.append(_esc("Nothing ran."))
         if remember and done:
-            lines.append(_esc("I will not ask again for this kind of change in this folder."))
+            if any(c.operation in REVERSIBLE_OPS for c in done):
+                lines.append(_esc("I will not ask again for this kind of change in this folder."))
+            else:
+                lines.append(_esc("Emails and web searches always ask first, so I will ask again next time."))
         return " ".join(lines)
 
     @staticmethod
@@ -1471,6 +1481,18 @@ class AssistantPanel:
             "add one, then come back here to tidy it, ask about its files, or "
             "draft something from them."
         )
+
+    @property
+    def can_remember(self) -> bool:
+        """Whether "don't ask again" means anything for the plan that is waiting.
+
+        It never does for something that leaves the computer: those always ask.
+        """
+        outcome = self.state.outcome
+        if outcome is None or not outcome.needs_approval:
+            return False
+        preview = outcome.preview or {}
+        return not preview.get("leaves_machine", False)
 
     @property
     def has_pending(self) -> bool:

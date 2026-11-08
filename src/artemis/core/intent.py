@@ -33,6 +33,15 @@ CODE_EXTENSIONS = frozenset({
     ".html", ".css", ".json", ".yaml", ".yml", ".toml",
 })
 
+#: "send another email to him", "write a mail to my boss", "email her", "draft a message".
+#: Any wording that asks for an email to be written or sent, so it is never mistaken
+#: for conversation (where the model then pretends to have done it).
+_MAIL_REQUEST = re.compile(
+    r"^(please |can you |could you |would you )?"
+    r"(e-?mail\b|(send|write|draft|compose|shoot|fire off)\b.*\b(e-?mails?|mail|message)\b)",
+    re.IGNORECASE,
+)
+
 _ADDRESS = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
 
 #: Wording that means "change this code", as opposed to "tell me about it".
@@ -144,7 +153,7 @@ def classify(text: str, files: list[str] | None = None) -> Intent:
     addresses = tuple(dict.fromkeys(_ADDRESS.findall(stripped)))
 
     # Email. An address, or the word "email" used as a verb at the start.
-    if re.match(r"^(please )?(e-?mail|send an? e-?mail|send a message|write an? e-?mail)\b", lowered) or (
+    if _MAIL_REQUEST.match(stripped) or (
         addresses and re.search(r"\b(e-?mail|send|tell|let|notify|message|write to)\b", lowered)
     ):
         return Intent(MAIL, stripped, recipients=addresses)

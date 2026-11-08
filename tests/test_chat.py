@@ -299,3 +299,55 @@ def test_the_waiting_plan_can_be_shown_again_after_a_reload(store: Store, ws: in
     assert "Approve these changes?" in panel.pending_card_html() and panel.has_pending
     panel.reject()
     assert panel.pending_card_html() == ""
+
+
+# -- the email that did not go out -------------------------------------------------------
+
+
+@pytest.mark.parametrize("text", [
+    "send another email to him",
+    "write a mail to my boss",
+    "draft a message to her",
+    "email him again",
+    "Could you send a quick email to sam@example.com",
+])
+def test_any_wording_that_asks_for_an_email_is_treated_as_one(text: str) -> None:
+    from artemis.core.intent import MAIL, classify
+
+    assert classify(text, []).kind == MAIL
+
+
+def test_him_means_the_person_the_last_email_went_to(store: Store, ws: int) -> None:
+    panel, stub = _panel(store, "SUBJECT: Hi\nBODY:\nSee you.\nThanks")
+    panel.state.last_recipients = ("bob@example.com",)
+
+    first, card = panel.ask(ws, "send another email to him")
+    assert "What should the email to bob@example.com say?" in first and card == ""
+
+    message, card = panel.ask(ws, "I will be there")
+    assert "Approve these changes?" in card and "bob@example.com" in card
+    assert panel.state.last_recipients == ("bob@example.com",)
+
+
+def test_dont_ask_again_is_honest_about_emails(store: Store, ws: int) -> None:
+    from types import SimpleNamespace
+
+    from artemis.core.actions import Plan, ToolCall
+
+    panel, _ = _panel(store)
+    mail = ToolCall("send_mail", ws, (), {"to": ["bob@example.com"], "subject": "s", "body": "b"})
+    ran = SimpleNamespace(executed=(mail.call_id,), skipped=(), results={mail.call_id: {"sent_to": ["bob@example.com"]}})
+    said = panel._run_report(Plan(calls=(mail,), intent="x"), ran, remember=True)
+    assert "Email sent to bob@example.com" in said
+    assert "I will not ask again" not in said and "always ask first" in said
+
+    move = ToolCall("move_file", ws, ("a.txt",), {"destination": "Docs/a.txt"})
+    ran = SimpleNamespace(executed=(move.call_id,), skipped=(), results={move.call_id: None})
+    assert "I will not ask again" in panel._run_report(Plan(calls=(move,), intent="x"), ran, remember=True)
+
+
+def test_a_file_change_still_offers_dont_ask_again(store: Store, ws: int) -> None:
+    panel, _ = _panel(store)
+    panel.suggest_tidy(ws)
+    if panel.has_pending:
+        assert panel.can_remember is True

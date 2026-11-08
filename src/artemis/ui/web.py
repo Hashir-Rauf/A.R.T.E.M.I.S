@@ -1351,7 +1351,11 @@ def build(store: Store) -> gr.Blocks:
             # them disappear: a card asking "Approve these changes?" with nothing to
             # press.
             on = assistant.has_pending
-            return gr.update(interactive=on), gr.update(interactive=on), gr.update(interactive=on)
+            return (
+                gr.update(interactive=on),
+                gr.update(interactive=on and assistant.can_remember),
+                gr.update(interactive=on),
+            )
 
         def ask_progressively(ws, text):
             """Stream the turn into the conversation as it is worked on."""
