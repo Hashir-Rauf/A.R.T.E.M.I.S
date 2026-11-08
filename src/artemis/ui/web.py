@@ -52,7 +52,7 @@ from artemis.core.modelconfig import ModelNameError, ModelSettings
 from artemis.services import mail as mailsvc
 from artemis.data import credentials
 from artemis.services.resume import ResumeService
-from artemis.services.speech import NotArmed, SpeechUnavailable, VoiceSession
+from artemis.services.speech import NotArmed, SpeechUnavailable, VoiceSession, greeting
 from artemis.data.store import Store
 from artemis.ui.assistant import AssistantPanel
 
@@ -342,6 +342,95 @@ LOAD_HEAD = """<script>
     new MutationObserver(apply).observe(document.body, { attributes: true, attributeFilter: ['class'] });
   });
   apply();
+
+  // Hands-free voice. While "Voice is on" is ticked, listen after ARTEMIS finishes
+  // speaking, and stop listening when the person goes quiet, so it feels like taking
+  // turns in a conversation. Nothing records unless the box is ticked.
+  (function () {
+    var rec = false, waitingSince = 0, heardVoice = false, lastLoud = 0, startedAt = 0, floor = 0, awaiting = 0, sawSpeech = false;
+    var ctx = null, analyser = null, buf = null, stream = null;
+    function q(id) { return document.getElementById(id); }
+    function on() { var c = q('a-voice-on'); var i = c && c.querySelector('input[type=checkbox]'); return !!(i && i.checked); }
+    function micButton(word) {
+      var m = q('a-mic'); if (!m) return null;
+      var bs = m.querySelectorAll('button');
+      for (var i = 0; i < bs.length; i++) {
+        var t = ((bs[i].getAttribute('aria-label') || '') + ' ' + bs[i].textContent).toLowerCase();
+        if (t.indexOf(word) >= 0 && bs[i].offsetParent !== null) return bs[i];
+      }
+      return null;
+    }
+    function outButton(word) {
+      var o = q('a-voice-out'); if (!o) return null;
+      var bs = o.querySelectorAll('button');
+      for (var i = 0; i < bs.length; i++) {
+        if ((bs[i].getAttribute('aria-label') || '').toLowerCase() === word) return bs[i];
+      }
+      return null;
+    }
+    function clipId() {
+      var o = q('a-voice-out'); var s = o && o.querySelector('[aria-label^="Skip forward"]');
+      return s ? s.getAttribute('aria-label') : '';
+    }
+    var lastClip = '';
+    function speaking() { return !!outButton('pause'); }
+    window.__afState = function () { return { on: on(), rec: rec, speaking: speaking(), busy: busy(), record: !!micButton('record'), clip: clipId(), last: lastClip }; };
+    function busy() { return !!document.querySelector('.a-chat .a-thinking, .a-chat .a-streaming'); }
+    function level() {
+      analyser.getByteTimeDomainData(buf);
+      var s = 0; for (var i = 0; i < buf.length; i++) { var v = (buf[i] - 128) / 128; s += v * v; }
+      return Math.sqrt(s / buf.length);
+    }
+    function listen() {
+      if (!navigator.mediaDevices) return;
+      navigator.mediaDevices.getUserMedia({ audio: true }).then(function (s) {
+        stream = s;
+        ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
+        var src = ctx.createMediaStreamSource(s);
+        analyser = ctx.createAnalyser(); analyser.fftSize = 1024; buf = new Uint8Array(analyser.fftSize);
+        src.connect(analyser);
+      }).catch(function () {});
+    }
+    function release() {
+      if (stream) { stream.getTracks().forEach(function (t) { t.stop(); }); stream = null; }
+      analyser = null;
+    }
+    setInterval(function () {
+      var now = Date.now();
+      if (!on()) { if (rec || stream) { release(); rec = false; } return; }
+      // play each new spoken reply once (the page only plays it itself when allowed to)
+      var id = clipId(), play = outButton('play');
+      if (id && id !== lastClip && play && !rec) { lastClip = id; play.click(); return; }
+      var stop = micButton('stop');
+      if (stop && rec) {
+        var l = analyser ? level() : 0;
+        // the room's own noise sets the bar, so a quiet fan is not mistaken for speech
+        if (analyser && now - startedAt < 700) { floor = Math.max(floor * 0.8, l); }
+        else if (l > Math.max(0.03, floor * 2.5)) { heardVoice = true; lastLoud = now; }
+        // a pause of under two seconds is thinking, not the end of what was said
+        if ((heardVoice && now - lastLoud > 2000) || (!heardVoice && now - startedAt > 15000)) {
+          rec = false; heardVoice = false; waitingSince = now; awaiting = now; sawSpeech = false; release(); stop.click();
+        }
+        return;
+      }
+      if (rec && !stop) { rec = false; release(); }
+      if (speaking()) { sawSpeech = true; waitingSince = 0; return; }
+      if (busy()) { waitingSince = 0; return; }
+      // After something was said, wait for the spoken reply to start and finish before
+      // listening again, so ARTEMIS never hears itself. Give up after a while, or at
+      // once if it could not make out what was said.
+      if (awaiting) {
+        var note = q('a-voice-note'); var txt = note ? note.textContent : '';
+        var failed = txt.indexOf('did not catch') >= 0 || txt.indexOf('Voice is off') >= 0 || txt.indexOf('could not') >= 0;
+        if (sawSpeech || failed || now - awaiting > 60000) { awaiting = 0; } else { return; }
+      }
+      var go = micButton('record');
+      if (go && !rec) {
+        waitingSince = 0; rec = true; heardVoice = false; startedAt = now; lastLoud = now; floor = 0;
+        listen(); go.click();
+      }
+    }, 400);
+  })();
 
   var tries = 0;
   var timer = setInterval(function () {
@@ -945,6 +1034,7 @@ def build(store: Store) -> gr.Blocks:
     panel = WebPanel(store)
     assistant = AssistantPanel(store)
     voice = VoiceSession(audit=store.append_audit)
+    voice.warm()  # load the voices in the background so the first hello is quick
 
     with gr.Blocks(title="ARTEMIS", fill_width=True) as page:
         refresh_on_open = gr.Button("refresh", elem_id="a-refresh", elem_classes=["a-hidden"])
@@ -1002,15 +1092,16 @@ def build(store: Store) -> gr.Blocks:
                                 "you first. The recording is deleted as soon as it has been "
                                 "turned into words.</div>"
                             )
-                            voice_on = gr.Checkbox(label="Voice is on (microphone allowed)", value=False)
+                            voice_on = gr.Checkbox(label="Voice is on (microphone allowed)", value=False, elem_id="a-voice-on")
                             read_aloud = gr.Checkbox(label="Read answers aloud", value=True)
                             mic = gr.Audio(
                                 sources=["microphone"], type="filepath",
-                                label="Microphone", interactive=False,
+                                label="Microphone", interactive=False, elem_id="a-mic",
                             )
-                            voice_note = gr.HTML()
+                            voice_note = gr.HTML(elem_id="a-voice-note")
                             voice_out = gr.Audio(
                                 label="ARTEMIS speaking", autoplay=True, interactive=False,
+                                elem_id="a-voice-out",
                             )
 
                         with gr.Row():
@@ -1407,14 +1498,30 @@ def build(store: Store) -> gr.Blocks:
 
         # -- voice: another way to type, with no gates of its own --------------
         def set_voice(on):
-            voice.arm() if on else voice.disarm()
-            note = (
-                '<div class="a-msg">Voice is on. Press the microphone, speak, then stop.</div>'
-                if on else '<div class="a-msg">Voice is off. Nothing is recorded.</div>'
+            """Switching voice on starts the conversation: ARTEMIS greets you out loud."""
+            if not on:
+                voice.disarm()
+                assistant.set_spoken(False)
+                return (
+                    gr.update(interactive=False, value=None),
+                    '<div class="a-msg">Voice is off. Nothing is recorded.</div>',
+                    gr.skip(), None,
+                )
+            voice.arm()
+            assistant.set_spoken(True)
+            hello = greeting()
+            conversation_html = assistant.log_turn(None, assistant._say(hello))
+            try:
+                clip = str(voice.speak(hello) or "") or None
+            except SpeechUnavailable:
+                clip = None
+            return (
+                gr.update(interactive=True, value=None),
+                '<div class="a-msg">Voice is on. Just talk; I listen when I am not speaking.</div>',
+                conversation_html, clip,
             )
-            return gr.update(interactive=bool(on), value=None), note
 
-        voice_on.change(set_voice, inputs=voice_on, outputs=[mic, voice_note])
+        voice_on.change(set_voice, inputs=voice_on, outputs=[mic, voice_note, conversation, voice_out])
         read_aloud.change(lambda on: voice.set_read_aloud(on), inputs=read_aloud)
 
         def hear_voice(clip):
@@ -1422,12 +1529,12 @@ def build(store: Store) -> gr.Blocks:
             try:
                 turn = voice.hear(clip)
             except NotArmed:
-                return gr.skip(), '<div class="a-msg warn">Voice is off, so that was ignored.</div>', False
+                return gr.skip(), '<div class="a-msg warn">Voice is off, so that was ignored.</div>', False, None
             except SpeechUnavailable as exc:
-                return gr.skip(), f'<div class="a-msg warn">{html.escape(str(exc))}</div>', False
+                return gr.skip(), f'<div class="a-msg warn">{html.escape(str(exc))}</div>', False, None
             if turn is None:
-                return gr.skip(), '<div class="a-msg warn">I did not catch anything. Try again.</div>', False
-            return turn.text, f'<div class="a-msg">Heard: {html.escape(turn.text)}</div>', True
+                return gr.skip(), '<div class="a-msg warn">I did not catch anything. Try again.</div>', False, None
+            return turn.text, f'<div class="a-msg">Heard: {html.escape(turn.text)}</div>', True, None
 
         def speak_reply(was_spoken):
             if not was_spoken:
@@ -1446,7 +1553,7 @@ def build(store: Store) -> gr.Blocks:
             yield from ask_progressively(ws, text)
 
         mic.stop_recording(
-            hear_voice, inputs=mic, outputs=[ask_box, voice_note, voice_flag]
+            hear_voice, inputs=mic, outputs=[ask_box, voice_note, voice_flag, mic]
         ).then(
             ask_if_voice, inputs=[work_picker, ask_box, voice_flag], outputs=assistant_outputs
         ).then(sync_decision, outputs=decision_buttons).then(

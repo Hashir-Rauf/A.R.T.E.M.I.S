@@ -23,9 +23,11 @@ from __future__ import annotations
 
 import contextlib
 import os
+import re
 import tempfile
 import threading
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 from typing import Callable, Protocol
 
@@ -132,6 +134,103 @@ class WindowsSpeaker:
             pythoncom.CoUninitialize()
 
 
+class PiperSpeaker:
+    """A natural-sounding voice that runs on this computer (Piper).
+
+    The built-in Windows voice sounds robotic; this one sounds like a person. The voice
+    file (about 60 MB) is fetched once, the first time it is used.
+    """
+
+    REPO = "rhasspy/piper-voices"
+    FILE = "en/en_US/amy/medium/en_US-amy-medium"
+
+    def __init__(self) -> None:
+        self._voice = None
+        self._lock = threading.Lock()
+
+    def available(self) -> bool:
+        try:
+            import piper  # noqa: F401
+        except ImportError:
+            return False
+        return True
+
+    def _load(self):
+        with self._lock:
+            if self._voice is None:
+                from huggingface_hub import hf_hub_download
+                from piper import PiperVoice
+
+                # Use the copy already on this computer; only go online the first time.
+                try:
+                    hf_hub_download(self.REPO, self.FILE + ".onnx.json", local_files_only=True)
+                    model = hf_hub_download(self.REPO, self.FILE + ".onnx", local_files_only=True)
+                except Exception:
+                    hf_hub_download(self.REPO, self.FILE + ".onnx.json")
+                    model = hf_hub_download(self.REPO, self.FILE + ".onnx")
+                self._voice = PiperVoice.load(model)
+            return self._voice
+
+    def speak_to_file(self, text: str, out_path: Path) -> None:
+        import wave
+
+        try:
+            voice = self._load()
+            with wave.open(str(out_path), "wb") as wav:
+                voice.synthesize_wav(text, wav)
+        except Exception as exc:
+            raise SpeechUnavailable("The natural voice could not run.") from exc
+
+
+class BestAvailableSpeaker:
+    """The natural voice when it works, otherwise the Windows voice."""
+
+    def __init__(self) -> None:
+        self._natural = PiperSpeaker()
+        self._plain = WindowsSpeaker()
+        self._natural_failed = False
+
+    def speak_to_file(self, text: str, out_path: Path) -> None:
+        if self._natural.available() and not self._natural_failed:
+            try:
+                self._natural.speak_to_file(text, out_path)
+                return
+            except SpeechUnavailable:
+                self._natural_failed = True  # offline on first use, say: fall back quietly
+        self._plain.speak_to_file(text, out_path)
+
+
+_LABEL = re.compile(r"^\s*\S+\s*[·•]\s*(on this computer|via \w[\w .-]*)\s*$", re.IGNORECASE)
+_MARKUP = re.compile(r"[*_`#>]+")
+
+
+def spoken_form(text: str) -> str:
+    """What a person would actually say aloud for this reply.
+
+    Drops the line that names the model and where it ran, the markup, and the list
+    bullets, and reads a waiting plan as an invitation to look at the screen.
+    """
+    kept: list[str] = []
+    for line in (text or "").splitlines():
+        if _LABEL.match(line):
+            continue
+        line = _MARKUP.sub("", line)
+        line = re.sub(r"^\s*[-•]\s+", "", line).strip()
+        if line:
+            kept.append(line if line[-1] in ".?!:" else line + ".")
+    spoken = " ".join(kept)
+    if re.search(r"approve these changes|nothing has happened yet", spoken, re.IGNORECASE):
+        return "I've put the plan on the screen. Have a look, and press Approve when you're happy with it."
+    return spoken
+
+
+def greeting(now: datetime | None = None) -> str:
+    """The first thing said when voice is switched on."""
+    hour = (now or datetime.now()).hour
+    part = "Good morning" if hour < 12 else "Good afternoon" if hour < 18 else "Good evening"
+    return f"{part}! I'm ARTEMIS. I'm listening. What can I help you with?"
+
+
 class VoiceSession:
     """Whether the microphone is armed, and the turning of speech into a `Turn`."""
 
@@ -142,10 +241,29 @@ class VoiceSession:
         audit: Callable[[str, str], None] | None = None,
     ) -> None:
         self._transcriber = transcriber or FasterWhisperTranscriber()
-        self._speaker = speaker or WindowsSpeaker()
+        self._speaker = speaker or BestAvailableSpeaker()
         self._audit = audit or (lambda event, outcome: None)
         self._armed = False
         self._read_aloud = True
+
+    def warm(self) -> None:
+        """Load the speech models in the background so the first greeting is quick.
+
+        Loads files only. It does not open the microphone or record anything.
+        """
+
+        def load() -> None:
+            with contextlib.suppress(Exception):
+                handle, name = tempfile.mkstemp(prefix="artemis-warm-", suffix=".wav")
+                os.close(handle)
+                out = Path(name)
+                try:
+                    self._speaker.speak_to_file("Hello.", out)
+                finally:
+                    with contextlib.suppress(OSError):
+                        out.unlink()
+
+        threading.Thread(target=load, daemon=True).start()
 
     # -- arming ------------------------------------------------------------
 
@@ -200,7 +318,7 @@ class VoiceSession:
         """A sound file reading `text` aloud, or None when reading aloud is off."""
         if not self._read_aloud:
             return None
-        text = " ".join((text or "").split())
+        text = " ".join(spoken_form(text).split())
         if not text:
             return None
         if len(text) > MAX_SPOKEN_CHARS:

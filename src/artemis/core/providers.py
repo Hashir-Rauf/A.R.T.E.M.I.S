@@ -138,6 +138,23 @@ class OllamaProvider(Provider):
 
     _down_until: float = 0.0
 
+    def preload(self, keep_alive: str = "30m") -> None:
+        """Load the model into memory now and keep it there, so the first answer is quick.
+
+        A model that has been idle is unloaded, and loading a large one takes tens of
+        seconds, which in a spoken conversation is a long silence. Sends no prompt and
+        nothing leaves this computer.
+        """
+        body = json.dumps({"model": self.model, "keep_alive": keep_alive}).encode()
+        request = urllib.request.Request(
+            f"{self.host}/api/generate", body, {"Content-Type": "application/json"}
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=self.timeout_s):
+                pass
+        except (urllib.error.URLError, OSError, ValueError, TimeoutError):
+            pass  # not running: the normal fallbacks apply when a message arrives
+
     def available(self) -> bool:
         # After a failed check, believe it for a few seconds. Every chat message asks,
         # and each wasted second on a switched-off Ollama came before the answer.

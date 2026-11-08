@@ -45,6 +45,18 @@ and what it should say, and the app will prepare it for approval.
 """
 
 
+#: Added when the person is talking rather than typing, so the reply sounds like a
+#: person on a call and not a written answer read out.
+VOICE_STYLE = """
+This is a spoken conversation, so talk like a friendly person on a phone call:
+one to three short sentences, everyday words and contractions, no lists, no
+markdown, no emoji. React to what they just said before anything else. When it
+fits, end with a short question or an offer, the way people keep a chat going.
+Speak clearly and warmly in normal, correctly spelled English: do not imitate
+an accent or drop letters. Never say which model or software you are; you are just ARTEMIS.
+"""
+
+
 @dataclass(frozen=True)
 class ChatReply:
     text: str
@@ -61,6 +73,8 @@ class ChatReply:
 class ChatService:
     def __init__(self, router: ModelRouter) -> None:
         self._router = router
+        #: True while the person is talking, which changes how the reply is worded.
+        self.spoken = False
 
     def reply(
         self,
@@ -69,9 +83,9 @@ class ChatService:
         history: list[tuple[str, str]] | None = None,
     ) -> ChatReply:
         """Answer one message. `history` is (what the user said, what ARTEMIS said)."""
-        prompt = self._prompt(message, history or [])
+        prompt = self._prompt(message, history or [], self.spoken)
         decision = self._router.complete(
-            workspace_id, prompt, max_tokens=700, think=False
+            workspace_id, prompt, max_tokens=250 if self.spoken else 700, think=False
         )
         provider = next(
             (p for p in self._router.providers if p.name == decision.completion.provider),
@@ -89,9 +103,10 @@ class ChatService:
         history: list[tuple[str, str]] | None = None,
     ):
         """Yield (text so far, label). The label is empty until the reply is complete."""
-        prompt = self._prompt(message, history or [])
+        prompt = self._prompt(message, history or [], self.spoken)
         text = ""
-        for piece in self._router.stream(workspace_id, prompt, max_tokens=700, think=False):
+        limit = 250 if self.spoken else 700
+        for piece in self._router.stream(workspace_id, prompt, max_tokens=limit, think=False):
             text += piece
             yield text, ""
         provider = self._router.last_streamed
@@ -101,7 +116,7 @@ class ChatService:
         yield text.strip(), f"{model} \u00b7 {where}"
 
     @staticmethod
-    def _prompt(message: str, history: list[tuple[str, str]]) -> str:
+    def _prompt(message: str, history: list[tuple[str, str]], spoken: bool = False) -> str:
         recent = history[-MAX_HISTORY_TURNS:]
         lines: list[str] = []
         used = 0
@@ -113,7 +128,7 @@ class ChatService:
             lines.append(chunk)
         earlier = "".join(reversed(lines))
         return (
-            f"{SYSTEM}\n"
+            f"{SYSTEM}{VOICE_STYLE if spoken else ''}\n"
             + (f"Conversation so far:\n{earlier}\n" if earlier else "")
             + f"User: {message}\nARTEMIS:"
         )

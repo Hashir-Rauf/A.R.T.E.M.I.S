@@ -212,3 +212,48 @@ def test_a_spoken_email_is_never_sent_without_approval(store: Store, folder, tmp
 
     assert panel.has_pending  # waiting for a person, not sent
     assert "Approve" in card
+
+
+# -- it should sound like a person, not read out the screen -------------------
+
+
+def test_the_model_label_and_markup_are_never_spoken() -> None:
+    from artemis.services.speech import spoken_form
+
+    shown = "**Hello** there!\n- first thing\n- second thing\ngemma4:e4b \u00b7 on this computer"
+    said = spoken_form(shown)
+
+    assert "gemma" not in said and "on this computer" not in said
+    assert "*" not in said and "- " not in said
+    assert said.startswith("Hello there!")
+    assert spoken_form("a \u00b7 b\ngemini-3.8-flash \u00b7 via gemini") == "a \u00b7 b."
+
+
+def test_a_waiting_plan_is_spoken_as_an_invitation_to_look_not_read_out() -> None:
+    from artemis.services.speech import spoken_form
+
+    said = spoken_form("Approve these changes?\nMove a.pdf to Docs/a.pdf")
+
+    assert "press Approve" in said and "a.pdf" not in said
+
+
+def test_the_greeting_depends_on_the_time_of_day() -> None:
+    from datetime import datetime
+
+    from artemis.services.speech import greeting
+
+    assert greeting(datetime(2026, 1, 1, 8)).startswith("Good morning")
+    assert greeting(datetime(2026, 1, 1, 14)).startswith("Good afternoon")
+    assert greeting(datetime(2026, 1, 1, 20)).startswith("Good evening")
+    assert "ARTEMIS" in greeting()
+
+
+def test_a_spoken_chat_is_worded_for_the_ear_and_never_names_the_model() -> None:
+    from artemis.core.chat import ChatService
+
+    typed = ChatService._prompt("hi", [], spoken=False)
+    talked = ChatService._prompt("hi", [], spoken=True)
+
+    assert "phone call" not in typed
+    assert "phone call" in talked
+    assert "Never say which model" in talked

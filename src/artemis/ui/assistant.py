@@ -858,6 +858,19 @@ class AssistantPanel:
 
     # -- the conversation ------------------------------------------------------
 
+    def set_spoken(self, on: bool) -> None:
+        """While the person is talking, chat replies are worded for the ear.
+
+        Switching it on also loads the local model in the background, because the first
+        spoken reply otherwise waits for the model to load.
+        """
+        self._chat.spoken = bool(on)
+        if on:
+            for provider in self._router.providers:
+                preload = getattr(provider, "preload", None)
+                if callable(preload):
+                    threading.Thread(target=preload, daemon=True).start()
+
     def last_reply_text(self) -> str:
         """The newest reply as plain words, for reading aloud after a spoken request."""
         history = self._history()
