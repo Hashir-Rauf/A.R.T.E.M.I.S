@@ -1369,7 +1369,11 @@ def build(store: Store) -> gr.Blocks:
                 # Say what to do rather than leave an empty dropdown. (Switching
                 # the tab for them from here makes this version of Gradio loop
                 # forever, so the message does the job instead.)
-                "" if first else assistant.welcome_html(),
+                assistant.transcript_html() or ("" if first else assistant.welcome_html()),
+                # Read from disk each time, so a reload shows the account that
+                # is really saved instead of the state from when the server began.
+                panel.mail_html(),
+                panel.local_models_html(),
             )
 
         # Gradio 6.12 freezes the whole page when a tab is clicked if the page
@@ -1380,7 +1384,7 @@ def build(store: Store) -> gr.Blocks:
             on_load,
             outputs=[
                 cards, metrics, picker, files, work_picker, sidebar, resume_card,
-                cloud_state, location, conversation,
+                cloud_state, location, conversation, mail_state, local_state,
             ],
         )
 
