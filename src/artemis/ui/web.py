@@ -34,6 +34,7 @@ for its own sake.
 
 from __future__ import annotations
 
+import logging
 import html
 import subprocess
 import sys
@@ -1033,6 +1034,16 @@ def build(store: Store) -> gr.Blocks:
     """Assemble the interface. Separated from launch so tests can build it."""
     panel = WebPanel(store)
     assistant = AssistantPanel(store)
+    class _QuietRecordingFetch(logging.Filter):
+        """The page sometimes re-fetches a recording just as it is deleted (by design,
+        recordings are never kept). That is harmless, so do not print it as an error."""
+
+        def filter(self, record: logging.LogRecord) -> bool:
+            return "Response content shorter than Content-Length" not in record.getMessage() and not (
+                record.exc_info and "shorter than Content-Length" in str(record.exc_info[1])
+            )
+
+    logging.getLogger("uvicorn.error").addFilter(_QuietRecordingFetch())
     voice = VoiceSession(audit=store.append_audit)
     voice.warm()  # load the voices in the background so the first hello is quick
 
@@ -1100,7 +1111,7 @@ def build(store: Store) -> gr.Blocks:
                             )
                             voice_note = gr.HTML(elem_id="a-voice-note")
                             voice_out = gr.Audio(
-                                label="ARTEMIS speaking", autoplay=True, interactive=False,
+                                label="ARTEMIS speaking", autoplay=False, interactive=False,
                                 elem_id="a-voice-out",
                             )
 
@@ -1509,7 +1520,7 @@ def build(store: Store) -> gr.Blocks:
                 )
             voice.arm()
             assistant.set_spoken(True)
-            hello = greeting()
+            hello = greeting(resuming=bool(assistant.state.transcript))
             conversation_html = assistant.log_turn(None, assistant._say(hello))
             try:
                 clip = str(voice.speak(hello) or "") or None

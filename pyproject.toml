@@ -30,7 +30,7 @@ dependencies = [
 [project.optional-dependencies]
 voice = [
     "faster-whisper>=1.0",
-    "av>=14,<16",  # newer av breaks faster-whisper 1.2
+    "av>=14,<16", "kokoro-onnx>=0.4", "soundfile>=0.12",  # newer av breaks faster-whisper 1.2
 ]
 dev = [
     "pytest>=8.0",

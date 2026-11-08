@@ -25,8 +25,8 @@ from artemis.core.router import ModelRouter
 
 #: How much earlier conversation is sent with a new message. A small model gets
 #: slower and less accurate as its prompt grows, and an old turn rarely matters.
-MAX_HISTORY_TURNS = 6
-MAX_HISTORY_CHARS = 3000
+MAX_HISTORY_TURNS = 8
+MAX_HISTORY_CHARS = 4500
 
 SYSTEM = """You are ARTEMIS, a private assistant that runs on the user's own computer.
 Talk naturally. Keep answers short: a few sentences unless the user asks for detail.

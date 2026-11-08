@@ -873,8 +873,12 @@ class AssistantPanel:
 
     def last_reply_text(self) -> str:
         """The newest reply as plain words, for reading aloud after a spoken request."""
-        history = self._history()
-        return history[-1][1] if history else ""
+        if not self.state.transcript:
+            return ""
+        markup = self.state.transcript[-1][1]
+        # The small grey line naming the model is for the screen only; never say it.
+        markup = re.sub(r'<div class="a-model">.*?</div>', "", markup, flags=re.DOTALL)
+        return _plain(markup, limit=2000)
 
     def _history_text(self) -> str:
         """The last few turns as plain lines, for follow-up questions about files."""
@@ -883,7 +887,15 @@ class AssistantPanel:
         )
 
     def _history(self) -> list[tuple[str, str]]:
-        return [(user or "", _plain(reply)) for user, reply in self.state.transcript[-6:]]
+        # Earlier turns go back to the model as words only: no model label, and enough
+        # of each reply that a follow-up ("go on", "what about the second one") has context.
+        return [
+            (
+                user or "",
+                _plain(re.sub(r'<div class="a-model">.*?</div>', "", reply, flags=re.DOTALL), 900),
+            )
+            for user, reply in self.state.transcript[-8:]
+        ]
 
     @staticmethod
     def _turn_html(user: str | None, reply_markup: str) -> str:

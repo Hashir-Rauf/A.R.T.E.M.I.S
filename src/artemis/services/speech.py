@@ -182,22 +182,76 @@ class PiperSpeaker:
             raise SpeechUnavailable("The natural voice could not run.") from exc
 
 
-class BestAvailableSpeaker:
-    """The natural voice when it works, otherwise the Windows voice."""
+class KokoroSpeaker:
+    """The most natural voice here (Kokoro), running on this computer.
+
+    Noticeably more lifelike than Piper: it varies pace and pitch like a person does.
+    The two files (about 120 MB) are fetched once, the first time it is used.
+    """
+
+    BASE = "https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/"
+    FILES = ("kokoro-v1.0.int8.onnx", "voices-v1.0.bin")
+    VOICE = "af_heart"
 
     def __init__(self) -> None:
-        self._natural = PiperSpeaker()
-        self._plain = WindowsSpeaker()
-        self._natural_failed = False
+        self._engine = None
+        self._lock = threading.Lock()
+
+    def available(self) -> bool:
+        try:
+            import kokoro_onnx  # noqa: F401
+            import soundfile  # noqa: F401
+        except ImportError:
+            return False
+        return True
+
+    def _load(self):
+        with self._lock:
+            if self._engine is None:
+                import urllib.request
+
+                from kokoro_onnx import Kokoro
+
+                from artemis.data.paths import artemis_home
+
+                folder = artemis_home() / "voice"
+                folder.mkdir(parents=True, exist_ok=True)
+                for name in self.FILES:
+                    target = folder / name
+                    if not target.exists():
+                        part = target.with_suffix(target.suffix + ".part")
+                        urllib.request.urlretrieve(self.BASE + name, part)
+                        part.replace(target)
+                self._engine = Kokoro(str(folder / self.FILES[0]), str(folder / self.FILES[1]))
+            return self._engine
 
     def speak_to_file(self, text: str, out_path: Path) -> None:
-        if self._natural.available() and not self._natural_failed:
+        try:
+            import soundfile
+
+            samples, rate = self._load().create(text, voice=self.VOICE, speed=0.97, lang="en-us")
+            soundfile.write(str(out_path), samples, rate)
+        except Exception as exc:
+            raise SpeechUnavailable("The natural voice could not run.") from exc
+
+
+class BestAvailableSpeaker:
+    """The most natural voice that works, falling back to plainer ones."""
+
+    def __init__(self) -> None:
+        self._chain = [KokoroSpeaker(), PiperSpeaker(), WindowsSpeaker()]
+        self._failed: set[int] = set()
+
+    def speak_to_file(self, text: str, out_path: Path) -> None:
+        for index, speaker in enumerate(self._chain):
+            if index in self._failed or not speaker.available():
+                continue
             try:
-                self._natural.speak_to_file(text, out_path)
+                speaker.speak_to_file(text, out_path)
                 return
             except SpeechUnavailable:
-                self._natural_failed = True  # offline on first use, say: fall back quietly
-        self._plain.speak_to_file(text, out_path)
+                self._failed.add(index)  # offline on first use, say: fall back quietly
+        raise SpeechUnavailable("This computer has no speech voice ARTEMIS can use.")
 
 
 _LABEL = re.compile(r"^\s*\S+\s*[·•]\s*(on this computer|via \w[\w .-]*)\s*$", re.IGNORECASE)
@@ -224,8 +278,10 @@ def spoken_form(text: str) -> str:
     return spoken
 
 
-def greeting(now: datetime | None = None) -> str:
+def greeting(now: datetime | None = None, resuming: bool = False) -> str:
     """The first thing said when voice is switched on."""
+    if resuming:
+        return "Hi again. Let's pick up where we left off. What's next?"
     hour = (now or datetime.now()).hour
     part = "Good morning" if hour < 12 else "Good afternoon" if hour < 18 else "Good evening"
     return f"{part}! I'm ARTEMIS. I'm listening. What can I help you with?"
