@@ -207,6 +207,25 @@ CSS = """
 .a-hidden { display: none !important; }
 .a-decision { margin: 6px 0 12px; }
 
+/* Dark theme. Chosen with the switch in the sidebar and remembered. */
+.dark {
+  --page: #0b1120; --surface: #111a2e; --raised: #1a2540; --line: #243049; --line-firm: #34425e;
+  --text: #e5e9f2; --muted: #a3aec4; --faint: #8b97b0;
+  --accent: #8b93ff; --accent-hover: #a3a9ff; --accent-wash: #1d2347;
+  --ok: #4ade80; --ok-wash: #0f2a1f; --danger: #fb7185; --danger-wash: #34121c;
+}
+.dark .a-d-add { background: #0f2a1f !important; color: #86efac !important; }
+.dark .a-d-del { background: #34121c !important; color: #fda4af !important; }
+.dark .a-note, .dark .a-assure { border-color: #14532d; }
+.dark .a-msg.warn, .dark .a-warn-line, .dark .a-flag { border-color: #7f1d1d; }
+.dark .a-guide { border-color: #34425e; }
+.dark .a-pill-on, .dark .a-cloud-on { background: #0f2a1f; color: #86efac !important; }
+.dark .a-chip { border-color: #34425e; }
+.dark .a-user { background: #4f46e5; }
+.dark .gradio-container button.primary { color: #ffffff !important; background: #4f46e5 !important; border-color: #4f46e5 !important; }
+.dark .gradio-container input::placeholder, .dark .gradio-container textarea::placeholder { color: var(--faint) !important; }
+.dark .a-user, .dark .a-user * { color: #ffffff !important; }
+
 /* Conversation */
 .a-chat { display: flex; flex-direction: column-reverse; gap: 14px; max-height: 520px; overflow-y: auto; padding: 4px 2px; }
 .a-turn { display: flex; flex-direction: column; gap: 8px; }
@@ -235,6 +254,8 @@ CSS = """
 .a-d-hunk, .a-d-head { color: var(--muted) !important; }
 .a-msg.warn, .a-msg.warn * { color: var(--text) !important; }
 .a-model { margin-top: 8px; font-size: .74rem; color: var(--faint); font-family: ui-monospace, Consolas, monospace; }
+.a-local, .a-local * { color: var(--text) !important; }
+.a-local .k { color: var(--muted) !important; }
 .a-local { display: grid; grid-template-columns: 1fr auto; gap: 6px 14px; padding: 13px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); font-size: .88rem; }
 .a-local .k { color: var(--muted); font-weight: 600; }
 .a-pill-on { color: #166534; background: #dcfce7; border-radius: 999px; padding: 2px 10px; font-size: .75rem; font-weight: 600; }
@@ -297,6 +318,27 @@ CSS = """
 #: page head: the `js=` option of launch() was accepted but never ran.
 LOAD_HEAD = """<script>
 (function () {
+  var KEY = 'artemis-theme';
+  function wantDark() { try { return localStorage.getItem(KEY) === 'dark'; } catch (e) { return false; } }
+  function apply() {
+    var dark = wantDark();
+    var root = document.documentElement, body = document.body;
+    if (root.classList.contains('dark') !== dark) { root.classList.toggle('dark', dark); }
+    if (body && body.classList.contains('dark') !== dark) { body.classList.toggle('dark', dark); }
+  }
+  // Gradio switches itself to dark whenever the operating system is dark, which
+  // left half the page dark and half light. The person's own choice wins.
+  window.artemisToggleTheme = function () {
+    try { localStorage.setItem(KEY, wantDark() ? 'light' : 'dark'); } catch (e) {}
+    apply();
+  };
+  new MutationObserver(apply).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+  document.addEventListener('DOMContentLoaded', function () {
+    apply();
+    new MutationObserver(apply).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  });
+  apply();
+
   var tries = 0;
   var timer = setInterval(function () {
     var button = document.getElementById('a-refresh');
@@ -462,6 +504,11 @@ class WebPanel:
                 if w.permission == "read_only"
                 else "can read and change files here, with your approval"
             )
+            cloud_line = (
+                "Cloud models are allowed here: what you type may leave this computer."
+                if w.cloud_policy == "cloud_allowed"
+                else "Cloud models are off here: everything stays on this computer."
+            )
             cards.append(
                 '<div class="a-card">'
                 '<div class="a-card-top">'
@@ -470,6 +517,7 @@ class WebPanel:
                 "</div>"
                 f'<div class="a-card-path">{_esc(w.root)}</div>'
                 f'<div class="a-card-meta">ARTEMIS {access}</div>'
+                f'<div class="a-card-meta">{cloud_line}</div>'
                 "</div>"
             )
         return f'<div class="a-cards">{"".join(cards)}</div>'
@@ -516,6 +564,18 @@ class WebPanel:
         return f'<div class="{cls}">{_esc(message)}</div>'
 
     # -- actions -----------------------------------------------------------
+
+    def set_cloud_policy(self, workspace_id: int, allow: bool) -> None:
+        self._store.set_cloud_policy(workspace_id, "cloud_allowed" if allow else "local_only")
+
+    def chat_cloud(self) -> bool:
+        return self._store.get_setting("cloud.chat") == "1"
+
+    def set_chat_cloud(self, on: bool) -> str:
+        self._store.set_setting("cloud.chat", "1" if on else "0")
+        return self.toast(
+            "Plain chat may now use your cloud model." if on else "Plain chat stays on this computer."
+        )
 
     def first_workspace_id(self) -> int | None:
         found = self._manager.list()
@@ -879,6 +939,7 @@ def build(store: Store) -> gr.Blocks:
             # -- the rail ---------------------------------------------------
             with gr.Column(scale=0, min_width=250):
                 sidebar = gr.HTML(panel.sidebar_html("work"))
+                theme_btn = gr.Button("Switch light / dark", size="sm")
 
             # -- the work area ----------------------------------------------
             with gr.Column(scale=5):
@@ -970,6 +1031,15 @@ def build(store: Store) -> gr.Blocks:
                                 "Add folder", variant="primary", scale=1
                             )
                         cards = gr.HTML(panel.cards_html())
+                        with gr.Row():
+                            cloud_folder = gr.Dropdown(
+                                label="Folder",
+                                choices=panel.choices(),
+                                interactive=True,
+                                scale=4,
+                            )
+                            cloud_on_btn = gr.Button("Allow cloud models here", scale=2)
+                            cloud_off_btn = gr.Button("Keep it on this computer", scale=2)
 
                     with gr.Tab("What it knows"):
                         gr.HTML(
@@ -1051,6 +1121,10 @@ def build(store: Store) -> gr.Blocks:
                             local_check = gr.Button("Check again", scale=1)
                         local_note = gr.HTML()
                         gr.HTML('<div class="a-h2" style="margin-top:18px">Cloud services</div>')
+                        chat_cloud = gr.Checkbox(
+                            label="Use cloud models for plain chat when no folder is chosen (what you type is sent to the cloud service)",
+                            value=panel.chat_cloud(),
+                        )
                         cloud_state = gr.HTML(panel.cloud_html())
                         with gr.Row():
                             cloud_pick = gr.Dropdown(
@@ -1126,10 +1200,11 @@ def build(store: Store) -> gr.Blocks:
                 panel.files_html(workspace_id),
                 pick(),
                 panel.sidebar_html("work"),
+                pick(),
             )
 
         outputs = [
-            cards, metrics, picker, status, files, work_picker, sidebar
+            cards, metrics, picker, status, files, work_picker, sidebar, cloud_folder
         ]
 
         def add_folder(folder):
@@ -1141,6 +1216,20 @@ def build(store: Store) -> gr.Blocks:
             # use it, and an empty dropdown on the Work tab looked like nothing
             # had happened.
             return refresh(message, new_id, select=new_id)
+
+        def set_cloud(ws, allow):
+            if not ws:
+                return refresh(panel.toast("Choose a folder first.", warn=True))
+            panel.set_cloud_policy(ws, allow)
+            assistant.refresh_models()
+            name = panel.workspace_name(ws)
+            return refresh(panel.toast(
+                f"Cloud models are now allowed for {name}. Anything you ask there may be sent to the cloud service you set up."
+                if allow else f"{name} stays on this computer. Cloud models will not be used for it."
+            ))
+
+        cloud_on_btn.click(lambda ws: set_cloud(ws, True), inputs=cloud_folder, outputs=outputs)
+        cloud_off_btn.click(lambda ws: set_cloud(ws, False), inputs=cloud_folder, outputs=outputs)
 
         add_btn.click(add_folder, inputs=folder_box, outputs=outputs).then(
             lambda: "", outputs=folder_box
@@ -1304,9 +1393,9 @@ def build(store: Store) -> gr.Blocks:
         clear_chat_btn.click(lambda: assistant.clear_chat(), outputs=conversation)
 
         resume_btn.click(
-            lambda ws: assistant.resume_html(ws),
+            lambda ws: refresh_after_change(*assistant.answer_what_changed(ws), ws, "What changed"),
             inputs=work_picker,
-            outputs=resume_card,
+            outputs=assistant_outputs,
         )
 
         def habits_ui(ws):
@@ -1383,6 +1472,12 @@ def build(store: Store) -> gr.Blocks:
             outputs=[mail_note, mail_state, mail_pass],
         )
         mail_provider.change(lambda pr: panel.mail_hint(pr), inputs=mail_provider, outputs=mail_hint)
+        def chat_cloud_changed(on):
+            note = panel.set_chat_cloud(bool(on))
+            assistant.refresh_models()
+            return note
+
+        chat_cloud.change(chat_cloud_changed, inputs=chat_cloud, outputs=cloud_note)
         mail_test.click(lambda: panel.test_mail(), outputs=mail_note)
         mail_forget.click(lambda: (panel.forget_mail(), panel.mail_html()), outputs=[mail_note, mail_state])
 
@@ -1457,6 +1552,8 @@ def build(store: Store) -> gr.Blocks:
         # has any load event (reproduced with a one-line load handler on the
         # previous version of this interface). So the refresh is an ordinary
         # click on a hidden button, pressed once by LOAD_JS when the page opens.
+        theme_btn.click(None, js="() => { window.artemisToggleTheme(); }")
+
         refresh_on_open.click(
             on_load,
             outputs=[

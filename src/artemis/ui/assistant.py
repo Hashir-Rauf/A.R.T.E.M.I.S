@@ -43,6 +43,7 @@ from artemis.core.index_worker import IndexWorker
 from artemis.core.indexer import Indexer
 from artemis.core.intent import CHAT, CODE, DRAFT, MAIL, PLAN, QUESTION, SEARCH, classify
 from artemis.core.modelconfig import ModelSettings
+from artemis.core.providers import CLOUD_CATALOGUE
 from artemis.core.gateway import Gateway, TurnOutcome
 from artemis.core.router import ModelRouter, NoModelAvailable
 from artemis.core.providers import OllamaProvider
@@ -418,6 +419,13 @@ def _capabilities_html() -> str:
     )
 
 
+def _has_key(credentials, name: str) -> bool:
+    try:
+        return credentials.has_key(name)
+    except Exception:
+        return False
+
+
 def _plain(markup: str, limit: int = 500) -> str:
     """Markup as plain text, for feeding earlier turns back to the model."""
     text = html.unescape(re.sub(r"<[^>]+>", " ", markup))
@@ -618,7 +626,7 @@ class AssistantPanel:
 
         error = box.get("error")
         if isinstance(error, NoModelAvailable):
-            yield self._say(f"No model is available right now. {error}", warn=True), ""
+            yield self._say(self.no_model_help(workspace_id), warn=True), ""
             return
         if error is not None:
             yield self._say(f"Something went wrong: {error}", warn=True), ""
@@ -738,6 +746,43 @@ class AssistantPanel:
         return ""
 
     # -- models ------------------------------------------------------------------
+
+    def no_model_help(self, workspace_id: int | None) -> str:
+        """Why nothing could answer, and exactly what to do about it."""
+        from artemis.data import credentials
+
+        status = self._models.local_status(refresh=True)
+        parts = []
+        if not status.running:
+            parts.append("ARTEMIS cannot reach Ollama on this computer. Open the Ollama app, then try again.")
+        elif not status.active_installed:
+            parts.append(
+                f"The local model \u201c{status.active}\u201d is not installed in Ollama. "
+                "Pick an installed one in Settings, under Local model."
+            )
+        saved = [
+            e["label"]
+            for e in CLOUD_CATALOGUE
+            if _has_key(credentials, e["name"])
+        ]
+        if saved:
+            row = self._store.get_workspace(workspace_id) if workspace_id else None
+            allowed = (row["cloud_policy"] == "cloud_allowed") if row else (
+                self._store.get_setting("cloud.chat") == "1"
+            )
+            if not allowed:
+                where = (
+                    "Folders tab, then \u201cAllow cloud models\u201d for this folder"
+                    if row
+                    else "Settings, then tick \u201cUse cloud models for plain chat\u201d"
+                )
+                parts.append(
+                    f"You have a {' and '.join(saved)} key saved, but it was not used: cloud "
+                    f"models stay off until you allow them. Allow it in the {where}."
+                )
+        elif not parts:
+            parts.append("No model is set up. Start Ollama, or add a cloud key in Settings.")
+        return " ".join(parts)
 
     def refresh_models(self) -> None:
         """Pick up a model or key change without restarting."""
@@ -1049,9 +1094,7 @@ class AssistantPanel:
         try:
             return payload(None)
         except NoModelAvailable as exc:
-            return self._say(
-                f"No model is available right now. {exc}", warn=True
-            ), ""
+            return self._say(self.no_model_help(workspace_id), warn=True), ""
         except Exception as exc:  # pragma: no cover - surfaced, never swallowed
             return self._say(f"Something went wrong: {exc}", warn=True), ""
 
@@ -1342,6 +1385,15 @@ class AssistantPanel:
             return self._say("Choose a folder first."), ""
 
         report = self._resume.report(workspace_id)
+        if report.is_first_visit:
+            # There is nothing to compare against yet. Record where things stand
+            # now, so the next question has an answer, and say that plainly.
+            self._resume.checkpoint(workspace_id)
+            return self._say(
+                "ARTEMIS has just taken note of what is in this folder. From now on "
+                "it can tell you what was added, edited or removed. Ask again "
+                "after you have changed something."
+            ), ""
         lines = [_esc(report.summary())]
 
         if report.changes:

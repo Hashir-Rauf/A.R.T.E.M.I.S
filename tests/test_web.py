@@ -295,3 +295,10 @@ def test_forgetting_a_key_updates_the_panel(panel: WebPanel, fake_keyring) -> No
 def test_provider_choices_are_label_and_name_pairs(panel: WebPanel) -> None:
     choices = panel.provider_choices()
     assert ("Google Gemini", "gemini") in choices
+
+
+def test_the_whole_page_can_be_built(store) -> None:
+    """A missing name inside build() only shows up when the server starts."""
+    from artemis.ui.web import build
+
+    assert build(store) is not None

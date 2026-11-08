@@ -101,7 +101,9 @@ class ModelSettings:
     def _installed(self, max_age: float) -> list[LocalModel] | None:
         """What Ollama reports, or None if it cannot be reached.
 
-        Cached briefly because the sidebar asks on every click, and a computer
+        Ollama on this computer answers in milliseconds, so waiting longer only
+        slows things down when it is switched off (Windows takes about two seconds
+        to refuse a closed port). Cached briefly because the sidebar asks on every click, and a computer
         with Ollama switched off would otherwise wait for a timeout each time.
         """
         now = time.monotonic()
@@ -109,7 +111,7 @@ class ModelSettings:
             return self._cache[1]
         found: list[LocalModel] | None
         try:
-            with urllib.request.urlopen(f"{self._host}/api/tags", timeout=2) as response:
+            with urllib.request.urlopen(f"{self._host}/api/tags", timeout=0.6) as response:
                 body = json.loads(response.read())
             found = sorted(
                 (

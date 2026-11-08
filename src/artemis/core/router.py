@@ -75,7 +75,21 @@ class ModelRouter:
 
     # -- policy ------------------------------------------------------------
 
-    def permitted_tiers(self, workspace_id: int) -> list[Provider]:
+    def _policy_for(self, workspace_id: int | None) -> str:
+        """A folder's own setting decides. With no folder, a chat setting decides.
+
+        Plain conversation touches no files, so with no folder chosen the only
+        thing that would leave the computer is what the person typed. They opt in
+        to that once, in Settings, and it is off until they do.
+        """
+        row = self.store.get_workspace(workspace_id) if workspace_id else None
+        if row is not None:
+            return row["cloud_policy"]
+        if self.store.get_setting("cloud.chat") == "1":
+            return CLOUD_ALLOWED
+        return LOCAL_ONLY
+
+    def permitted_tiers(self, workspace_id: int | None) -> list[Provider]:
         """The providers this workspace is allowed to use, in tier order.
 
         A local-only workspace gets exactly the local tier. This is the list the
@@ -83,8 +97,7 @@ class ModelRouter:
         cloud provider is not merely deprioritised for such a workspace: it is
         absent.
         """
-        row = self.store.get_workspace(workspace_id)
-        policy = row["cloud_policy"] if row else LOCAL_ONLY
+        policy = self._policy_for(workspace_id)
         if policy == CLOUD_ALLOWED:
             return list(self.providers)
         return [p for p in self.providers if p.tier == ModelTier.LOCAL]
@@ -93,8 +106,7 @@ class ModelRouter:
         """Refuse if this provider would take data off a confined workspace."""
         if provider.tier == ModelTier.LOCAL:
             return
-        row = self.store.get_workspace(workspace_id)
-        policy = row["cloud_policy"] if row else LOCAL_ONLY
+        policy = self._policy_for(workspace_id)
         if policy != CLOUD_ALLOWED:
             self.store.append_audit(
                 event="router.egress",
