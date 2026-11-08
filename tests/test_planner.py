@@ -310,3 +310,22 @@ def test_prompt_asks_for_one_line_of_json() -> None:
 
     assert "one line of compact JSON" in PROMPT
     assert "No line breaks" in PROMPT
+
+
+def test_a_move_into_a_folder_the_plan_creates_keeps_the_file_name() -> None:
+    """Models say "Finance" meaning "into Finance"; that must not collide with the folder."""
+    from artemis.core.planner import _to_calls
+
+    calls, _ = _to_calls(
+        [
+            {"operation": "create_dir", "paths": ["Finance"], "arguments": {}},
+            {"operation": "move_file", "paths": ["inv.pdf"], "arguments": {"destination": "Finance"}},
+            {"operation": "move_file", "paths": ["r.pdf"], "arguments": {"destination": "Finance/"}},
+            {"operation": "move_file", "paths": ["x.txt"], "arguments": {"destination": "Other/x.txt"}},
+        ],
+        1,
+    )
+
+    assert [c.arguments.get("destination") for c in calls[1:]] == [
+        "Finance/inv.pdf", "Finance/r.pdf", "Other/x.txt",
+    ]

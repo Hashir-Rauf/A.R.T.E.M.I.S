@@ -416,6 +416,7 @@ def _to_calls(
     """
     calls: list[ToolCall] = []
     discarded: list[str] = []
+    made_folders: set[str] = set()
 
     for step in steps:
         if not isinstance(step, dict):
@@ -441,6 +442,17 @@ def _to_calls(
         arguments = step.get("arguments")
         if not isinstance(arguments, dict):
             arguments = {}
+
+        # Models often name the folder to move into rather than the new file path.
+        # A move whose destination is a folder this plan creates (or one that ends in a
+        # slash) means "into that folder, keeping the name".
+        if operation == "move_file" and len(paths) == 1 and isinstance(arguments.get("destination"), str):
+            dest = arguments["destination"].replace("\\", "/")
+            name = paths[0].replace("\\", "/").rsplit("/", 1)[-1]
+            if dest.endswith("/") or dest.rstrip("/") in made_folders:
+                arguments = {**arguments, "destination": dest.rstrip("/") + "/" + name}
+        if operation == "create_dir":
+            made_folders.update(p.replace("\\", "/").rstrip("/") for p in paths)
 
         calls.append(
             ToolCall(
