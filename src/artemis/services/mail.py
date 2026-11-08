@@ -103,7 +103,7 @@ def save_settings(settings: MailSettings, password: str) -> None:
     if not password:
         raise MailError("type the password first (it is kept in the Windows Credential Manager)")
     try:
-        set_password(settings.username, password)
+        set_password(settings.username, clean_password(settings.host, password))
     except Exception as exc:  # keyring has many backend-specific errors
         raise MailError(f"the password could not be stored safely, so nothing was saved: {exc}") from exc
 
@@ -163,22 +163,91 @@ def _check_subject(subject: str) -> str:
     return subject.strip()
 
 
-def _smtp_send(settings: MailSettings, password: str, message: EmailMessage) -> None:
+#: Providers whose "app passwords" are shown in groups with spaces. The spaces are
+#: only there to be readable; typing them in makes the login fail.
+_APP_PASSWORD_HOSTS = ("gmail.com", "yahoo.com", "me.com", "icloud.com", "outlook.com")
+
+
+def clean_password(host: str, password: str) -> str:
+    if any(host.lower().endswith(h) for h in _APP_PASSWORD_HOSTS):
+        return "".join(password.split())
+    return password
+
+
+def _explain(exc: Exception, settings: MailSettings) -> str:
+    """A reason a person can act on, instead of a library error."""
+    if isinstance(exc, smtplib.SMTPAuthenticationError):
+        return (
+            "the email provider did not accept the email address and password. "
+            "Gmail, Yahoo and iCloud need an app password, not your normal password"
+        )
+    if isinstance(exc, smtplib.SMTPServerDisconnected):
+        return (
+            "the email provider hung up when ARTEMIS tried to log in. This almost always "
+            "means the password was not accepted: Gmail, Yahoo and iCloud need an app "
+            "password, not your normal one. If the password is right, check that no "
+            "antivirus or firewall is blocking email"
+        )
+    if isinstance(exc, smtplib.SMTPRecipientsRefused):
+        return "the email provider refused the recipient's address"
+    if isinstance(exc, (TimeoutError, OSError)):
+        return f"could not reach {settings.host}. Check your internet connection"
+    return f"the email provider reported a problem: {exc}"
+
+
+def _open(settings: MailSettings, password: str, security: str, port: int):
+    context = ssl.create_default_context()
+    if security == "ssl":
+        server = smtplib.SMTP_SSL(settings.host, port, timeout=30, context=context)
+    else:
+        server = smtplib.SMTP(settings.host, port, timeout=30)
+        server.starttls(context=context)
     try:
-        if settings.security == "ssl":
-            with smtplib.SMTP_SSL(
-                settings.host, settings.port, timeout=30,
-                context=ssl.create_default_context(),
-            ) as server:
-                server.login(settings.username, password)
-                server.send_message(message)
-        else:
-            with smtplib.SMTP(settings.host, settings.port, timeout=30) as server:
-                server.starttls(context=ssl.create_default_context())
-                server.login(settings.username, password)
-                server.send_message(message)
+        server.login(settings.username, clean_password(settings.host, password))
+    except Exception:
+        server.close()
+        raise
+    return server
+
+
+def _connect(settings: MailSettings, password: str):
+    """Log in, trying the other usual secure port if the first is hung up on.
+
+    Some networks and security programs drop the connection on 465 but allow 587
+    (or the reverse), and either is equally safe.
+    """
+    attempts = [(settings.security, settings.port)]
+    if settings.port == 465:
+        attempts.append(("starttls", 587))
+    elif settings.port == 587:
+        attempts.append(("ssl", 465))
+    last: Exception | None = None
+    for security, port in attempts:
+        try:
+            return _open(settings, password, security, port)
+        except smtplib.SMTPAuthenticationError as exc:
+            raise MailError(_explain(exc, settings)) from exc  # a second port will not help
+        except (smtplib.SMTPException, OSError) as exc:
+            last = exc
+    raise MailError(_explain(last, settings)) from last
+
+
+def test_connection(settings: MailSettings, password: str) -> None:
+    """Log in without sending anything, so the account can be checked."""
+    _connect(settings, password).quit()
+
+
+def _smtp_send(settings: MailSettings, password: str, message: EmailMessage) -> None:
+    server = _connect(settings, password)
+    try:
+        server.send_message(message)
     except (smtplib.SMTPException, OSError) as exc:
-        raise MailError(f"the mail server refused or could not be reached: {exc}") from exc
+        raise MailError(_explain(exc, settings)) from exc
+    finally:
+        try:
+            server.quit()
+        except Exception:
+            pass
 
 
 class MailService:

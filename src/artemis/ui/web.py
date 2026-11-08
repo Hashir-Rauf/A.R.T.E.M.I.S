@@ -687,6 +687,20 @@ class WebPanel:
             return self.toast(str(exc), warn=True)
         return self.toast("Done. ARTEMIS can now send email from " + address + ". Your password is kept safely in Windows, not in a file.")
 
+    def test_mail(self) -> str:
+        """Log in with the saved account without sending anything."""
+        current = mailsvc.load_settings()
+        if current is None:
+            return self.toast("Connect your email first.", warn=True)
+        password = mailsvc.get_password(current.username)
+        if not password:
+            return self.toast("The password is missing. Connect your email again.", warn=True)
+        try:
+            mailsvc.test_connection(current, password)
+        except mailsvc.MailError as exc:
+            return self.toast(f"The test failed: {exc}.", warn=True)
+        return self.toast("The test worked. ARTEMIS can log in to your email and send.")
+
     def forget_mail(self) -> str:
         mailsvc.forget_settings()
         return self.toast("Email disconnected.")
@@ -1024,6 +1038,7 @@ def build(store: Store) -> gr.Blocks:
                                 mail_security = gr.Dropdown(label="Security", choices=["ssl", "starttls"], value="ssl", scale=1)
                         with gr.Row():
                             mail_save = gr.Button("Connect my email", variant="primary")
+                            mail_test = gr.Button("Test connection")
                             mail_forget = gr.Button("Disconnect")
                         mail_note = gr.HTML()
 
@@ -1307,6 +1322,7 @@ def build(store: Store) -> gr.Blocks:
             outputs=[mail_note, mail_state, mail_pass],
         )
         mail_provider.change(lambda pr: panel.mail_hint(pr), inputs=mail_provider, outputs=mail_hint)
+        mail_test.click(lambda: panel.test_mail(), outputs=mail_note)
         mail_forget.click(lambda: (panel.forget_mail(), panel.mail_html()), outputs=[mail_note, mail_state])
 
 

@@ -78,3 +78,48 @@ def test_forgetting_the_account_removes_it(monkeypatch) -> None:
     mail.save_settings(mail.MailSettings("smtp.example.com", 465, "me@example.com", "me@example.com"), "pw")
     mail.forget_settings()
     assert mail.load_settings() is None
+
+
+# -- connecting ------------------------------------------------------------------
+
+
+def test_spaces_in_a_gmail_app_password_are_removed() -> None:
+    from artemis.services.mail import clean_password
+
+    assert clean_password("smtp.gmail.com", "abcd efgh ijkl mnop") == "abcdefghijklmnop"
+    assert clean_password("mail.example.org", "two words") == "two words"
+
+
+def test_the_other_secure_port_is_tried_when_the_first_is_hung_up_on(monkeypatch) -> None:
+    import smtplib
+
+    from artemis.services import mail
+
+    tried = []
+
+    def fake_open(settings, password, security, port):
+        tried.append((security, port))
+        if port == 465:
+            raise smtplib.SMTPServerDisconnected("Connection unexpectedly closed")
+        return object()
+
+    monkeypatch.setattr(mail, "_open", fake_open)
+    mail._connect(mail.MailSettings("smtp.gmail.com", 465, "a@b.co", "a@b.co"), "pw")
+    assert tried == [("ssl", 465), ("starttls", 587)]
+
+
+def test_a_wrong_password_says_so_and_does_not_retry(monkeypatch) -> None:
+    import smtplib
+
+    from artemis.services import mail
+
+    tried = []
+
+    def fake_open(settings, password, security, port):
+        tried.append(port)
+        raise smtplib.SMTPAuthenticationError(535, b"bad credentials")
+
+    monkeypatch.setattr(mail, "_open", fake_open)
+    with pytest.raises(mail.MailError, match="app password"):
+        mail._connect(mail.MailSettings("smtp.gmail.com", 465, "a@b.co", "a@b.co"), "pw")
+    assert tried == [465]
