@@ -215,6 +215,11 @@ CSS = """
    colour on some browsers and the reply was close to invisible on white. */
 .a-chat-text, .a-msg, .a-msg *, .a-claim, .a-claim *, .a-quote, .a-diff, .a-diff div { color: var(--text) !important; }
 .a-msg .a-cite, .a-msg .a-flag, .a-msg .a-model, .a-msg .a-card-meta, .a-msg.warn, .a-d-add, .a-d-del, .a-d-hunk { color: revert-layer; }
+.a-approval, .a-approval *, .a-step, .a-step *, .a-fact-v, .a-resume, .a-resume-line { color: var(--text) !important; }
+.a-approval-sub, .a-fact-k, .a-steps-head, .a-step-n { color: var(--muted) !important; }
+.a-assure { color: var(--ok) !important; }
+.a-warn-line { color: var(--danger) !important; }
+.a-step-t span[style] { opacity: 1 !important; background: var(--raised); border-radius: 6px; padding: 8px 10px; }
 .a-card-meta, .a-card-meta *, .a-sub, .a-sub *, .a-h1, .a-h2, .a-cloud-note { color: var(--muted) !important; }
 .a-card-meta strong, .a-h1, .a-h2 { color: var(--text) !important; }
 .gradio-container .label-wrap, .gradio-container .label-wrap *, .gradio-container button.label-wrap { color: var(--text) !important; background: transparent !important; }
