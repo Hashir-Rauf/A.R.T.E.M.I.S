@@ -724,7 +724,7 @@ class AssistantPanel:
             "Do not use placeholders such as [Name]. End with the word Thanks.\n\n"
             f"The user asked: {intent.text}\n"
         )
-        decision = self._router.complete(workspace_id, prompt, max_tokens=400)
+        decision = self._router.complete(workspace_id, prompt, max_tokens=400, think=False)
         reply = decision.completion.text.strip()
         match = re.search(r"SUBJECT:\s*(.+?)\s*\n+\s*BODY:\s*(.+)", reply, re.S | re.I)
         if not match:
@@ -1144,8 +1144,8 @@ class AssistantPanel:
         return (
             '<div class="a-approval">'
             '<div class="a-approval-head">Approve these changes?</div>'
-            '<div class="a-approval-sub">Nothing has happened yet. Read the '
-            "steps, then choose below.</div>"
+            '<div class="a-approval-sub">Nothing has happened yet. Look '
+            "through the steps below, then decide with the buttons above.</div>"
             f'<div class="a-facts">{fact_rows}</div>'
             f'<div class="a-assures">{assurance_html}</div>'
             f"{skipped_html}"

@@ -14,7 +14,13 @@ from dataclasses import dataclass
 from artemis.core.context import AssembledContext, Provenance
 
 CITATION = re.compile(r"\[(\d+)\]")
-SENTENCE_END = re.compile(r"(?<=[.!?])\s+(?!\[\d)")
+#: A sentence ends at . ! or ? followed by a space, but not after an abbreviation
+#: that is part of the sentence. Splitting "Smith et al. (2025) found..." after
+#: "al." made a fragment with no citation, which was then labelled unsupported.
+SENTENCE_END = re.compile(
+    r"(?<=[.!?])(?<!\bal\.)(?<!\be\.g\.)(?<!\bi\.e\.)(?<!\betc\.)"
+    r"(?<!\bvs\.)(?<!\bDr\.)(?<!\bFig\.)(?<!\bNo\.)\s+(?!\[\d)"
+)
 
 
 @dataclass(frozen=True)
@@ -53,7 +59,10 @@ def check_answer(answer: str, context: AssembledContext) -> list[Claim]:
             chunk = context.chunks[index]
             if chunk.provenance is Provenance.WORKSPACE_FILE:
                 sources.append(chunk.citation())
-        text = CITATION.sub("", claim).strip()
+        text = CITATION.sub("", claim)
+        # Removing "[2]" from "found this [2]." left "found this ." behind.
+        text = re.sub(r"\s+([.,;:!?])", r"\1", text)
+        text = re.sub(r"\s{2,}", " ", text).strip()
         results.append(Claim(text, tuple(sources)))
     return results
 

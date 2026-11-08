@@ -89,7 +89,7 @@ class AnswerService:
         context = self.engine.assemble(workspace_id, question, retrieved=passages)
         prompt = PROMPT.format(context=context.render(), question=question)
         try:
-            decision = self.router.complete(workspace_id, prompt, max_tokens=500)
+            decision = self.router.complete(workspace_id, prompt, max_tokens=500, think=False)
         except NoModelAvailable as exc:
             return Answer(str(exc), [], [])
         claims = check_answer(decision.completion.text, context)

@@ -138,7 +138,7 @@ class CodeAssistant:
         content = raw.decode("utf-8", errors="replace")
         prompt = PROMPT.format(path=rel_path, content=content, question=question)
         try:
-            decision = self.router.complete(workspace_id, prompt, max_tokens=900)
+            decision = self.router.complete(workspace_id, prompt, max_tokens=900, think=False)
         except NoModelAvailable as exc:
             return DiffResult(False, "", str(exc))
 

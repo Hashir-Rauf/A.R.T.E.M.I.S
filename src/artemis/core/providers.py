@@ -73,17 +73,19 @@ class Provider(ABC):
         """
 
     @abstractmethod
-    def complete(self, prompt: str, max_tokens: int = 512) -> Completion:
+    def complete(
+        self, prompt: str, max_tokens: int = 512, think: bool | None = None
+    ) -> Completion:
         """Send a prompt and return the answer, or raise ProviderError."""
 
-    def stream(self, prompt: str, max_tokens: int = 512):
+    def stream(self, prompt: str, max_tokens: int = 512, think: bool | None = None):
         """Yield the answer in pieces as it arrives.
 
         The default implementation simply yields the whole completion, so a
         provider that cannot stream still satisfies the interface and callers
         never need to ask which kind they have.
         """
-        yield self.complete(prompt, max_tokens=max_tokens).text
+        yield self.complete(prompt, max_tokens=max_tokens, think=think).text
 
 
 #: Generation settings shared by the blocking and streaming calls.
@@ -104,6 +106,20 @@ _OLLAMA_OPTIONS: dict = {
     "temperature": 0.1,
     "repeat_penalty": 1.25,
 }
+
+
+def _think_option(think: bool | None) -> dict:
+    """Whether to let the model reason before it answers, when the caller cares.
+
+    gemma4 reasons first, and that reasoning is counted against `num_predict`.
+    For a direct answer from a few passages the whole 500-token budget went on
+    reasoning and the reply came back empty, which the interface reported as "I
+    could not find anything". Asking for the answer directly returns it in about
+    a ninth of the tokens. Planning is the opposite: with reasoning off the
+    model produced steps with missing arguments, so the planner leaves this
+    unset and gets the model's own behaviour.
+    """
+    return {} if think is None else {"think": think}
 
 
 @dataclass
@@ -137,20 +153,16 @@ class OllamaProvider(Provider):
             return []
         return sorted(m.get("name", "") for m in tags.get("models", []))
 
-    def complete(self, prompt: str, max_tokens: int = 512) -> Completion:
+    def complete(
+        self, prompt: str, max_tokens: int = 512, think: bool | None = None
+    ) -> Completion:
         payload = json.dumps(
             {
                 "model": self.model,
                 "prompt": prompt,
                 "stream": False,
-                # gemma4 reasons before it answers, and that reasoning is counted
-                # against num_predict. On a prompt with a few passages in it the
-                # whole 500-token budget went on reasoning and the reply came
-                # back empty, which the interface reported as "I could not find
-                # anything". Asking for the answer directly returns it in about
-                # a ninth of the tokens.
-                "think": False,
                 "options": {"num_predict": max_tokens, **_OLLAMA_OPTIONS},
+                **_think_option(think),
             }
         ).encode()
         request = urllib.request.Request(
@@ -173,7 +185,7 @@ class OllamaProvider(Provider):
             tokens_out=body.get("eval_count", 0) or 0,
         )
 
-    def stream(self, prompt: str, max_tokens: int = 512):
+    def stream(self, prompt: str, max_tokens: int = 512, think: bool | None = None):
         """Yield text as the model produces it.
 
         The work takes the same time either way; what changes is that the
@@ -184,8 +196,8 @@ class OllamaProvider(Provider):
                 "model": self.model,
                 "prompt": prompt,
                 "stream": True,
-                "think": False,
                 "options": {"num_predict": max_tokens, **_OLLAMA_OPTIONS},
+                **_think_option(think),
             }
         ).encode()
         request = urllib.request.Request(
@@ -258,7 +270,9 @@ class OpenAICompatibleProvider(Provider):
         # not yet authorised at this point.
         return bool(self.api_key)
 
-    def complete(self, prompt: str, max_tokens: int = 512) -> Completion:
+    def complete(
+        self, prompt: str, max_tokens: int = 512, think: bool | None = None
+    ) -> Completion:
         if not self.api_key:
             raise ProviderError(f"{self.name}: no API key configured")
         payload = json.dumps(
@@ -321,15 +335,17 @@ class StubProvider(Provider):
     def available(self) -> bool:
         return self.reachable
 
-    def stream(self, prompt: str, max_tokens: int = 512):
+    def stream(self, prompt: str, max_tokens: int = 512, think: bool | None = None):
         """Yield the scripted reply in a few pieces, as a real one would."""
-        completion = self.complete(prompt, max_tokens=max_tokens)
+        completion = self.complete(prompt, max_tokens=max_tokens, think=think)
         text = completion.text
         size = max(1, len(text) // 3)
         for index in range(0, len(text), size):
             yield text[index : index + size]
 
-    def complete(self, prompt: str, max_tokens: int = 512) -> Completion:
+    def complete(
+        self, prompt: str, max_tokens: int = 512, think: bool | None = None
+    ) -> Completion:
         self.calls.append(prompt)
         if self.fail_with:
             raise ProviderError(f"{self.name}: {self.fail_with}")

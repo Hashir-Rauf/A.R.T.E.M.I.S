@@ -51,6 +51,15 @@ class RoutingDecision:
     degraded: bool = False
 
 
+def _think_kwargs(think: bool | None) -> dict:
+    """Pass `think` on only when a caller chose it.
+
+    A provider written before the option existed has no such parameter, and it
+    should keep working for every caller that does not care.
+    """
+    return {} if think is None else {"think": think}
+
+
 @dataclass
 class ModelRouter:
     """Chooses a provider, enforces egress, records what left the machine."""
@@ -101,7 +110,11 @@ class ModelRouter:
     # -- routing -----------------------------------------------------------
 
     def complete(
-        self, workspace_id: int, prompt: str, max_tokens: int = 512
+        self,
+        workspace_id: int,
+        prompt: str,
+        max_tokens: int = 512,
+        think: bool | None = None,
     ) -> RoutingDecision:
         """Answer a prompt using the first permitted tier that works."""
         permitted = self.permitted_tiers(workspace_id)
@@ -127,7 +140,9 @@ class ModelRouter:
             for attempt in range(self.retries_per_tier + 1):
                 attempted.append(provider.name)
                 try:
-                    completion = provider.complete(prompt, max_tokens=max_tokens)
+                    completion = provider.complete(
+                        prompt, max_tokens=max_tokens, **_think_kwargs(think)
+                    )
                 except ProviderError as exc:
                     failures.append(str(exc))
                     continue
@@ -164,7 +179,9 @@ class ModelRouter:
             "no model could answer. Tried: " + ", ".join(attempted or ["nothing"])
         )
 
-    def stream(self, workspace_id: int, prompt: str, max_tokens: int = 512):
+    def stream(
+        self, workspace_id: int, prompt: str, max_tokens: int = 512, think: bool | None = None
+    ):
         """Yield the answer in pieces, through the same gates as `complete`.
 
         Failover is only honest before the first piece is handed out. Once the
@@ -195,7 +212,9 @@ class ModelRouter:
             started = False
             pieces: list[str] = []
             try:
-                for piece in provider.stream(prompt, max_tokens=max_tokens):
+                for piece in provider.stream(
+                    prompt, max_tokens=max_tokens, **_think_kwargs(think)
+                ):
                     started = True
                     pieces.append(piece)
                     yield piece

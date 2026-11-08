@@ -64,7 +64,9 @@ class DocumentDrafter:
         prompt = PROMPT.format(
             context=context.render() if context else "(none)", instruction=instruction
         )
-        decision = self._router.complete(workspace_id, prompt, max_tokens=MAX_DRAFT_TOKENS)
+        decision = self._router.complete(
+            workspace_id, prompt, max_tokens=MAX_DRAFT_TOKENS, think=False
+        )
         return decision.completion.text.strip()
 
     def propose(

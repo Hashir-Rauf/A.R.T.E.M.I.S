@@ -41,3 +41,23 @@ def test_an_unsupported_claim_is_labelled_in_the_output() -> None:
     text = render_answer(check_answer(answer, make_context()))
     assert "[unsupported] The CEO resigned in March." in text
     assert "[unsupported] Revenue" not in text
+
+# -- wording of the checked claims ----------------------------------------------
+
+
+def test_et_al_does_not_split_a_claim_in_two() -> None:
+    """The first half had no citation and was wrongly labelled unsupported."""
+    from artemis.core.grounding import split_claims
+
+    claims = split_claims("Takerngsaksiri et al. (2025) report an 82 percent approval rate [3].")
+    assert len(claims) == 1
+
+
+def test_a_removed_citation_leaves_no_stray_space_before_the_full_stop() -> None:
+    from artemis.core.context import AssembledContext, Chunk, Provenance
+    from artemis.core.grounding import check_answer
+
+    chunk = Chunk(text="x", provenance=Provenance.WORKSPACE_FILE, workspace_id=1, source="a.txt")
+    context = AssembledContext(chunks=(chunk,))
+    claims = check_answer("It takes fifteen minutes [1].", context)
+    assert claims[0].text == "It takes fifteen minutes."

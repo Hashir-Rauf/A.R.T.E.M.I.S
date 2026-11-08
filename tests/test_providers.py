@@ -1,11 +1,8 @@
 
 
-def test_ollama_is_asked_for_the_answer_not_for_hidden_reasoning(monkeypatch) -> None:
-    """With reasoning on, the token budget was spent before any answer appeared."""
+def _capture(monkeypatch):
     import io
     import json
-
-    from artemis.core.providers import OllamaProvider
 
     sent = {}
 
@@ -21,7 +18,22 @@ def test_ollama_is_asked_for_the_answer_not_for_hidden_reasoning(monkeypatch) ->
         return _Reply(json.dumps({"response": "hello", "eval_count": 1}).encode())
 
     monkeypatch.setattr("urllib.request.urlopen", fake_urlopen)
+    return sent
 
-    OllamaProvider().complete("hi", max_tokens=10)
 
+def test_a_direct_answer_can_ask_the_model_not_to_reason_first(monkeypatch) -> None:
+    """With reasoning on, the token budget was spent before any answer appeared."""
+    from artemis.core.providers import OllamaProvider
+
+    sent = _capture(monkeypatch)
+    OllamaProvider().complete("hi", max_tokens=10, think=False)
     assert sent["body"]["think"] is False
+
+
+def test_planning_leaves_reasoning_to_the_model(monkeypatch) -> None:
+    """With reasoning off the planner produced steps with missing arguments."""
+    from artemis.core.providers import OllamaProvider
+
+    sent = _capture(monkeypatch)
+    OllamaProvider().complete("hi", max_tokens=10)
+    assert "think" not in sent["body"]

@@ -203,7 +203,7 @@ CSS = """
 .a-location-path { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: .82rem; color: var(--text); word-break: break-all; }
 
 .a-hidden { display: none !important; }
-.a-decision { position: sticky; bottom: 0; z-index: 20; padding: 12px 0 14px; background: var(--page); border-top: 1px solid var(--line); }
+.a-decision { margin: 6px 0 12px; }
 
 /* Status banner, answers with sources, and diffs. */
 .a-status-slot { min-height: 46px; }
@@ -675,8 +675,13 @@ def build(store: Store) -> gr.Blocks:
                             undo_btn = gr.Button("Undo last change")
 
                         conversation = gr.HTML()
-                        approval_card = gr.HTML()
 
+                        # Above the card, not below it. Under a 14-step plan the
+                        # buttons sat off the bottom of the window, and pinning
+                        # them there does not work because Gradio's containers
+                        # defeat position: sticky. Directly under the summary
+                        # line they are always in view.
+                        #
                         # Hidden until something is actually awaiting a
                         # decision. Buttons offering to confirm a plan that
                         # does not exist are the most confusing thing a page
@@ -685,6 +690,8 @@ def build(store: Store) -> gr.Blocks:
                             approve_btn = gr.Button("Approve", variant="primary")
                             remember_btn = gr.Button("Approve, don't ask again")
                             reject_btn = gr.Button("No, leave it", variant="stop")
+
+                        approval_card = gr.HTML()
 
                         resume_card = gr.HTML()
 
