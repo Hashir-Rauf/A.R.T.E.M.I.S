@@ -92,6 +92,36 @@ def _in_plain_words(step: dict[str, Any], outcome: TurnOutcome) -> str:
     return describe
 
 
+def _details_html(details: dict[str, Any]) -> str:
+    """The exact recipient, subject, body, query or file text, if a step has it.
+
+    Shown under the step so the person approves what will really be sent or
+    written, not a summary of it. Everything is escaped, because a mail body or
+    a drafted document is text the person did not type.
+    """
+    if not details:
+        return ""
+    style = (
+        'style="display:block;margin-top:6px;white-space:pre-wrap;'
+        'font-size:.88em;opacity:.9"'
+    )
+    lines: list[str] = []
+    if "to" in details:
+        lines.append(f"To: {', '.join(details['to'])}")
+        lines.append(f"Subject: {details.get('subject', '')}")
+        lines.append("")
+        lines.append(str(details.get("body", "")))
+    elif "query" in details:
+        lines.append(f"Search for: {details['query']}")
+    elif "content_preview" in details:
+        lines.append(str(details["content_preview"]))
+        if details.get("truncated"):
+            lines.append("… (the rest is written too; this shows the first part)")
+    if not lines:
+        return ""
+    return f"<span {style}>{_esc(chr(10).join(lines))}</span>"
+
+
 def _outcome_in_plain_words(plan) -> str:
     """What a finished plan did, counted by kind rather than by function name.
 
@@ -296,7 +326,8 @@ class AssistantPanel:
 
         steps = "".join(
             f'<div class="a-step"><span class="a-step-n">{i}</span>'
-            f'<span class="a-step-t">{_esc(_in_plain_words(step, outcome))}</span>'
+            f'<span class="a-step-t">{_esc(_in_plain_words(step, outcome))}'
+            f'{_details_html(step.get("details") or {})}</span>'
             "</div>"
             for i, step in enumerate(preview["steps"], start=1)
         )

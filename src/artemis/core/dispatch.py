@@ -144,7 +144,7 @@ class ToolDispatcher:
             except DispatchRefused as refusal:
                 skipped.append(call.call_id)
                 results[call.call_id] = {"refused": refusal.reason}
-            except (OSError, ValueError) as problem:
+            except Exception as problem:
                 # A handler declining one step is a skip, not a plan-wide
                 # abort. A tidy of twelve files should not lose eleven of them
                 # because the twelfth would have landed on an existing name.
@@ -171,6 +171,8 @@ class ToolDispatcher:
             raise self._refuse(call, plan_id, "no handler is registered for this")
 
         resolved = self._resolve_paths(call, plan_id)
+        if call.arguments.get("create_only") and any(p.exists() for p in resolved):
+            raise self._refuse(call, plan_id, "create_only: that file already exists")
         destination = self._resolve_destination(call, plan_id)
 
         # Snapshot before touching anything. After the fact is too late: the
@@ -319,6 +321,10 @@ def handle_write_file(context: ExecutionContext) -> int:
     content = str(context.call.arguments.get("content", ""))
     target = context.resolved[0]
     target.parent.mkdir(parents=True, exist_ok=True)
+    if context.call.arguments.get("create_only"):
+        with target.open("x", encoding="utf-8") as handle:
+            handle.write(content)
+        return len(content)
     target.write_text(content, encoding="utf-8")
     return len(content)
 
@@ -356,3 +362,46 @@ def default_handlers() -> dict[str, Handler]:
         "create_dir": handle_create_dir,
         "move_file": handle_move_file,
     }
+
+
+# Kaam karne ka tareeqa (execute)
+# 1. 4 checks
+# 2. Handler hai? (jis kaam ka handler nahi, wo chal hi nahi sakta)
+# 3. Paths ko dobara darban (broker) se guzaro
+# 4. BACKUP pehle (undo ke liye)
+# 5. Asal kaam karo
+# 6. Log mein likho (kamyab ho ya nakaam)
+# Do cheezein khaas hain:
+
+# Paths dobara check hote hain, chahe pehle ho chuke hon. Wajah:
+# "pichle ne check kar liya hoga" wali soch hi bugs ki jar hai.
+# Backup pehle, kaam baad mein. Kaam ke baad purani halat mil hi nahi sakti.
+# Ye file kaam karne wala mazdoor hai. 
+# Poore ARTEMIS mein sirf yehi file asal kaam karti hai (file parhna, likhna, move karna). 
+# Baqi sab files sirf sochti, poochti ya likhti hain.
+# Allowlist: register()
+# python
+# self._handlers[operation] = handler
+
+# Sirf wahi kaam chalte hain jin ka handler jaan boojh kar register kiya gaya ho. 
+# Agar AI koi naya naam gharh le (jaise "delete_everything"), to us ka handler hi nahi,
+# aur kaam nahi chalega.
+
+# Poora plan chalana (execute_plan)
+
+# Plan ki har call ek ek kar ke chalti hai. Agar ek call fail ya mana ho jaye, 
+# to baqi chalti rehti hain, aur nateeje mein saaf likha hota hai ke kya hua aur kya nahi.
+
+# Misal: 12 files move karni thin, 12vi ke naam par pehle se file hai. 
+# To 11 ho jati hain, 12vi "skipped" likhi jati hai wajah ke saath.
+# Do honest observations (viva ke liye)
+# Approval plan level par hai. Dispatcher sirf is_approved(plan_id) dekhta hai. 
+# Yani plan approve hone par uski saari gated calls chal sakti hain, 
+# isliye preview mein har step dikhana zaroori hai.
+# handle_write_file purani file ko overwrite kar deta hai.
+# write_file ko "reversible" (T1) kaha gaya hai kyunke pehle snapshot banta hai (record_write). 
+# Is ka asal sach undo.py mein pata chalega ke snapshot waqai purani content bachata hai ya nahi. Wo file bhej dein.
+# Poori file ek line mein
+
+# Ye file ARTEMIS ka akela "kaam karne wala" hai: har kaam se pehle 4 checks,
+# paths ki dobara jaanch, backup, aur phir kaam, aur sab kuch log mein likhta hai.
