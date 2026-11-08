@@ -349,6 +349,7 @@ LOAD_HEAD = """<script>
   // turns in a conversation. Nothing records unless the box is ticked.
   (function () {
     var rec = false, waitingSince = 0, heardVoice = false, lastLoud = 0, startedAt = 0, floor = 0, awaiting = 0, sawSpeech = false;
+    var nudged = false, nudgeStop = false, sawBusy = false, unheard = false, playTried = 0;
     var ctx = null, analyser = null, buf = null, stream = null;
     function q(id) { return document.getElementById(id); }
     function on() { var c = q('a-voice-on'); var i = c && c.querySelector('input[type=checkbox]'); return !!(i && i.checked); }
@@ -375,6 +376,7 @@ LOAD_HEAD = """<script>
     }
     var lastClip = '';
     function speaking() { return !!outButton('pause'); }
+    window.__afUnheard = function () { return unheard; };
     window.__afState = function () { return { on: on(), rec: rec, speaking: speaking(), busy: busy(), record: !!micButton('record'), clip: clipId(), last: lastClip }; };
     function busy() { return !!document.querySelector('.a-chat .a-thinking, .a-chat .a-streaming'); }
     function level() {
@@ -398,31 +400,41 @@ LOAD_HEAD = """<script>
     }
     setInterval(function () {
       var now = Date.now();
-      if (!on()) { if (rec || stream) { release(); rec = false; } return; }
+      if (!on()) { if (rec || stream) { release(); rec = false; } nudged = false; return; }
       // play each new spoken reply once (the page only plays it itself when allowed to)
       var id = clipId(), play = outButton('play');
-      if (id && id !== lastClip && play && !rec) { lastClip = id; play.click(); return; }
+      if (id && id !== lastClip && play && !rec) { lastClip = id; unheard = true; playTried = now; play.click(); return; }
       var stop = micButton('stop');
       if (stop && rec) {
         var l = analyser ? level() : 0;
         // the room's own noise sets the bar, so a quiet fan is not mistaken for speech
         if (analyser && now - startedAt < 700) { floor = Math.max(floor * 0.8, l); }
         else if (l > Math.max(0.03, floor * 2.5)) { heardVoice = true; lastLoud = now; }
-        // a pause of under two seconds is thinking, not the end of what was said
-        if ((heardVoice && now - lastLoud > 2000) || (!heardVoice && now - startedAt > 15000)) {
-          rec = false; heardVoice = false; waitingSince = now; awaiting = now; sawSpeech = false; release(); stop.click();
+        // A pause of three and a half seconds is the end of what was said.
+        if (heardVoice && now - lastLoud > 3500) {
+          rec = false; heardVoice = false; nudged = false; nudgeStop = false; waitingSince = now; awaiting = now;
+          sawSpeech = false; sawBusy = false; release(); stop.click();
+        } else if (!heardVoice && !nudged && now - startedAt > 4000) {
+          // Nobody spoke for four seconds, so ARTEMIS speaks first. After that it just
+          // keeps listening, however long it takes.
+          nudged = true; nudgeStop = true; rec = false; waitingSince = now; awaiting = now;
+          sawSpeech = false; sawBusy = false; release(); stop.click();
+          setTimeout(function () { var n = q('a-nudge'); if (n) n.click(); }, 300);
         }
         return;
       }
       if (rec && !stop) { rec = false; release(); }
-      if (speaking()) { sawSpeech = true; waitingSince = 0; return; }
-      if (busy()) { waitingSince = 0; return; }
+      if (speaking()) { sawSpeech = true; unheard = false; nudgeStop = false; waitingSince = 0; return; }
+      if (busy()) { sawBusy = true; waitingSince = 0; return; }
+      // The browser may refuse to play sound before the person has touched the page.
+      if (unheard && now - playTried < 20000) { return; }
       // After something was said, wait for the spoken reply to start and finish before
       // listening again, so ARTEMIS never hears itself. Give up after a while, or at
       // once if it could not make out what was said.
       if (awaiting) {
         var note = q('a-voice-note'); var txt = note ? note.textContent : '';
-        var failed = txt.indexOf('did not catch') >= 0 || txt.indexOf('Voice is off') >= 0 || txt.indexOf('could not') >= 0;
+        var failed = txt.indexOf('did not catch') >= 0 || txt.indexOf('Voice is off') >= 0 || txt.indexOf('could not') >= 0
+          || (!nudgeStop && !sawBusy && now - awaiting > 8000);
         if (sawSpeech || failed || now - awaiting > 60000) { awaiting = 0; } else { return; }
       }
       var go = micButton('record');
@@ -433,12 +445,25 @@ LOAD_HEAD = """<script>
     }, 400);
   })();
 
+  // Sound may be blocked until the first touch of the page; play what is waiting then.
+  document.addEventListener('pointerdown', function () {
+    var o = document.getElementById('a-voice-out');
+    var b = o && Array.prototype.filter.call(o.querySelectorAll('button'), function (x) {
+      return (x.getAttribute('aria-label') || '').toLowerCase() === 'play';
+    })[0];
+    if (window.__afUnheard && window.__afUnheard() && b) { b.click(); }
+  });
   var tries = 0;
   var timer = setInterval(function () {
     var button = document.getElementById('a-refresh');
     if (button) {
       clearInterval(timer);
       setTimeout(function () { button.click(); }, 700);
+      // Voice starts on its own: ARTEMIS greets and listens. The box can be unticked.
+      setTimeout(function () {
+        var a = document.getElementById('a-autostart');
+        if (a) { a.click(); }
+      }, 1500);
     } else if (++tries > 80) {
       clearInterval(timer);
     }
@@ -1094,16 +1119,18 @@ def build(store: Store) -> gr.Blocks:
                             )
                             ask_btn = gr.Button("Ask", variant="primary", scale=1)
 
-                        with gr.Accordion("Talk instead of typing", open=False):
+                        with gr.Accordion("Talk instead of typing", open=True):
                             gr.HTML(
-                                '<div class="a-sub">Voice is off until you turn it on. '
-                                "While it is on, press the microphone, speak, and press stop. "
+                                '<div class="a-sub">Voice starts on its own when ARTEMIS opens; untick the box to stop it. '
+                                "While it is on, just talk and pause when you are done. "
                                 "Your words appear in the box and are handled exactly like "
                                 "typed words, so anything that changes something still asks "
                                 "you first. The recording is deleted as soon as it has been "
                                 "turned into words.</div>"
                             )
-                            voice_on = gr.Checkbox(label="Voice is on (microphone allowed)", value=False, elem_id="a-voice-on")
+                            voice_on = gr.Checkbox(label="Voice is on (microphone allowed)", value=True, elem_id="a-voice-on")
+                            autostart_btn = gr.Button("start voice", elem_id="a-autostart", elem_classes=["a-hidden"])
+                            nudge_btn = gr.Button("nudge", elem_id="a-nudge", elem_classes=["a-hidden"])
                             read_aloud = gr.Checkbox(label="Read answers aloud", value=True)
                             mic = gr.Audio(
                                 sources=["microphone"], type="filepath",
@@ -1532,6 +1559,7 @@ def build(store: Store) -> gr.Blocks:
                 conversation_html, clip,
             )
 
+        autostart_btn.click(lambda: set_voice(True), outputs=[mic, voice_note, conversation, voice_out])
         voice_on.change(set_voice, inputs=voice_on, outputs=[mic, voice_note, conversation, voice_out])
         read_aloud.change(lambda on: voice.set_read_aloud(on), inputs=read_aloud)
 
@@ -1544,32 +1572,60 @@ def build(store: Store) -> gr.Blocks:
             except SpeechUnavailable as exc:
                 return gr.skip(), f'<div class="a-msg warn">{html.escape(str(exc))}</div>', False, None
             if turn is None:
-                return gr.skip(), '<div class="a-msg warn">I did not catch anything. Try again.</div>', False, None
+                return gr.skip(), gr.skip(), False, None  # silence: nothing to say about it
             return turn.text, f'<div class="a-msg">Heard: {html.escape(turn.text)}</div>', True, None
-
-        def speak_reply(was_spoken):
-            if not was_spoken:
-                return None
-            try:
-                return str(voice.speak(assistant.last_reply_text()) or "") or None
-            except SpeechUnavailable:
-                return None
 
         voice_flag = gr.State(False)
 
         def ask_if_voice(ws, text, ok):
+            """A spoken turn shows its words and plays its voice at the same moment.
+
+            While the answer is being worked out only "Working on it" is shown; the words
+            and the sound arrive together, so the voice is never behind the text.
+            """
             if not ok:
-                yield (gr.skip(),) * 7
+                yield (gr.skip(),) * 8
                 return
-            yield from ask_progressively(ws, text)
+            held = None
+            shown_working = False
+            for out in ask_progressively(ws, text):
+                if isinstance(out[2], dict):  # a preview while it is still being worked on
+                    if not shown_working and "a-thinking" in str(out[0]):
+                        shown_working = True
+                        yield (*out, gr.skip())
+                    continue
+                held = out
+            if held is None:
+                yield (gr.skip(),) * 8
+                return
+            try:
+                clip = str(voice.speak(assistant.last_reply_text()) or "") or None
+            except SpeechUnavailable:
+                clip = None
+            yield (*held, clip)
+
+        def nudge():
+            """Nobody spoke for a few seconds, so ARTEMIS says something first."""
+            if not voice.armed:
+                return gr.skip(), gr.skip()
+            line = "Hello? Is there anything I can help you with?"
+            shown = assistant.log_turn(None, assistant._say(line))
+            try:
+                clip = str(voice.speak(line) or "") or None
+            except SpeechUnavailable:
+                clip = None
+            return shown, clip
+
+        nudge_btn.click(nudge, outputs=[conversation, voice_out])
 
         mic.stop_recording(
             hear_voice, inputs=mic, outputs=[ask_box, voice_note, voice_flag, mic]
         ).then(
-            ask_if_voice, inputs=[work_picker, ask_box, voice_flag], outputs=assistant_outputs
+            ask_if_voice, inputs=[work_picker, ask_box, voice_flag],
+            outputs=assistant_outputs + [voice_out],
         ).then(sync_decision, outputs=decision_buttons).then(
-            speak_reply, inputs=voice_flag, outputs=voice_out
-        ).then(lambda: "", outputs=ask_box).then(lambda: None, outputs=mic)  # clear the clip
+            lambda: "", outputs=ask_box
+        ).then(lambda: None, outputs=mic)  # clear the clip
 
         ask_btn.click(
             ask_progressively,
