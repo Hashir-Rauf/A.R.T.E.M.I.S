@@ -41,7 +41,7 @@ from artemis.core.code_diff import CodeAssistant, DiffResult
 from artemis.core.embedder import OllamaEmbedder
 from artemis.core.index_worker import IndexWorker
 from artemis.core.indexer import Indexer
-from artemis.core.intent import CHAT, CODE, DRAFT, MAIL, PLAN, QUESTION, SEARCH, classify
+from artemis.core.intent import Intent, CHAT, CODE, DRAFT, MAIL, PLAN, QUESTION, SEARCH, classify
 from artemis.core.modelconfig import ModelSettings
 from artemis.core.providers import CLOUD_CATALOGUE
 from artemis.core.gateway import Gateway, TurnOutcome
@@ -419,6 +419,23 @@ def _capabilities_html() -> str:
     )
 
 
+_ADDRESS_RE = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
+_CANCEL_WORDS = frozenset({"cancel", "never mind", "nevermind", "forget it", "stop", "no", "nope", "skip"})
+
+_MAIL_FILLER = frozenset({
+    "draft", "write", "send", "compose", "email", "e-mail", "mail", "message", "an", "a",
+    "to", "please", "me", "my", "new", "quick", "short", "the", "for", "and", "can", "you",
+    "could", "would", "i", "want", "need", "like", "now",
+})
+
+
+def _mail_has_content(text: str) -> bool:
+    """Whether the request says what the email should contain, not only who gets it."""
+    without = re.sub(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+", " ", text)
+    words = [w for w in re.findall(r"[A-Za-z0-9']+", without.lower()) if w not in _MAIL_FILLER]
+    return len(words) >= 2
+
+
 def _rich(text: str) -> str:
     """Plain text with the few bits of markdown models use, as safe markup.
 
@@ -459,6 +476,10 @@ class AssistantState:
     last_workspace_id: int | None = None
     #: The saved chat this conversation belongs to, once it has its first turn.
     session_id: int | None = None
+    #: A question ARTEMIS has asked and is waiting on, so the next message is read
+    #: as the answer instead of as a brand-new request. Without this, "what should
+    #: the email say?" was followed by "say hi", which meant nothing on its own.
+    pending: dict | None = None
     #: The conversation: (what the person said or pressed, ARTEMIS's reply as
     #: markup). A button press has no typed words, so the first part may be a
     #: label such as "Suggest a tidy-up".
@@ -528,6 +549,39 @@ class AssistantPanel:
         )
         intent = classify(text, files)
 
+        pending = self.state.pending
+        if pending is not None:
+            if cleaned in _CANCEL_WORDS:
+                self.state.pending = None
+                return "now", (self._say("Okay, dropped that. Nothing was sent or changed."), "")
+            # A new, different request replaces the question that was waiting.
+            fresh = (
+                intent.kind in (SEARCH, DRAFT)
+                or (intent.kind == MAIL and intent.recipients)
+                or cleaned in _TIDY_PHRASES
+                or cleaned in _RESUME_PHRASES
+            )
+            if fresh:
+                self.state.pending = None
+            elif pending.get("kind") == "mail":
+                addresses = tuple(dict.fromkeys(_ADDRESS_RE.findall(text)))
+                recipients = pending.get("recipients") or addresses
+                if not recipients:
+                    return "now", (
+                        self._say(
+                            "I still need an email address to send it to, for example "
+                            "sam@example.com. Say cancel to drop it."
+                        ),
+                        "",
+                    )
+                body = pending.get("text") or text
+                self.state.pending = None
+                joined = ", ".join(recipients)
+                intent = Intent(MAIL, f"Email {joined} to say: {body}", recipients=tuple(recipients))
+                if not workspace_id:
+                    return "now", (self._say("Choose a folder first, then say it again."), "")
+                return "work", lambda on_token: self._propose_mail(workspace_id, intent)
+
         # Chatting needs no folder. Everything that works on files does.
         works_on_files = (
             intent.kind in (PLAN, CODE, DRAFT, MAIL, SEARCH)
@@ -571,10 +625,22 @@ class AssistantPanel:
             return "now", self._propose_search(workspace_id, intent)
         if intent.kind == MAIL:
             if not intent.recipients:
+                self.state.pending = {"kind": "mail", "recipients": (), "text": text}
                 return "now", (
                     self._say(
-                        "Who should it go to? Include their email address, for "
-                        "example: email sam@example.com to say I will be late."
+                        "Who should it go to? Type their email address, for example "
+                        "sam@example.com."
+                    ),
+                    "",
+                )
+            if not _mail_has_content(text):
+                self.state.pending = {"kind": "mail", "recipients": intent.recipients, "text": ""}
+                who = ", ".join(intent.recipients)
+                return "now", (
+                    self._say(
+                        f"What should the email to {who} say? Just type it, for example: "
+                        "say I will be late on Friday. I will write it and show it to you "
+                        "before anything is sent."
                     ),
                     "",
                 )
@@ -708,7 +774,9 @@ class AssistantPanel:
     def _answer_with(self, workspace_id: int, intent, passages) -> tuple[str, str]:
         """Answer from the passages already found, labelling anything unsupported."""
         self.state.outcome = None
-        answer = self._answers.ask(workspace_id, intent.text, passages)
+        answer = self._answers.ask(
+            workspace_id, intent.text, passages, history=self._history_text()
+        )
         return self._answer_html(answer), ""
 
     def _answer_question(self, workspace_id: int | None, intent) -> tuple[str, str]:
@@ -784,6 +852,12 @@ class AssistantPanel:
 
     # -- the conversation ------------------------------------------------------
 
+    def _history_text(self) -> str:
+        """The last few turns as plain lines, for follow-up questions about files."""
+        return "\n".join(
+            (f"User: {u}\n" if u else "") + f"ARTEMIS: {r}" for u, r in self._history()[-3:]
+        )
+
     def _history(self) -> list[tuple[str, str]]:
         return [(user or "", _plain(reply)) for user, reply in self.state.transcript[-6:]]
 
@@ -822,6 +896,7 @@ class AssistantPanel:
         """Start a fresh conversation. The old one stays in the list."""
         self.state.transcript.clear()
         self.state.session_id = None
+        self.state.pending = None
         return ""
 
     clear_chat = new_chat
@@ -1381,6 +1456,13 @@ class AssistantPanel:
     @property
     def can_undo(self) -> bool:
         return self.state.last_plan_id is not None
+
+    def pending_card_html(self) -> str:
+        """The approval card for a plan that is still waiting, e.g. after a reload."""
+        outcome = self.state.outcome
+        if outcome is not None and outcome.needs_approval:
+            return self.approval_html(outcome)
+        return ""
 
     def welcome_html(self) -> str:
         """What a person with no folders yet is told to do first."""

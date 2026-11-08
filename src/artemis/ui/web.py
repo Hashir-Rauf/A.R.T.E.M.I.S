@@ -206,6 +206,7 @@ CSS = """
 
 .a-hidden { display: none !important; }
 .a-decision { margin: 6px 0 12px; }
+.a-decision button[disabled] { opacity: .45; }
 
 /* Dark theme. Chosen with the switch in the sidebar and remembered. */
 .dark {
@@ -1002,10 +1003,10 @@ def build(store: Store) -> gr.Blocks:
                         # decision. Buttons offering to confirm a plan that
                         # does not exist are the most confusing thing a page
                         # can show.
-                        with gr.Row(visible=False, elem_classes=["a-decision"]) as decision_row:
-                            approve_btn = gr.Button("Approve", variant="primary")
-                            remember_btn = gr.Button("Approve, don't ask again")
-                            reject_btn = gr.Button("No, leave it", variant="stop")
+                        with gr.Row(elem_classes=["a-decision"]) as decision_row:
+                            approve_btn = gr.Button("Approve", variant="primary", interactive=False)
+                            remember_btn = gr.Button("Approve, don't ask again", interactive=False)
+                            reject_btn = gr.Button("No, leave it", variant="stop", interactive=False)
 
                         approval_card = gr.HTML()
 
@@ -1342,8 +1343,15 @@ def build(store: Store) -> gr.Blocks:
         # read once the answer has finished. A flag carried inside a streamed
         # answer was dropped by the page, which left a card asking "Approve
         # these changes?" with nothing to press.
+        decision_buttons = [approve_btn, remember_btn, reject_btn]
+
         def sync_decision():
-            return gr.update(visible=assistant.has_pending)
+            # The three buttons are always on the page and are switched on only
+            # while something is waiting. Showing and hiding the row was what made
+            # them disappear: a card asking "Approve these changes?" with nothing to
+            # press.
+            on = assistant.has_pending
+            return gr.update(interactive=on), gr.update(interactive=on), gr.update(interactive=on)
 
         def ask_progressively(ws, text):
             """Stream the turn into the conversation as it is worked on."""
@@ -1365,43 +1373,43 @@ def build(store: Store) -> gr.Blocks:
             ask_progressively,
             inputs=[work_picker, ask_box],
             outputs=assistant_outputs,
-        ).then(sync_decision, outputs=decision_row).then(lambda: "", outputs=ask_box)
+        ).then(sync_decision, outputs=decision_buttons).then(lambda: "", outputs=ask_box)
 
         ask_box.submit(
             ask_progressively,
             inputs=[work_picker, ask_box],
             outputs=assistant_outputs,
-        ).then(sync_decision, outputs=decision_row).then(lambda: "", outputs=ask_box)
+        ).then(sync_decision, outputs=decision_buttons).then(lambda: "", outputs=ask_box)
 
         tidy_btn.click(
             lambda ws: refresh_after_change(*assistant.suggest_tidy(ws), ws, "Suggest a tidy-up"),
             inputs=work_picker,
             outputs=assistant_outputs,
-        ).then(sync_decision, outputs=decision_row)
+        ).then(sync_decision, outputs=decision_buttons)
 
         approve_btn.click(
             lambda ws: refresh_after_change(*assistant.approve(remember=False), ws, "Approve"),
             inputs=work_picker,
             outputs=assistant_outputs,
-        ).then(sync_decision, outputs=decision_row)
+        ).then(sync_decision, outputs=decision_buttons)
 
         remember_btn.click(
             lambda ws: refresh_after_change(*assistant.approve(remember=True), ws, "Approve, don't ask again"),
             inputs=work_picker,
             outputs=assistant_outputs,
-        ).then(sync_decision, outputs=decision_row)
+        ).then(sync_decision, outputs=decision_buttons)
 
         reject_btn.click(
             lambda ws: refresh_after_change(*assistant.reject(), ws, "No, leave it"),
             inputs=work_picker,
             outputs=assistant_outputs,
-        ).then(sync_decision, outputs=decision_row)
+        ).then(sync_decision, outputs=decision_buttons)
 
         undo_btn.click(
             lambda ws: refresh_after_change(assistant.undo_last(), "", ws, "Undo last change"),
             inputs=work_picker,
             outputs=assistant_outputs,
-        ).then(sync_decision, outputs=decision_row)
+        ).then(sync_decision, outputs=decision_buttons)
 
         def start_new_chat():
             return assistant.new_chat(), gr.update(choices=assistant.chat_choices(), value=None)
@@ -1572,6 +1580,8 @@ def build(store: Store) -> gr.Blocks:
                 panel.mail_html(),
                 panel.local_models_html(),
                 gr.update(choices=assistant.chat_choices(), value=assistant.state.session_id),
+                assistant.pending_card_html(),
+                *sync_decision(),
             )
 
         # Gradio 6.12 freezes the whole page when a tab is clicked if the page
@@ -1585,6 +1595,7 @@ def build(store: Store) -> gr.Blocks:
             outputs=[
                 cards, metrics, picker, files, work_picker, sidebar, resume_card,
                 cloud_state, location, conversation, mail_state, local_state, chat_list,
+                approval_card, *decision_buttons,
             ],
         )
 

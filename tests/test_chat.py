@@ -233,3 +233,69 @@ def test_deleting_a_chat_removes_it_and_its_messages(store: Store) -> None:
 def test_the_chat_list_is_stored_on_this_computer_only_in_the_artemis_database(store: Store) -> None:
     store.create_chat("x")
     assert store.query_one("SELECT COUNT(*) c FROM chat_sessions")["c"] == 1
+
+
+# -- an email with nothing to say -----------------------------------------------------
+
+
+@pytest.mark.parametrize("text", [
+    "Draft an email to bob@example.com",
+    "write email to bob@example.com",
+    "send bob@example.com an email",
+])
+def test_an_email_with_no_content_asks_what_it_should_say_and_writes_nothing(store: Store, ws: int, text: str) -> None:
+    panel, stub = _panel(store)
+    message, card = panel.ask(ws, text)
+    assert "What should the email to bob@example.com say?" in message
+    assert card == "" and stub.calls == []
+
+
+def test_an_email_that_says_what_it_is_about_goes_ahead(store: Store, ws: int) -> None:
+    panel, _ = _panel(store, "SUBJECT: Late\nBODY:\nI will be late on Friday.\nThanks")
+    message, card = panel.ask(ws, "Email bob@example.com to say I will be late on Friday")
+    assert "Approve these changes?" in card and "late on Friday" in card
+
+
+# -- keeping the thread: a reply answers the question that was just asked -----------
+
+
+def test_the_reply_to_what_should_it_say_completes_the_email(store: Store, ws: int) -> None:
+    panel, stub = _panel(store, "SUBJECT: Hi\nBODY:\nHi there.\nThanks")
+    first, card = panel.ask(ws, "Draft an email to bob@example.com")
+    assert "What should the email to bob@example.com say?" in first and card == ""
+
+    message, card = panel.ask(ws, "just say hi")
+
+    assert "Approve these changes?" in card and "bob@example.com" in card
+    assert "just say hi" in stub.calls[-1]
+    assert panel.state.pending is None
+
+
+def test_a_missing_address_is_asked_for_and_the_next_message_supplies_it(store: Store, ws: int) -> None:
+    panel, _ = _panel(store, "SUBJECT: Late\nBODY:\nI will be late.\nThanks")
+    first, _ = panel.ask(ws, "Email my boss that I will be late")
+    assert "Who should it go to?" in first
+
+    again, card = panel.ask(ws, "boss@example.com")
+
+    assert "Approve these changes?" in card and "boss@example.com" in card
+
+
+def test_a_new_request_replaces_a_waiting_question_and_cancel_drops_it(store: Store, ws: int) -> None:
+    panel, stub = _panel(store)
+    panel.ask(ws, "Draft an email to bob@example.com")
+    assert panel.state.pending is not None
+    message, _ = panel.ask(ws, "cancel")
+    assert "dropped" in message and panel.state.pending is None
+
+    panel.ask(ws, "Draft an email to bob@example.com")
+    panel.ask(ws, "Tidy up this folder")
+    assert panel.state.pending is None
+
+
+def test_the_waiting_plan_can_be_shown_again_after_a_reload(store: Store, ws: int) -> None:
+    panel, _ = _panel(store)
+    panel.ask(ws, "Search the web for typer")
+    assert "Approve these changes?" in panel.pending_card_html() and panel.has_pending
+    panel.reject()
+    assert panel.pending_card_html() == ""
