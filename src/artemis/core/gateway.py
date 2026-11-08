@@ -231,24 +231,3 @@ class Gateway:
     def undo(self, plan_id: str) -> tuple[int, list[str]]:
         """Take back an executed plan, as one unit."""
         return self.journal.undo_plan(plan_id)
-
-
-# Notes. These were loose text at the end of the file, which is a SyntaxError.
-# The first word was also cut off, so it starts at "e file kya karti hai?".
-# e file kya karti hai?
-#
-# Ye file manager (coordinator) hai. 
-# Pichli files mein har ek ka apna kaam tha (chowkidar, poochne wala, kaam karne wala). 
-# Ye file un sab ko sahi tarteeb se bulati hai. Khud koi faisla nahi karti, khud kuch nahi karti.
-#
-# Ek asaan misal
-#
-# Ek restaurant socho:
-#
-# Waiter (Gateway): order leta hai, kitchen tak pahunchata hai
-# Chef (Dispatcher): asal khana banata hai
-# Manager (Policy): tay karta hai ke ye order allowed hai ya nahi
-# Customer (Aap): bill ya mehnga order approve karta hai
-#
-# Waiter khud khana nahi banata, khud order approve nahi karta.
-# Wo bas sab ko sahi tarteeb mein bulata hai aur koi step skip nahi karta.
