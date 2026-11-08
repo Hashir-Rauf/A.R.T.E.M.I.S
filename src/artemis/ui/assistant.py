@@ -858,6 +858,11 @@ class AssistantPanel:
 
     # -- the conversation ------------------------------------------------------
 
+    def last_reply_text(self) -> str:
+        """The newest reply as plain words, for reading aloud after a spoken request."""
+        history = self._history()
+        return history[-1][1] if history else ""
+
     def _history_text(self) -> str:
         """The last few turns as plain lines, for follow-up questions about files."""
         return "\n".join(

@@ -52,6 +52,7 @@ from artemis.core.modelconfig import ModelNameError, ModelSettings
 from artemis.services import mail as mailsvc
 from artemis.data import credentials
 from artemis.services.resume import ResumeService
+from artemis.services.speech import NotArmed, SpeechUnavailable, VoiceSession
 from artemis.data.store import Store
 from artemis.ui.assistant import AssistantPanel
 
@@ -943,6 +944,7 @@ def build(store: Store) -> gr.Blocks:
     """Assemble the interface. Separated from launch so tests can build it."""
     panel = WebPanel(store)
     assistant = AssistantPanel(store)
+    voice = VoiceSession(audit=store.append_audit)
 
     with gr.Blocks(title="ARTEMIS", fill_width=True) as page:
         refresh_on_open = gr.Button("refresh", elem_id="a-refresh", elem_classes=["a-hidden"])
@@ -990,6 +992,26 @@ def build(store: Store) -> gr.Blocks:
                                 scale=5,
                             )
                             ask_btn = gr.Button("Ask", variant="primary", scale=1)
+
+                        with gr.Accordion("Talk instead of typing", open=False):
+                            gr.HTML(
+                                '<div class="a-sub">Voice is off until you turn it on. '
+                                "While it is on, press the microphone, speak, and press stop. "
+                                "Your words appear in the box and are handled exactly like "
+                                "typed words, so anything that changes something still asks "
+                                "you first. The recording is deleted as soon as it has been "
+                                "turned into words.</div>"
+                            )
+                            voice_on = gr.Checkbox(label="Voice is on (microphone allowed)", value=False)
+                            read_aloud = gr.Checkbox(label="Read answers aloud", value=True)
+                            mic = gr.Audio(
+                                sources=["microphone"], type="filepath",
+                                label="Microphone", interactive=False,
+                            )
+                            voice_note = gr.HTML()
+                            voice_out = gr.Audio(
+                                label="ARTEMIS speaking", autoplay=True, interactive=False,
+                            )
 
                         with gr.Row():
                             tidy_btn = gr.Button("Suggest a tidy-up")
@@ -1382,6 +1404,54 @@ def build(store: Store) -> gr.Blocks:
                     yield refresh_after_change(message_html, card_html, ws, said)
             if last is None:
                 yield refresh_after_change("", "", ws, said)
+
+        # -- voice: another way to type, with no gates of its own --------------
+        def set_voice(on):
+            voice.arm() if on else voice.disarm()
+            note = (
+                '<div class="a-msg">Voice is on. Press the microphone, speak, then stop.</div>'
+                if on else '<div class="a-msg">Voice is off. Nothing is recorded.</div>'
+            )
+            return gr.update(interactive=bool(on), value=None), note
+
+        voice_on.change(set_voice, inputs=voice_on, outputs=[mic, voice_note])
+        read_aloud.change(lambda on: voice.set_read_aloud(on), inputs=read_aloud)
+
+        def hear_voice(clip):
+            """Words from the recording go into the same box typing uses."""
+            try:
+                turn = voice.hear(clip)
+            except NotArmed:
+                return gr.skip(), '<div class="a-msg warn">Voice is off, so that was ignored.</div>', False
+            except SpeechUnavailable as exc:
+                return gr.skip(), f'<div class="a-msg warn">{html.escape(str(exc))}</div>', False
+            if turn is None:
+                return gr.skip(), '<div class="a-msg warn">I did not catch anything. Try again.</div>', False
+            return turn.text, f'<div class="a-msg">Heard: {html.escape(turn.text)}</div>', True
+
+        def speak_reply(was_spoken):
+            if not was_spoken:
+                return None
+            try:
+                return str(voice.speak(assistant.last_reply_text()) or "") or None
+            except SpeechUnavailable:
+                return None
+
+        voice_flag = gr.State(False)
+
+        def ask_if_voice(ws, text, ok):
+            if not ok:
+                yield (gr.skip(),) * 7
+                return
+            yield from ask_progressively(ws, text)
+
+        mic.stop_recording(
+            hear_voice, inputs=mic, outputs=[ask_box, voice_note, voice_flag]
+        ).then(
+            ask_if_voice, inputs=[work_picker, ask_box, voice_flag], outputs=assistant_outputs
+        ).then(sync_decision, outputs=decision_buttons).then(
+            speak_reply, inputs=voice_flag, outputs=voice_out
+        ).then(lambda: "", outputs=ask_box).then(lambda: None, outputs=mic)  # clear the clip
 
         ask_btn.click(
             ask_progressively,
