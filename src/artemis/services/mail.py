@@ -18,6 +18,7 @@ from config.toml, in a [mail] section:
 from __future__ import annotations
 
 import hashlib
+import json
 import re
 import smtplib
 import ssl
@@ -73,6 +74,67 @@ def load_settings() -> MailSettings | None:
         )
     except (KeyError, ValueError):
         return None
+
+
+_HOST = re.compile(r"^[A-Za-z0-9]([A-Za-z0-9.-]*[A-Za-z0-9])?$")
+_MAIL_TABLE = re.compile(r"(?ms)^\[mail\]\s*\n.*?(?=^\[|\Z)")
+
+
+def check_settings(settings: MailSettings) -> MailSettings:
+    """Refuse settings that could not be right, with a reason a person can act on."""
+    if not _HOST.match(settings.host.strip()):
+        raise MailError("the mail server name looks wrong, for example smtp.gmail.com")
+    if not 1 <= settings.port <= 65535:
+        raise MailError("the port must be a number from 1 to 65535, usually 465 or 587")
+    if settings.security not in ("ssl", "starttls"):
+        raise MailError("security must be ssl or starttls")
+    validate_address(settings.username if "@" in settings.username else settings.username + "@x.y")
+    validate_address(settings.from_addr)
+    return settings
+
+
+def save_settings(settings: MailSettings, password: str) -> None:
+    """Keep the account: the non-secret part in config.toml, the password in the keyring.
+
+    The password is never written to a file. If the keyring cannot store it the
+    whole save is refused, so a half-saved account never looks like a working one.
+    """
+    settings = check_settings(settings)
+    if not password:
+        raise MailError("type the password first (it is kept in the Windows Credential Manager)")
+    try:
+        set_password(settings.username, password)
+    except Exception as exc:  # keyring has many backend-specific errors
+        raise MailError(f"the password could not be stored safely, so nothing was saved: {exc}") from exc
+
+    path = paths.config_path()
+    existing = path.read_text(encoding="utf-8") if path.exists() else ""
+    block = (
+        "[mail]\n"
+        f"host = {json.dumps(settings.host.strip())}\n"
+        f"port = {int(settings.port)}\n"
+        f"username = {json.dumps(settings.username.strip())}\n"
+        f"from_addr = {json.dumps(settings.from_addr.strip())}\n"
+        f"security = {json.dumps(settings.security)}\n"
+    )
+    kept = _MAIL_TABLE.sub("", existing).rstrip()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text((kept + "\n\n" if kept else "") + block, encoding="utf-8")
+
+
+def forget_settings() -> None:
+    """Remove the account: the config section and the stored password."""
+    current = load_settings()
+    path = paths.config_path()
+    if path.exists():
+        path.write_text(_MAIL_TABLE.sub("", path.read_text(encoding="utf-8")).rstrip() + "\n", encoding="utf-8")
+    if current is not None:
+        try:
+            import keyring
+
+            keyring.delete_password(KEYRING_SERVICE, current.username)
+        except Exception:  # nothing stored, or no keyring: either way it is gone
+            pass
 
 
 def get_password(username: str) -> str | None:

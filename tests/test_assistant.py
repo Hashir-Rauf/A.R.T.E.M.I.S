@@ -231,7 +231,7 @@ def test_asking_without_a_folder_is_explained(assistant: AssistantPanel) -> None
 
 def test_asking_nothing_is_explained(assistant: AssistantPanel, messy: int) -> None:
     message, _ = assistant.ask(messy, "   ")
-    assert "Type what" in message
+    assert "Type a message" in message
 
 
 def test_a_workspace_name_is_escaped_into_the_card(
@@ -280,14 +280,27 @@ def test_streaming_and_blocking_agree_on_the_outcome(
     assert streamed == blocking
 
 
-def test_a_greeting_never_reaches_the_model(
+def test_a_greeting_is_a_conversation_with_the_model(
     assistant: AssistantPanel, messy: int
 ) -> None:
-    """Conversation is answered directly, in one frame and no model call."""
+    """Saying hello used to get a canned line. It is a chat message now, and the
+    reply says which model answered and where it ran."""
+    from artemis.core.providers import StubProvider
+
+    assistant._router.providers = [StubProvider(replies=["Hello! How can I help?"])]
     frames = list(assistant.ask_streaming(messy, "hi"))
-    assert len(frames) == 1
-    assert "a-thinking" not in frames[0][0]
-    assert "Hello" in frames[0][0]
+    assert "a-thinking" in frames[0][0]  # shown while the model works
+    assert "Hello! How can I help?" in frames[-1][0]
+    assert "on this computer" in frames[-1][0]
+
+
+def test_asking_what_it_can_do_is_answered_instantly_with_examples(
+    assistant: AssistantPanel, messy: int
+) -> None:
+    frames = list(assistant.ask_streaming(messy, "what can you do"))
+    assert len(frames) == 1 and "a-thinking" not in frames[0][0]
+    assert "Tidy up this folder" in frames[0][0]
+    assert "cannot delete" in frames[0][0]
 
 
 def test_tidy_phrasing_uses_the_deterministic_service(
@@ -377,6 +390,10 @@ def test_reading_a_file_shows_its_contents(
 ) -> None:
     root = _root(store, messy)
     (root / "note.txt").write_text("remember the milk", encoding="utf-8")
+    from artemis.core.broker import WorkspaceBroker
+    from artemis.core.indexer import Indexer
+
+    Indexer(store, WorkspaceBroker(store)).scan(messy)  # the folder knows the new file
     _with_scripted_plan(
         assistant,
         '{"steps":[{"operation":"read_file","paths":["note.txt"]}]}',

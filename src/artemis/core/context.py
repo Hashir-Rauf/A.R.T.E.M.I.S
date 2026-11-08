@@ -258,6 +258,10 @@ class ContextEngine:
             for row in rows
         ]
 
+    def indexed_files(self, workspace_id: int) -> list:
+        """The files ARTEMIS knows about in a workspace, as index rows."""
+        return list(self._store.list_files(workspace_id))
+
     def chunks_from_index(
         self, workspace_id: int, query: str, limit: int = 5
     ) -> list[Chunk]:
@@ -267,7 +271,9 @@ class ContextEngine:
         index arrives in Sprint 6. The interface is the one the real retrieval
         will use, so swapping the matching does not disturb anything downstream.
         """
-        terms = [t.lower() for t in query.split() if len(t) > 2]
+        # Punctuation is not part of a word: "paper-a.txt?" never matched paper-a.txt.
+        terms = [t.strip('?.,;:!"()[]').lower() for t in query.split()]
+        terms = [t for t in terms if len(t) > 2]
         rows = self._store.list_files(workspace_id)
         scored: list[tuple[float, Chunk]] = []
         for row in rows:

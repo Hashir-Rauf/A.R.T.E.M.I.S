@@ -392,7 +392,9 @@ CLOUD_CATALOGUE: tuple[dict, ...] = (
 )
 
 
-def cloud_provider(name: str, api_key: str) -> OpenAICompatibleProvider:
+def cloud_provider(
+    name: str, api_key: str, model: str | None = None
+) -> OpenAICompatibleProvider:
     """Build a configured provider from the catalogue.
 
     Raises KeyError for an unknown name rather than inventing a default, so a
@@ -405,7 +407,9 @@ def cloud_provider(name: str, api_key: str) -> OpenAICompatibleProvider:
     return OpenAICompatibleProvider(
         name=entry["name"],
         tier=entry["tier"],
-        model=entry["model"],
+        # The catalogue names a sensible default. The person may have chosen
+        # another model for this service, and that choice wins.
+        model=model or entry["model"],
         base_url=entry["base_url"],
         api_key=api_key,
     )

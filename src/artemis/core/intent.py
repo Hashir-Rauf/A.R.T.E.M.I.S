@@ -25,6 +25,7 @@ CODE = "code"
 DRAFT = "draft"
 MAIL = "mail"
 SEARCH = "search"
+CHAT = "chat"
 
 CODE_EXTENSIONS = frozenset({
     ".py", ".js", ".ts", ".tsx", ".jsx", ".java", ".c", ".h", ".cpp", ".hpp",
@@ -42,11 +43,21 @@ _FIX_WORDS = re.compile(
     re.IGNORECASE,
 )
 
-#: A request about the files themselves, which the planner already handles well.
+#: Work on the files themselves, which the planner handles. Deletion words are
+#: here so a request to delete is answered with the boundary explanation rather
+#: than treated as conversation.
 _FILE_TASKS = re.compile(
-    r"\b(move|put|copy|rename|tidy|organi[sz]e|sort|group|create a folder|"
-    r"make a folder|new folder|list|how many files|what files|files do i have|"
-    r"what'?s in|what is in|show me (the )?files|undo)\b",
+    r"\b(move|put|copy|rename|tidy|organi[sz]e|sort|group|archive|merge|split|"
+    r"create a folder|make a folder|new folder|folder (called|named)|"
+    r"delete|remove|erase|wipe|trash|shred|overwrite|undo)\b",
+    re.IGNORECASE,
+)
+
+#: Looking at the folder rather than changing it. Always a file task, even when
+#: phrased as a question.
+_LIST_TASKS = re.compile(
+    r"\b(list|how many files|what files|files do i have|what'?s in|what is in|"
+    r"show me (the )?files|search (my|the) (files|folder|documents))",
     re.IGNORECASE,
 )
 
@@ -151,13 +162,23 @@ def classify(text: str, files: list[str] | None = None) -> Intent:
         if _QUESTION_START.match(stripped) or "?" in stripped:
             return Intent(QUESTION, stripped, file=named)
 
-    if _FILE_TASKS.search(lowered) and not _NOTES_WORDS.search(lowered):
+    if _LIST_TASKS.search(lowered):
         return Intent(PLAN, stripped)
 
-    if _QUESTION_START.match(stripped) or _NOTES_WORDS.search(stripped):
+    # "read note.txt" has no file-task word in it, but it names a file and asks
+    # for something to be done with it.
+    if named is not None and not _QUESTION_START.match(stripped) and not _NOTES_WORDS.search(stripped):
+        return Intent(PLAN, stripped)
+
+    asking = bool(_QUESTION_START.match(stripped))
+    # "How do I delete a file in Python?" is a question, not a request to delete.
+    if _FILE_TASKS.search(lowered) and not asking and not _NOTES_WORDS.search(lowered):
+        return Intent(PLAN, stripped)
+
+    if asking or _NOTES_WORDS.search(stripped) or stripped.endswith("?"):
         return Intent(QUESTION, stripped, file=named)
 
-    if stripped.endswith("?"):
-        return Intent(QUESTION, stripped, file=named)
-
-    return Intent(PLAN, stripped)
+    # Everything else is conversation. It used to be handed to the file planner,
+    # which can only list, read and move files, so "hello" and "explain this"
+    # came back as "I could not turn that into steps".
+    return Intent(CHAT, stripped)

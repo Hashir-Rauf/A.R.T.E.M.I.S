@@ -220,3 +220,26 @@ def test_tidy_runs_without_asking_once_the_user_said_not_to_ask(
     assert "Approve these changes?" not in card
     assert "Done" in message
     assert (root / "Documents").exists() or any(p.is_dir() for p in root.iterdir())
+
+
+# -- finding the right file by what is in it ------------------------------------
+
+
+def test_a_question_finds_the_file_that_mentions_it_not_only_one_named_in_it(store, folder) -> None:
+    ws, _ = folder
+    panel, stub = _panel(store, "You decided to use SQLite [2].")
+
+    message, _ = panel.ask(ws, "What did we decide about storage?")
+
+    assert "SQLite" in message
+    assert "notes.md" in message  # cited, though the question never named it
+
+
+def test_a_general_question_unrelated_to_the_files_is_answered_as_chat(store, folder) -> None:
+    ws, _ = folder
+    panel, stub = _panel(store, "Paris is the capital of France.")
+
+    message, card = panel.ask(ws, "What is the capital of France?")
+
+    assert "Paris" in message and "not found in your files" not in message
+    assert card == ""

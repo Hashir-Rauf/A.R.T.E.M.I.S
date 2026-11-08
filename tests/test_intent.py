@@ -77,3 +77,33 @@ def test_mail_with_no_address_is_still_mail() -> None:
     """So the interface can ask who it should go to, instead of guessing."""
     intent = classify("Email my supervisor that I will be late", FILES)
     assert intent.kind == MAIL and intent.recipients == ()
+
+
+# -- conversation ---------------------------------------------------------------
+
+from artemis.core.intent import CHAT  # noqa: E402
+
+
+@pytest.mark.parametrize("text", [
+    "hello",
+    "thanks, that helped",
+    "I am working on my final year project",
+    "good morning ARTEMIS",
+])
+def test_ordinary_conversation_is_chat_not_a_file_task(text: str) -> None:
+    assert classify(text, FILES).kind == CHAT
+
+
+@pytest.mark.parametrize("text", [
+    "What is the capital of France?",
+    "Explain what a hash chain is",
+    "How do I delete a file in Python?",
+])
+def test_a_general_question_is_a_question_not_a_file_task(text: str) -> None:
+    """The answer service then decides whether any of the files are relevant."""
+    assert classify(text, FILES).kind == QUESTION
+
+
+def test_a_request_to_delete_still_reaches_the_boundary_explanation() -> None:
+    assert classify("Delete todo.txt", FILES).kind == PLAN
+    assert classify("Delete all the old report drafts to free space", FILES).kind == PLAN

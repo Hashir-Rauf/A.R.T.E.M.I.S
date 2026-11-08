@@ -48,6 +48,8 @@ from artemis.core.indexer import Indexer
 from artemis.core.workspace import WorkspaceManager
 from artemis.data import paths
 from artemis.core.providers import CLOUD_CATALOGUE
+from artemis.core.modelconfig import ModelNameError, ModelSettings
+from artemis.services import mail as mailsvc
 from artemis.data import credentials
 from artemis.services.resume import ResumeService
 from artemis.data.store import Store
@@ -204,6 +206,17 @@ CSS = """
 
 .a-hidden { display: none !important; }
 .a-decision { margin: 6px 0 12px; }
+
+/* Conversation */
+.a-chat { display: flex; flex-direction: column-reverse; gap: 14px; max-height: 520px; overflow-y: auto; padding: 4px 2px; }
+.a-turn { display: flex; flex-direction: column; gap: 8px; }
+.a-user { align-self: flex-end; max-width: 80%; background: var(--accent); color: #fff; border-radius: 14px 14px 2px 14px; padding: 9px 14px; font-size: .9rem; line-height: 1.5; white-space: pre-wrap; }
+.a-chat-text { white-space: pre-wrap; line-height: 1.65; }
+.a-model { margin-top: 8px; font-size: .74rem; color: var(--faint); font-family: ui-monospace, Consolas, monospace; }
+.a-local { display: grid; grid-template-columns: 1fr auto; gap: 6px 14px; padding: 13px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); font-size: .88rem; }
+.a-local .k { color: var(--muted); font-weight: 600; }
+.a-pill-on { color: #166534; background: #dcfce7; border-radius: 999px; padding: 2px 10px; font-size: .75rem; font-weight: 600; }
+.a-pill-off { color: var(--danger); background: var(--danger-wash); border-radius: 999px; padding: 2px 10px; font-size: .75rem; font-weight: 600; }
 
 /* Status banner, answers with sources, and diffs. */
 .a-status-slot { min-height: 46px; }
@@ -514,7 +527,7 @@ class WebPanel:
             rows.append(
                 f'<div class="a-cloud-row"><span class="a-cloud-name">'
                 f'{_esc(entry["label"])}</span>'
-                f'<span class="a-cloud-model">{_esc(entry["model"])}</span>'
+                f'<span class="a-cloud-model">{_esc(self.models().cloud_model(entry["name"]))}</span>'
                 f'<span class="{tone}">{state}</span></div>'
             )
         return (
@@ -523,6 +536,105 @@ class WebPanel:
             "Manager, never in the ARTEMIS folder. A cloud model is only used "
             "for a folder you have set to allow it.</div>"
         )
+
+    # -- models --------------------------------------------------------------
+
+    def models(self) -> ModelSettings:
+        return ModelSettings(self._store)
+
+    def local_models_html(self) -> str:
+        """Which local models were found, and which one ARTEMIS is using."""
+        status = self.models().local_status(refresh=True)
+        if not status.running:
+            return (
+                '<div class="a-local"><span class="k">Local models</span>'
+                '<span class="a-pill-off">Ollama not running</span>'
+                '<span>ARTEMIS could not reach Ollama on this computer. Start it, '
+                "then press Check again.</span><span></span></div>"
+            )
+        if status.models:
+            found = "".join(
+                f'<div class="a-cloud-row"><span class="a-cloud-name">{_esc(m.name)}</span>'
+                f'<span class="a-cloud-model">{_esc(m.size_label)}</span>'
+                + ('<span class="a-pill-on">In use</span>' if m.name == status.active else "")
+                + "</div>"
+                for m in status.models
+            )
+            found = f'<div class="a-cloud">{found}</div>'
+        else:
+            found = '<div class="a-cloud-note">Ollama is running but has no models installed.</div>'
+        how = "you chose this" if status.chosen else "chosen automatically"
+        warn = "" if status.active_installed else (
+            f'<div class="a-warn-line">\u201c{_esc(status.active)}\u201d is not installed in '
+            "Ollama, so local answers will fail until you pick an installed model.</div>"
+        )
+        return (
+            f'<div class="a-card-meta">Using <strong>{_esc(status.active)}</strong> ({how}).</div>'
+            f"{found}{warn}"
+        )
+
+    def local_model_choices(self) -> list[str]:
+        return self.models().local_status().names
+
+    def set_local_model(self, name: str) -> str:
+        try:
+            chosen = self.models().set_local_model(name)
+        except ModelNameError as exc:
+            return self.toast(str(exc), warn=True)
+        return self.toast(f"ARTEMIS will use {chosen} on this computer.")
+
+    def reset_local_model(self) -> str:
+        self.models().reset_local_model()
+        return self.toast("Back to choosing the local model automatically.")
+
+    def set_cloud_model(self, provider: str, name: str) -> str:
+        if not provider:
+            return self.toast("Choose which service first.", warn=True)
+        try:
+            chosen = self.models().set_cloud_model(provider, name)
+        except ModelNameError as exc:
+            return self.toast(str(exc), warn=True)
+        return self.toast(f"{self._label(provider)} will use {chosen}.")
+
+    def reset_cloud_model(self, provider: str) -> str:
+        if not provider:
+            return self.toast("Choose which service first.", warn=True)
+        self.models().reset_cloud_model(provider)
+        return self.toast(f"{self._label(provider)} is back to its default model.")
+
+    @staticmethod
+    def _label(provider: str) -> str:
+        return next((e["label"] for e in CLOUD_CATALOGUE if e["name"] == provider), provider)
+
+    # -- mail account ----------------------------------------------------------
+
+    @staticmethod
+    def mail_html() -> str:
+        current = mailsvc.load_settings()
+        if current is None:
+            return '<div class="a-card-meta">No mail account is set up yet. Emails cannot be sent until one is.</div>'
+        return (
+            '<div class="a-card-meta">Sending from <strong>'
+            f"{_esc(current.from_addr)}</strong> through {_esc(current.host)}:{current.port}. "
+            "The password is in the Windows Credential Manager.</div>"
+        )
+
+    def save_mail(self, host, port, username, password, security) -> str:
+        try:
+            mailsvc.save_settings(
+                mailsvc.MailSettings(
+                    (host or "").strip(), int(port or 0), (username or "").strip(),
+                    (username or "").strip(), security or "ssl",
+                ),
+                password or "",
+            )
+        except (mailsvc.MailError, ValueError) as exc:
+            return self.toast(str(exc), warn=True)
+        return self.toast("Mail account saved. The password is kept in the Windows Credential Manager.")
+
+    def forget_mail(self) -> str:
+        mailsvc.forget_settings()
+        return self.toast("Mail account removed.")
 
     def provider_choices(self) -> list[tuple[str, str]]:
         """The providers a key can be saved for, as (label, name) pairs."""
@@ -675,6 +787,7 @@ def build(store: Store) -> gr.Blocks:
                             undo_btn = gr.Button("Undo last change")
 
                         conversation = gr.HTML()
+                        clear_chat_btn = gr.Button("Clear conversation", size="sm")
 
                         # Above the card, not below it. Under a 14-step plan the
                         # buttons sat off the bottom of the window, and pinning
@@ -694,6 +807,21 @@ def build(store: Store) -> gr.Blocks:
                         approval_card = gr.HTML()
 
                         resume_card = gr.HTML()
+                        with gr.Row():
+                            note_box = gr.Textbox(
+                                label="Leave a note for next time",
+                                placeholder="Where I stopped, what to do next",
+                                scale=6,
+                            )
+                            note_btn = gr.Button("Save note", scale=1)
+                        with gr.Accordion("Habits and choices ARTEMIS remembers", open=False):
+                            habit_pick = gr.Dropdown(label="A habit ARTEMIS noticed", choices=[], interactive=True)
+                            with gr.Row():
+                                habit_yes = gr.Button("Yes, that is a habit")
+                                habit_no = gr.Button("No, stop mentioning it")
+                            rule_pick = gr.Dropdown(label="Something you told ARTEMIS not to ask about", choices=[], interactive=True)
+                            rule_btn = gr.Button("Ask me again before doing this")
+                            habit_note = gr.HTML()
 
                     with gr.Tab("Folders"):
                         gr.HTML(
@@ -740,6 +868,9 @@ def build(store: Store) -> gr.Blocks:
                             confirm_no = gr.Button("Cancel")
                         pending_action = gr.State("")
                         files = gr.HTML(panel.files_html(None))
+                        with gr.Row():
+                            file_pick = gr.Dropdown(label="One file", choices=[], interactive=True, scale=4)
+                            forget_file_btn = gr.Button("Forget this file", variant="stop", scale=1)
                         gr.HTML(
                             '<div class="a-card-meta">Erasing removes everything '
                             "ARTEMIS remembers about your folders. The activity "
@@ -776,6 +907,20 @@ def build(store: Store) -> gr.Blocks:
                             "your request leaves this machine, so it is only "
                             "used for folders you have set to allow it.</div>"
                         )
+                        gr.HTML('<div class="a-h2" style="margin-top:6px">Local model</div>')
+                        local_state = gr.HTML(panel.local_models_html())
+                        with gr.Row():
+                            local_pick = gr.Dropdown(
+                                label="Use this local model",
+                                choices=panel.local_model_choices(),
+                                allow_custom_value=True,
+                                scale=5,
+                            )
+                            local_save = gr.Button("Use it", scale=1)
+                            local_auto = gr.Button("Choose for me", scale=1)
+                            local_check = gr.Button("Check again", scale=1)
+                        local_note = gr.HTML()
+                        gr.HTML('<div class="a-h2" style="margin-top:18px">Cloud services</div>')
                         cloud_state = gr.HTML(panel.cloud_html())
                         with gr.Row():
                             cloud_pick = gr.Dropdown(
@@ -791,7 +936,32 @@ def build(store: Store) -> gr.Blocks:
                             )
                             save_key_btn = gr.Button("Save key", scale=2)
                             forget_key_btn = gr.Button("Forget key", scale=2)
+                        with gr.Row():
+                            cloud_model_box = gr.Textbox(
+                                label="Model name for the service chosen above",
+                                placeholder="for example gpt-4.1-mini",
+                                scale=6,
+                            )
+                            cloud_model_save = gr.Button("Use this model", scale=1)
+                            cloud_model_reset = gr.Button("Default", scale=1)
                         cloud_note = gr.HTML()
+
+                        gr.HTML(
+                            '<div class="a-h1" style="margin-top:28px">Email account</div>'
+                            '<div class="a-sub">Needed before ARTEMIS can send an email. '
+                            "The password goes to the Windows Credential Manager, never to a file.</div>"
+                        )
+                        mail_state = gr.HTML(panel.mail_html())
+                        with gr.Row():
+                            mail_host = gr.Textbox(label="Mail server", placeholder="smtp.gmail.com", scale=4)
+                            mail_port = gr.Number(label="Port", value=465, precision=0, scale=1)
+                            mail_security = gr.Dropdown(label="Security", choices=["ssl", "starttls"], value="ssl", scale=1)
+                        with gr.Row():
+                            mail_user = gr.Textbox(label="Your email address", placeholder="you@example.com", scale=4)
+                            mail_pass = gr.Textbox(label="Password or app password", type="password", scale=4)
+                            mail_save = gr.Button("Save account", scale=1)
+                            mail_forget = gr.Button("Remove", scale=1)
+                        mail_note = gr.HTML()
 
         # -- wiring. Each action returns the same four outputs so the page is
         # always re-read from the stores rather than patched in place.
@@ -911,9 +1081,10 @@ def build(store: Store) -> gr.Blocks:
         # stale approval card offering to run a plan that was already decided
         # would be the worst possible bug in this surface.
 
-        def refresh_after_change(message_html: str, card_html: str, ws):
+        def refresh_after_change(message_html: str, card_html: str, ws, said=None):
+            """Log the reply into the conversation and return everything to redraw."""
             return (
-                message_html,
+                assistant.log_turn(said, message_html),
                 card_html,
                 panel.cards_html(),
                 panel.metrics_html(),
@@ -926,23 +1097,27 @@ def build(store: Store) -> gr.Blocks:
         ]
 
         # The Approve and No buttons are shown from what is actually waiting,
-        # read once the answer has finished. They used to be shown by a flag
-        # carried inside the streamed answer, and on that path the page never
-        # applied it: the card asked "Approve these changes?" with nothing to
-        # press. A separate step after the answer is reliable on every path.
+        # read once the answer has finished. A flag carried inside a streamed
+        # answer was dropped by the page, which left a card asking "Approve
+        # these changes?" with nothing to press.
         def sync_decision():
             return gr.update(visible=assistant.has_pending)
 
         def ask_progressively(ws, text):
-            """Stream the turn to the page.
-
-            A generator event handler, so Gradio pushes each yield to the
-            browser as it arrives. The local model needs about six seconds for a
-            plan but produces its first output in about one, which is the
-            difference between a frozen page and a visibly working one.
-            """
+            """Stream the turn into the conversation as it is worked on."""
+            said = (text or "").strip()
+            last = None
             for message_html, card_html in assistant.ask_streaming(ws, text):
-                yield refresh_after_change(message_html, card_html, ws)
+                last = (message_html, card_html)
+                if "a-thinking" in message_html:
+                    yield (
+                        assistant.preview_turn(said, message_html), "",
+                        gr.skip(), gr.skip(), gr.skip(), gr.skip(),
+                    )
+                else:
+                    yield refresh_after_change(message_html, card_html, ws, said)
+            if last is None:
+                yield refresh_after_change("", "", ws, said)
 
         ask_btn.click(
             ask_progressively,
@@ -957,34 +1132,36 @@ def build(store: Store) -> gr.Blocks:
         ).then(sync_decision, outputs=decision_row).then(lambda: "", outputs=ask_box)
 
         tidy_btn.click(
-            lambda ws: refresh_after_change(*assistant.suggest_tidy(ws), ws),
+            lambda ws: refresh_after_change(*assistant.suggest_tidy(ws), ws, "Suggest a tidy-up"),
             inputs=work_picker,
             outputs=assistant_outputs,
         ).then(sync_decision, outputs=decision_row)
 
         approve_btn.click(
-            lambda ws: refresh_after_change(*assistant.approve(remember=False), ws),
+            lambda ws: refresh_after_change(*assistant.approve(remember=False), ws, "Approve"),
             inputs=work_picker,
             outputs=assistant_outputs,
         ).then(sync_decision, outputs=decision_row)
 
         remember_btn.click(
-            lambda ws: refresh_after_change(*assistant.approve(remember=True), ws),
+            lambda ws: refresh_after_change(*assistant.approve(remember=True), ws, "Approve, don't ask again"),
             inputs=work_picker,
             outputs=assistant_outputs,
         ).then(sync_decision, outputs=decision_row)
 
         reject_btn.click(
-            lambda ws: refresh_after_change(*assistant.reject(), ws),
+            lambda ws: refresh_after_change(*assistant.reject(), ws, "No, leave it"),
             inputs=work_picker,
             outputs=assistant_outputs,
         ).then(sync_decision, outputs=decision_row)
 
         undo_btn.click(
-            lambda ws: refresh_after_change(assistant.undo_last(), "", ws),
+            lambda ws: refresh_after_change(assistant.undo_last(), "", ws, "Undo last change"),
             inputs=work_picker,
             outputs=assistant_outputs,
         ).then(sync_decision, outputs=decision_row)
+
+        clear_chat_btn.click(lambda: assistant.clear_chat(), outputs=conversation)
 
         resume_btn.click(
             lambda ws: assistant.resume_html(ws),
@@ -992,14 +1169,81 @@ def build(store: Store) -> gr.Blocks:
             outputs=resume_card,
         )
 
+        def habits_ui(ws):
+            return (
+                gr.update(choices=assistant.habit_choices(ws), value=None),
+                gr.update(choices=assistant.remembered_rules(ws), value=None),
+            )
+
         patterns_btn.click(
             lambda ws: (
-                assistant.look_for_patterns(ws),
+                assistant.log_turn("Repeated tasks", assistant.look_for_patterns(ws)),
                 assistant.patterns_html(ws),
+                *habits_ui(ws),
             ),
             inputs=work_picker,
-            outputs=[conversation, resume_card],
+            outputs=[conversation, resume_card, habit_pick, rule_pick],
         )
+
+        note_btn.click(
+            lambda ws, n: (assistant.save_note(ws, n), assistant.resume_html(ws), ""),
+            inputs=[work_picker, note_box],
+            outputs=[habit_note, resume_card, note_box],
+        )
+        habit_yes.click(
+            lambda ws, r: (panel.toast(assistant.decide_habit(ws, r, True)), *habits_ui(ws)),
+            inputs=[work_picker, habit_pick], outputs=[habit_note, habit_pick, rule_pick],
+        )
+        habit_no.click(
+            lambda ws, r: (panel.toast(assistant.decide_habit(ws, r, False)), *habits_ui(ws)),
+            inputs=[work_picker, habit_pick], outputs=[habit_note, habit_pick, rule_pick],
+        )
+        rule_btn.click(
+            lambda ws, r: (panel.toast(assistant.revoke_rule(r)), *habits_ui(ws)),
+            inputs=[work_picker, rule_pick], outputs=[habit_note, habit_pick, rule_pick],
+        )
+
+        def forget_one(ws, rel):
+            if not ws or not rel:
+                return panel.toast("Choose a file first.", warn=True), panel.files_html(ws), gr.update()
+            DisclosurePanel(store).forget_file(ws, rel)
+            return (
+                panel.toast(f"ARTEMIS has forgotten {rel}. The file itself was not touched."),
+                panel.files_html(ws),
+                gr.update(choices=[r["rel_path"] for r in store.list_files(ws)], value=None),
+            )
+
+        forget_file_btn.click(forget_one, inputs=[picker, file_pick], outputs=[status, files, file_pick])
+        show_btn.click(
+            lambda ws: gr.update(choices=[r["rel_path"] for r in store.list_files(ws)] if ws else []),
+            inputs=picker, outputs=file_pick,
+        )
+
+        # -- models and mail
+        def models_changed(note):
+            assistant.refresh_models()
+            return note, panel.local_models_html(), panel.cloud_html(), gr.update(choices=panel.local_model_choices())
+
+        local_outs = [local_note, local_state, cloud_state, local_pick]
+        local_save.click(lambda n: models_changed(panel.set_local_model(n)), inputs=local_pick, outputs=local_outs)
+        local_auto.click(lambda: models_changed(panel.reset_local_model()), outputs=local_outs)
+        local_check.click(lambda: models_changed(""), outputs=local_outs)
+        cloud_model_save.click(
+            lambda p, n: models_changed(panel.set_cloud_model(p, n)),
+            inputs=[cloud_pick, cloud_model_box], outputs=[cloud_note, local_state, cloud_state, local_pick],
+        )
+        cloud_model_reset.click(
+            lambda p: models_changed(panel.reset_cloud_model(p)),
+            inputs=[cloud_pick], outputs=[cloud_note, local_state, cloud_state, local_pick],
+        )
+
+        mail_save.click(
+            lambda h, pt, u, pw, s: (panel.save_mail(h, pt, u, pw, s), panel.mail_html(), ""),
+            inputs=[mail_host, mail_port, mail_user, mail_pass, mail_security],
+            outputs=[mail_note, mail_state, mail_pass],
+        )
+        mail_forget.click(lambda: (panel.forget_mail(), panel.mail_html()), outputs=[mail_note, mail_state])
+
 
         # Choosing a folder shows what changed while the user was away, which
         # is F1 arriving unprompted rather than behind a button.
@@ -1013,10 +1257,13 @@ def build(store: Store) -> gr.Blocks:
             # The key is not echoed back into the box, and the box is cleared,
             # so a pasted secret is not left sitting on screen.
             message = panel.save_key(provider, key)
+            assistant.refresh_models()
             return panel.cloud_html(), _say_html(message), ""
 
         def _forget_key(provider):
-            return panel.cloud_html(), _say_html(panel.forget_cloud_key(provider)), ""
+            message = panel.forget_cloud_key(provider)
+            assistant.refresh_models()
+            return panel.cloud_html(), _say_html(message), ""
 
         save_key_btn.click(
             _save_key,

@@ -30,17 +30,19 @@ import queue
 import re
 import threading
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
 from artemis.core.actions import OUTWARD_OPS, READ_OPS, REVERSIBLE_OPS, Plan, ToolCall
 from artemis.core.answer import Answer, AnswerService
+from artemis.core.chat import ChatService
 from artemis.core.code_diff import CodeAssistant, DiffResult
 from artemis.core.embedder import OllamaEmbedder
 from artemis.core.index_worker import IndexWorker
 from artemis.core.indexer import Indexer
-from artemis.core.intent import CODE, DRAFT, MAIL, QUESTION, SEARCH, classify
+from artemis.core.intent import CHAT, CODE, DRAFT, MAIL, PLAN, QUESTION, SEARCH, classify
+from artemis.core.modelconfig import ModelSettings
 from artemis.core.gateway import Gateway, TurnOutcome
 from artemis.core.router import ModelRouter, NoModelAvailable
 from artemis.core.providers import OllamaProvider
@@ -395,6 +397,34 @@ def _conversational_reply(text: str) -> str | None:
     return None
 
 
+def _capabilities_html() -> str:
+    """What ARTEMIS can be asked to do, with words a person can copy."""
+    rows = [
+        ("Just talk", "Ask anything, or say hello. Nothing here needs a folder."),
+        ("Ask about your files", "\u201cWhat did we decide about storage?\u201d \u00b7 \u201cWhat does calc.py do?\u201d. Answers say which file each point came from."),
+        ("Fix code", "\u201cFind the bug in calc.py and show me a fix\u201d. You get a diff. ARTEMIS never edits the file."),
+        ("Tidy a folder", "\u201cTidy up this folder\u201d. You see every step first, and can undo it."),
+        ("Draft a document", "\u201cDraft a one page update from my meeting notes\u201d. Saved as a new file, only if you approve."),
+        ("Search the web", "\u201cSearch the web for python typer tutorial\u201d. Waits for your OK, because your words leave this computer."),
+        ("Write an email", "\u201cEmail sam@example.com to say I will be late\u201d. You read it first. Set up a mail account in Settings."),
+    ]
+    items = "".join(
+        f'<div class="a-claim"><strong>{_esc(a)}</strong><br>{_esc(b)}</div>' for a, b in rows
+    )
+    return (
+        "Here is what you can ask for:"
+        f'<div class="a-changes">{items}</div>'
+        '<div class="a-card-meta">ARTEMIS cannot delete files, and it only sees folders you add.</div>'
+    )
+
+
+def _plain(markup: str, limit: int = 500) -> str:
+    """Markup as plain text, for feeding earlier turns back to the model."""
+    text = html.unescape(re.sub(r"<[^>]+>", " ", markup))
+    text = re.sub(r"\s+", " ", text).strip()
+    return text[:limit]
+
+
 @dataclass
 class AssistantState:
     """What the surface is holding between one click and the next."""
@@ -405,6 +435,10 @@ class AssistantState:
     #: The last plan that ran, in plain words, for the line under the buttons.
     last_words: str = ""
     last_workspace_id: int | None = None
+    #: The conversation: (what the person said or pressed, ARTEMIS's reply as
+    #: markup). A button press has no typed words, so the first part may be a
+    #: label such as "Suggest a tidy-up".
+    transcript: list = field(default_factory=list)
 
 
 class AssistantPanel:
@@ -413,7 +447,11 @@ class AssistantPanel:
     def __init__(self, store: Store) -> None:
         self._store = store
         self._router = ModelRouter(store=store)
-        self._router.register(OllamaProvider())
+        # Which local model, and which cloud services, come from what the person
+        # chose in Settings rather than from names fixed in the code.
+        self._models = ModelSettings(store)
+        self._models.sync(self._router)
+        self._chat = ChatService(self._router)
         self._gateway = Gateway.build(store, self._router)
         self._resume = ResumeService(store, self._gateway.broker)
         self._tidy = TidyService(store, self._gateway.broker)
@@ -444,7 +482,7 @@ class AssistantPanel:
     # -- asking ------------------------------------------------------------
 
     def _prepare(self, workspace_id: int | None, text: str):
-        """Decide how a typed request is answered.
+        """Decide how a typed message is answered.
 
         Returns ("now", (conversation, card)) for an answer that needs no model,
         or ("work", job) where `job(on_token)` does the model work and returns
@@ -452,43 +490,58 @@ class AssistantPanel:
         `ask_streaming` cannot route the same words differently.
         """
         text = (text or "").strip()
-        if not workspace_id:
+        if not text:
+            return "now", (self._say("Type a message first."), "")
+
+        cleaned = text.lower().rstrip("!.?").strip()
+        if cleaned in _HELP_WORDS:
+            return "now", (self._show(_capabilities_html()), "")
+
+        files = (
+            [row["rel_path"] for row in self._store.list_files(workspace_id)]
+            if workspace_id
+            else []
+        )
+        intent = classify(text, files)
+
+        # Chatting needs no folder. Everything that works on files does.
+        works_on_files = (
+            intent.kind in (PLAN, CODE, DRAFT, MAIL, SEARCH)
+            or cleaned in _TIDY_PHRASES
+            or cleaned in _RESUME_PHRASES
+        )
+        if not workspace_id and works_on_files:
             if self._store.list_workspaces():
-                return "now", (self._say("Choose a folder from the list first."), "")
+                return "now", (
+                    self._say("Choose a folder from the list first, then ask again."),
+                    "",
+                )
             return "now", (
                 self._say(
-                    "There is no folder to work in yet. Open the Folders tab, "
-                    "add one, then come back here."
+                    "That works on a folder, and there is none yet. Open the "
+                    "Folders tab and add one. You can still just chat in the meantime."
                 ),
                 "",
             )
-        if not text:
-            return "now", (self._say("Type what you would like ARTEMIS to do."), "")
 
-        chat = _conversational_reply(text)
-        if chat is not None:
-            return "now", (self._say(chat), "")
+        if workspace_id:
+            # Tidying is a rule, not a judgement. Answer it directly.
+            if cleaned in _TIDY_PHRASES:
+                return "now", self.suggest_tidy(workspace_id)
 
-        # Tidying is a rule, not a judgement. Answer it directly.
-        cleaned = text.strip().lower().rstrip("!.?").strip()
-        if cleaned in _TIDY_PHRASES:
-            return "now", self.suggest_tidy(workspace_id)
+            # "What changed?" is a question about recorded facts, not a plan.
+            if cleaned in _RESUME_PHRASES:
+                return "now", self.answer_what_changed(workspace_id)
 
-        # "What changed?" is a question about recorded facts, not a plan.
-        if cleaned in _RESUME_PHRASES:
-            return "now", self.answer_what_changed(workspace_id)
+            # Say what ARTEMIS cannot do, rather than planning something adjacent.
+            if intent.kind == PLAN:
+                refusal = _boundary_reply(text)
+                if refusal is not None:
+                    return "now", (self._say(refusal, warn=True), "")
 
-        # Say what ARTEMIS cannot do, rather than planning something adjacent.
-        refusal = _boundary_reply(text)
-        if refusal is not None:
-            return "now", (self._say(refusal, warn=True), "")
-
-        outside = self._outside_reference(workspace_id, text)
-        if outside is not None:
-            return "now", (self._say(outside, warn=True), "")
-
-        files = [row["rel_path"] for row in self._store.list_files(workspace_id)]
-        intent = classify(text, files)
+            outside = self._outside_reference(workspace_id, text)
+            if outside is not None:
+                return "now", (self._say(outside, warn=True), "")
 
         if intent.kind == SEARCH:
             return "now", self._propose_search(workspace_id, intent)
@@ -508,6 +561,8 @@ class AssistantPanel:
             return "work", lambda on_token: self._suggest_code_change(workspace_id, intent)
         if intent.kind == QUESTION:
             return "work", lambda on_token: self._answer_question(workspace_id, intent)
+        if intent.kind == CHAT:
+            return "work", lambda on_token: self._chat_turn(workspace_id, text)
 
         return "work", lambda on_token: self._render_outcome(
             self._gateway.handle(workspace_id, text, on_token=on_token), text
@@ -616,11 +671,132 @@ class AssistantPanel:
 
     # -- questions, code, drafts, mail and search -------------------------
 
-    def _answer_question(self, workspace_id: int, intent) -> tuple[str, str]:
-        """Answer a question from the folder's files, labelling what is unsupported."""
+    def _answer_question(self, workspace_id: int | None, intent) -> tuple[str, str]:
+        """Answer from the folder's files when they hold the answer, else chat.
+
+        A question about the person's own files gets sources, and a claim with no
+        source is labelled. A question that has nothing to do with them ("what is
+        a hash chain?") used to get the same treatment and came back as "not
+        found in your files", which is true and useless.
+        """
         self.state.outcome = None
-        answer = self._answers.ask(workspace_id, intent.text)
+        passages = (
+            self._answers.find_passages(workspace_id, intent.text) if workspace_id else []
+        )
+        if not passages:
+            return self._chat_turn(workspace_id, intent.text)
+        answer = self._answers.ask(workspace_id, intent.text, passages)
         return self._answer_html(answer), ""
+
+    def _chat_turn(self, workspace_id: int | None, text: str) -> tuple[str, str]:
+        """A conversational reply. It reads no files and changes nothing."""
+        self.state.outcome = None
+        reply = self._chat.reply(workspace_id, text, self._history())
+        if not reply.text:
+            return self._say("The model did not answer. Try again.", warn=True), ""
+        return (
+            self._show(
+                f'<div class="a-chat-text">{_esc(reply.text)}</div>'
+                f'<div class="a-model">{_esc(reply.label)}</div>'
+            ),
+            "",
+        )
+
+    # -- the conversation ------------------------------------------------------
+
+    def _history(self) -> list[tuple[str, str]]:
+        return [(user or "", _plain(reply)) for user, reply in self.state.transcript[-6:]]
+
+    @staticmethod
+    def _turn_html(user: str | None, reply_markup: str) -> str:
+        said = f'<div class="a-user">{_esc(user)}</div>' if user else ""
+        return f'<div class="a-turn">{said}{reply_markup}</div>'
+
+    def transcript_html(self, pending: str = "") -> str:
+        """The conversation, newest turn first in the markup.
+
+        The container lays it out in reverse, so it reads oldest to newest and a
+        long conversation stays scrolled to the latest message.
+        """
+        turns = [self._turn_html(u, r) for u, r in reversed(self.state.transcript)]
+        if pending:
+            turns.insert(0, pending)
+        return f'<div class="a-chat">{"".join(turns)}</div>' if turns else ""
+
+    def preview_turn(self, user: str | None, working_markup: str) -> str:
+        """The conversation with a message still being worked on at the end."""
+        return self.transcript_html(self._turn_html(user, working_markup))
+
+    def log_turn(self, user: str | None, reply_markup: str) -> str:
+        """Add a finished turn to the conversation and return it as markup."""
+        self.state.transcript.append((user, reply_markup))
+        del self.state.transcript[:-40]
+        return self.transcript_html()
+
+    def clear_chat(self) -> str:
+        self.state.transcript.clear()
+        return ""
+
+    # -- models ------------------------------------------------------------------
+
+    def refresh_models(self) -> None:
+        """Pick up a model or key change without restarting."""
+        self._models.sync(self._router)
+
+    # -- notes, habits and remembered choices ------------------------------------
+
+    def save_note(self, workspace_id: int | None, note: str) -> str:
+        note = (note or "").strip()
+        if not workspace_id:
+            return self._say("Choose a folder first.", warn=True)
+        if not note:
+            return self._say("Type the note first.", warn=True)
+        self._resume.checkpoint(workspace_id, note=note[:500])
+        return self._say("Saved. It will be waiting the next time you open this folder.")
+
+    def habit_choices(self, workspace_id: int | None) -> list[tuple[str, int]]:
+        if not workspace_id:
+            return []
+        return [(p["description"], p["rule_id"]) for p in self._patterns.open_proposals(workspace_id)]
+
+    def accepted_habits(self, workspace_id: int | None) -> list[str]:
+        if not workspace_id:
+            return []
+        return [r["description"].split("|", 1)[-1].strip() for r in self._patterns.accepted_rules(workspace_id)]
+
+    def decide_habit(self, workspace_id: int | None, rule_id: int | None, accept: bool) -> str:
+        if not workspace_id or not rule_id:
+            return "Choose a habit first."
+        if accept:
+            self._patterns.accept(workspace_id, int(rule_id))
+            return (
+                "Saved. ARTEMIS keeps this as a habit you agreed to. Automatic "
+                "offers are not built yet, so it will not act on it."
+            )
+        self._patterns.decline(workspace_id, int(rule_id))
+        return "Understood. ARTEMIS will not bring this up again."
+
+    def remembered_rules(self, workspace_id: int | None) -> list[tuple[str, int]]:
+        """Things the person told ARTEMIS not to ask about, in words."""
+        if not workspace_id:
+            return []
+        words = {
+            "create_dir": "creating folders",
+            "move_file": "moving files",
+            "rename": "renaming files",
+            "write_file": "saving files",
+            "append_file": "adding to files",
+        }
+        return [
+            (f"Do not ask before {words.get(r['operation'], r['operation'])}", r["id"])
+            for r in self._gateway.policy.rules(workspace_id)
+        ]
+
+    def revoke_rule(self, rule_id: int | None) -> str:
+        if not rule_id:
+            return "Choose one first."
+        self._gateway.policy.forget_rule(int(rule_id))
+        return "Done. ARTEMIS will ask before doing that again."
 
     def _answer_html(self, answer: Answer) -> str:
         if not answer.claims:

@@ -91,6 +91,11 @@ CREATE TABLE IF NOT EXISTS turns (
     content    TEXT    NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS app_settings (
+    key   TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS memory_kv (
     id           INTEGER PRIMARY KEY AUTOINCREMENT,
     workspace_id INTEGER REFERENCES workspaces(id) ON DELETE CASCADE,
@@ -198,6 +203,32 @@ class Store:
         """Run a read and return the first row, or None."""
         with self._lock:
             return self._conn.execute(sql, args).fetchone()
+
+    # -- settings ----------------------------------------------------------
+
+    def get_setting(self, key: str, default: str | None = None) -> str | None:
+        """A setting that belongs to the app rather than to one folder."""
+        row = self.query_one("SELECT value FROM app_settings WHERE key = ?", (key,))
+        return row["value"] if row else default
+
+    def set_setting(self, key: str, value: str) -> None:
+        with self._write() as conn:
+            conn.execute(
+                "INSERT INTO app_settings (key, value) VALUES (?, ?)"
+                " ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+                (key, value),
+            )
+
+    def delete_setting(self, key: str) -> None:
+        with self._write() as conn:
+            conn.execute("DELETE FROM app_settings WHERE key = ?", (key,))
+
+    def set_cloud_policy(self, workspace_id: int, policy: str) -> None:
+        with self._write() as conn:
+            conn.execute(
+                "UPDATE workspaces SET cloud_policy = ? WHERE id = ?",
+                (policy, workspace_id),
+            )
 
     # -- workspaces --------------------------------------------------------
 
