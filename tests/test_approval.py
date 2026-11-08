@@ -179,3 +179,23 @@ def test_both_outcomes_are_written_to_the_audit_log(
 def test_deciding_an_unknown_plan_raises(approvals: ApprovalBroker) -> None:
     with pytest.raises(KeyError):
         approvals.approve("never-submitted")
+
+
+def test_step_details_show_exact_search_and_file_content():
+    from artemis.core.actions import ToolCall
+    from artemis.core.approval import CONTENT_PREVIEW_CHARS, _step_details
+
+    search = ToolCall("web_search", 1, arguments={"query": "typer docs"})
+    assert _step_details(search) == {"query": "typer docs"}
+
+    short = ToolCall("write_file", 1, ("a.md",), {"content": "hello"})
+    assert _step_details(short) == {"content_preview": "hello", "truncated": False}
+
+    long_text = "x" * (CONTENT_PREVIEW_CHARS + 50)
+    long = ToolCall("write_file", 1, ("b.md",), {"content": long_text})
+    details = _step_details(long)
+    assert len(details["content_preview"]) == CONTENT_PREVIEW_CHARS
+    assert details["truncated"] is True
+
+    # Steps with nothing worth showing get an empty dict, never a missing key.
+    assert _step_details(ToolCall("list_dir", 1, (".",))) == {}

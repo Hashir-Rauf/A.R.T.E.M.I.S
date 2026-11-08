@@ -27,6 +27,38 @@ from artemis.core.policy import AUTO, PolicyEngine
 from artemis.data.store import Store
 
 
+#: How much of a file's text an approval card shows before saying "the rest is
+#: written too". The full text is still what gets written.
+CONTENT_PREVIEW_CHARS = 1200
+
+
+def _step_details(call: ToolCall) -> dict[str, Any]:
+    """The exact content a step will send or write, for the approval card.
+
+    A person approving an email should see the real recipient, subject and body,
+    not "send_mail()". Taken from the same arguments the dispatcher will use, so
+    what is shown cannot differ from what runs. Steps with nothing worth showing
+    get an empty dict.
+    """
+    args = call.arguments
+    if call.operation == "send_mail":
+        to = args.get("to", [])
+        return {
+            "to": [to] if isinstance(to, str) else list(to),
+            "subject": str(args.get("subject", "")),
+            "body": str(args.get("body", "")),
+        }
+    if call.operation == "web_search":
+        return {"query": str(args.get("query", ""))}
+    if call.operation == "write_file" and "content" in args:
+        content = str(args["content"])
+        return {
+            "content_preview": content[:CONTENT_PREVIEW_CHARS],
+            "truncated": len(content) > CONTENT_PREVIEW_CHARS,
+        }
+    return {}
+
+
 class Outcome(str, Enum):
     PENDING = "pending"
     APPROVED = "approved"
@@ -116,6 +148,7 @@ class ApprovalBroker:
                     "describe": call.describe(),
                     "tier": verdicts[call.call_id].tier.value,
                     "reason": verdicts[call.call_id].reason,
+                    "details": _step_details(call),
                 }
                 for call in plan
             ],
