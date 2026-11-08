@@ -419,6 +419,20 @@ def _capabilities_html() -> str:
     )
 
 
+def _rich(text: str) -> str:
+    """Plain text with the few bits of markdown models use, as safe markup.
+
+    Everything is escaped first, so nothing a model writes can become a tag;
+    only bold, inline code and list bullets are turned into formatting.
+    """
+    safe = html.escape(text, quote=False)
+    safe = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", safe)
+    safe = re.sub(r"`([^`\n]+)`", r"<code>\1</code>", safe)
+    safe = re.sub(r"(?m)^(\s*)[-*] ", "\\1\u2022 ", safe)
+    safe = re.sub(r"(?m)^#{1,4} (.+)$", r"<strong>\1</strong>", safe)
+    return safe
+
+
 def _has_key(credentials, name: str) -> bool:
     try:
         return credentials.has_key(name)
@@ -443,6 +457,8 @@ class AssistantState:
     #: The last plan that ran, in plain words, for the line under the buttons.
     last_words: str = ""
     last_workspace_id: int | None = None
+    #: The saved chat this conversation belongs to, once it has its first turn.
+    session_id: int | None = None
     #: The conversation: (what the person said or pressed, ARTEMIS's reply as
     #: markup). A button press has no typed words, so the first part may be a
     #: label such as "Suggest a tidy-up".
@@ -568,9 +584,16 @@ class AssistantPanel:
         if intent.kind == CODE and intent.file:
             return "work", lambda on_token: self._suggest_code_change(workspace_id, intent)
         if intent.kind == QUESTION:
-            return "work", lambda on_token: self._answer_question(workspace_id, intent)
+            # Look for files that hold the answer first. If none do, it is a general
+            # question and is answered as a streaming chat reply.
+            passages = (
+                self._answers.find_passages(workspace_id, intent.text) if workspace_id else []
+            )
+            if not passages:
+                return "stream", lambda: self._chat_stream(workspace_id, text)
+            return "work", lambda on_token: self._answer_with(workspace_id, intent, passages)
         if intent.kind == CHAT:
-            return "work", lambda on_token: self._chat_turn(workspace_id, text)
+            return "stream", lambda: self._chat_stream(workspace_id, text)
 
         return "work", lambda on_token: self._render_outcome(
             self._gateway.handle(workspace_id, text, on_token=on_token), text
@@ -591,6 +614,9 @@ class AssistantPanel:
         mode, payload = self._prepare(workspace_id, text)
         if mode == "now":
             yield payload
+            return
+        if mode == "stream":
+            yield from self._stream_frames(workspace_id, payload)
             return
 
         progress: queue.Queue[int] = queue.Queue()
@@ -679,6 +705,12 @@ class AssistantPanel:
 
     # -- questions, code, drafts, mail and search -------------------------
 
+    def _answer_with(self, workspace_id: int, intent, passages) -> tuple[str, str]:
+        """Answer from the passages already found, labelling anything unsupported."""
+        self.state.outcome = None
+        answer = self._answers.ask(workspace_id, intent.text, passages)
+        return self._answer_html(answer), ""
+
     def _answer_question(self, workspace_id: int | None, intent) -> tuple[str, str]:
         """Answer from the folder's files when they hold the answer, else chat.
 
@@ -695,6 +727,46 @@ class AssistantPanel:
             return self._chat_turn(workspace_id, intent.text)
         answer = self._answers.ask(workspace_id, intent.text, passages)
         return self._answer_html(answer), ""
+
+    def _stream_frames(self, workspace_id, factory):
+        """Frames for a reply that arrives in pieces.
+
+        Partial frames carry the a-streaming marker so the page shows them without
+        adding them to the conversation; the last frame has none and is logged.
+        """
+        self.state.outcome = None
+        started = time.monotonic()
+        yield self._thinking(0, 0.0), ""
+        last_shown = 0.0
+        final = None
+        try:
+            for text, label in factory():
+                if label:
+                    final = (text, label)
+                    break
+                now = time.monotonic()
+                if now - last_shown >= 0.08 and text:
+                    last_shown = now
+                    yield self._chat_markup(text, "", streaming=True), ""
+        except NoModelAvailable:
+            yield self._say(self.no_model_help(workspace_id), warn=True), ""
+            return
+        except Exception as exc:
+            yield self._say(f"Something went wrong: {exc}", warn=True), ""
+            return
+        if final is None or not final[0]:
+            yield self._say("The model did not answer. Try again.", warn=True), ""
+            return
+        yield self._chat_markup(final[0], final[1]), ""
+
+    def _chat_stream(self, workspace_id: int | None, text: str):
+        return self._chat.stream_reply(workspace_id, text, self._history())
+
+    @staticmethod
+    def _chat_markup(text: str, label: str, streaming: bool = False) -> str:
+        cls = "a-msg a-streaming" if streaming else "a-msg"
+        tail = f'<div class="a-model">{_esc(label)}</div>' if label else ""
+        return f'<div class="{cls}"><div class="a-chat-text">{_rich(text)}</div>{tail}</div>'
 
     def _chat_turn(self, workspace_id: int | None, text: str) -> tuple[str, str]:
         """A conversational reply. It reads no files and changes nothing."""
@@ -736,14 +808,56 @@ class AssistantPanel:
         return self.transcript_html(self._turn_html(user, working_markup))
 
     def log_turn(self, user: str | None, reply_markup: str) -> str:
-        """Add a finished turn to the conversation and return it as markup."""
+        """Add a finished turn to the conversation, save it, and return it as markup."""
         self.state.transcript.append((user, reply_markup))
         del self.state.transcript[:-40]
+        if self.state.session_id is None:
+            self.state.session_id = self._store.create_chat(user or "Chat")
+        self._store.add_chat_turn(self.state.session_id, user, reply_markup)
         return self.transcript_html()
 
-    def clear_chat(self) -> str:
+    # -- saved chats (kept for seven days) ---------------------------------------
+
+    def new_chat(self) -> str:
+        """Start a fresh conversation. The old one stays in the list."""
         self.state.transcript.clear()
+        self.state.session_id = None
         return ""
+
+    clear_chat = new_chat
+
+    def open_chat(self, session_id: int | None) -> str:
+        """Bring a saved conversation back, so it can be carried on."""
+        if not session_id:
+            return self.transcript_html()
+        turns = self._store.chat_turns(int(session_id))
+        self.state.transcript = [(row["said"], row["reply"]) for row in turns]
+        self.state.session_id = int(session_id)
+        return self.transcript_html()
+
+    def delete_chat(self) -> str:
+        if self.state.session_id is not None:
+            self._store.delete_chat(self.state.session_id)
+        return self.new_chat()
+
+    def chat_choices(self) -> list[tuple[str, int]]:
+        """Saved chats as (label, id), newest first, with how long ago each was used."""
+        from datetime import datetime, timezone
+
+        now = datetime.now(timezone.utc)
+        out = []
+        for row in self._store.list_chats():
+            try:
+                when = datetime.fromisoformat(row["updated_at"])
+                if when.tzinfo is None:
+                    when = when.replace(tzinfo=timezone.utc)
+                days = (now - when).days
+            except ValueError:
+                days = 0
+            ago = "today" if days == 0 else ("yesterday" if days == 1 else f"{days} days ago")
+            title = row["title"] if len(row["title"]) <= 34 else row["title"][:33] + "\u2026"
+            out.append((f"{title}  \u00b7  {ago}", row["id"]))
+        return out
 
     # -- models ------------------------------------------------------------------
 
@@ -1091,6 +1205,14 @@ class AssistantPanel:
         mode, payload = self._prepare(workspace_id, text)
         if mode == "now":
             return payload
+        if mode == "stream":
+            last = ("", "")
+            try:
+                for frame in self._stream_frames(workspace_id, payload):
+                    last = frame
+            except Exception as exc:  # pragma: no cover - surfaced, never swallowed
+                return self._say(f"Something went wrong: {exc}", warn=True), ""
+            return last
         try:
             return payload(None)
         except NoModelAvailable as exc:

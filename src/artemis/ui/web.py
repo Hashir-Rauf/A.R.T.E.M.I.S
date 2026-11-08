@@ -245,6 +245,8 @@ CSS = """
 .gradio-container .wrap, .gradio-container .wrap-inner, .gradio-container .secondary-wrap { background: var(--surface) !important; }
 .gradio-container .accordion, .gradio-container .block.padded { background: transparent !important; }
 .a-chat-text { white-space: pre-wrap; line-height: 1.65; }
+.a-chats label { font-size: .84rem !important; }
+.a-chat-text code { background: var(--raised); border-radius: 4px; padding: 1px 5px; font-size: .85em; }
 .a-user, .a-user * { color: #ffffff !important; }
 .a-model { color: var(--faint) !important; }
 .a-cite { color: var(--accent) !important; }
@@ -648,6 +650,7 @@ class WebPanel:
         )
 
     def forget_everything(self) -> str:
+        self._store.delete_all_chats()
         workspaces = self._manager.list()
         if not workspaces:
             return self.toast("There is nothing to forget.", warn=True)
@@ -939,6 +942,15 @@ def build(store: Store) -> gr.Blocks:
             # -- the rail ---------------------------------------------------
             with gr.Column(scale=0, min_width=250):
                 sidebar = gr.HTML(panel.sidebar_html("work"))
+                new_chat_btn = gr.Button("+ New chat", variant="primary", size="sm")
+                chat_list = gr.Radio(
+                    label="Your chats (kept for 7 days)",
+                    choices=assistant.chat_choices(),
+                    value=None,
+                    interactive=True,
+                    elem_classes=["a-chats"],
+                )
+                delete_chat_btn = gr.Button("Delete this chat", size="sm")
                 theme_btn = gr.Button("Switch light / dark", size="sm")
 
             # -- the work area ----------------------------------------------
@@ -1319,10 +1331,11 @@ def build(store: Store) -> gr.Blocks:
                 panel.metrics_html(),
                 assistant.resume_html(ws),
                 panel.sidebar_html("work"),
+                gr.update(choices=assistant.chat_choices(), value=assistant.state.session_id),
             )
 
         assistant_outputs = [
-            conversation, approval_card, cards, metrics, resume_card, sidebar,
+            conversation, approval_card, cards, metrics, resume_card, sidebar, chat_list,
         ]
 
         # The Approve and No buttons are shown from what is actually waiting,
@@ -1338,10 +1351,10 @@ def build(store: Store) -> gr.Blocks:
             last = None
             for message_html, card_html in assistant.ask_streaming(ws, text):
                 last = (message_html, card_html)
-                if "a-thinking" in message_html:
+                if "a-thinking" in message_html or "a-streaming" in message_html:
                     yield (
                         assistant.preview_turn(said, message_html), "",
-                        gr.skip(), gr.skip(), gr.skip(), gr.skip(),
+                        gr.skip(), gr.skip(), gr.skip(), gr.skip(), gr.skip(),
                     )
                 else:
                     yield refresh_after_change(message_html, card_html, ws, said)
@@ -1390,7 +1403,19 @@ def build(store: Store) -> gr.Blocks:
             outputs=assistant_outputs,
         ).then(sync_decision, outputs=decision_row)
 
-        clear_chat_btn.click(lambda: assistant.clear_chat(), outputs=conversation)
+        def start_new_chat():
+            return assistant.new_chat(), gr.update(choices=assistant.chat_choices(), value=None)
+
+        clear_chat_btn.click(start_new_chat, outputs=[conversation, chat_list])
+        new_chat_btn.click(start_new_chat, outputs=[conversation, chat_list])
+        # .input fires only when the person picks one, not when the list is redrawn
+        chat_list.input(lambda sid: assistant.open_chat(sid), inputs=chat_list, outputs=conversation)
+
+        def delete_this_chat():
+            assistant.delete_chat()
+            return "", gr.update(choices=assistant.chat_choices(), value=None)
+
+        delete_chat_btn.click(delete_this_chat, outputs=[conversation, chat_list])
 
         resume_btn.click(
             lambda ws: refresh_after_change(*assistant.answer_what_changed(ws), ws, "What changed"),
@@ -1546,6 +1571,7 @@ def build(store: Store) -> gr.Blocks:
                 # is really saved instead of the state from when the server began.
                 panel.mail_html(),
                 panel.local_models_html(),
+                gr.update(choices=assistant.chat_choices(), value=assistant.state.session_id),
             )
 
         # Gradio 6.12 freezes the whole page when a tab is clicked if the page
@@ -1558,7 +1584,7 @@ def build(store: Store) -> gr.Blocks:
             on_load,
             outputs=[
                 cards, metrics, picker, files, work_picker, sidebar, resume_card,
-                cloud_state, location, conversation, mail_state, local_state,
+                cloud_state, location, conversation, mail_state, local_state, chat_list,
             ],
         )
 

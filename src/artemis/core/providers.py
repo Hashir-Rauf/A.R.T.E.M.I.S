@@ -136,11 +136,21 @@ class OllamaProvider(Provider):
     host: str = "http://127.0.0.1:11434"
     timeout_s: float = 180.0
 
+    _down_until: float = 0.0
+
     def available(self) -> bool:
+        # After a failed check, believe it for a few seconds. Every chat message asks,
+        # and each wasted second on a switched-off Ollama came before the answer.
+        if time.monotonic() < self._down_until:
+            return False
+        # Ollama on this computer answers in milliseconds. Waiting four seconds for a
+        # closed port (Windows is slow to refuse one) delayed every message when it
+        # was switched off, before the cloud model was even tried.
         try:
-            with urllib.request.urlopen(f"{self.host}/api/tags", timeout=4) as response:
+            with urllib.request.urlopen(f"{self.host}/api/tags", timeout=1.0) as response:
                 tags = json.loads(response.read())
         except (urllib.error.URLError, OSError, ValueError, TimeoutError):
+            self._down_until = time.monotonic() + 8.0
             return False
         names = {m.get("name", "") for m in tags.get("models", [])}
         return self.model in names
@@ -281,6 +291,7 @@ class OpenAICompatibleProvider(Provider):
                 "messages": [{"role": "user", "content": prompt}],
                 "max_tokens": max_tokens,
                 "temperature": 0.1,
+                **_gemini_fast(self, think),
             }
         ).encode()
         request = urllib.request.Request(
@@ -312,6 +323,64 @@ class OpenAICompatibleProvider(Provider):
             tokens_in=usage.get("prompt_tokens", 0) or 0,
             tokens_out=usage.get("completion_tokens", 0) or 0,
         )
+
+
+def _gemini_fast(provider, think: bool | None) -> dict:
+    """Ask Gemini not to think first when the caller wants a direct answer.
+
+    Its newer models reason before replying, which added about a second and a
+    half to every chat message. Other services reject this setting, so it is sent
+    to Gemini only.
+    """
+    if think is False and provider.name == "gemini":
+        return {"reasoning_effort": "none"}
+    return {}
+
+
+def _openai_stream(self, prompt: str, max_tokens: int = 512, think: bool | None = None):
+    """Yield the reply as the service produces it (server-sent events)."""
+    if not self.api_key:
+        raise ProviderError(f"{self.name}: no API key configured")
+    payload = json.dumps(
+        {
+            "model": self.model,
+            "messages": [{"role": "user", "content": prompt}],
+            "max_tokens": max_tokens,
+            "temperature": 0.1,
+            "stream": True,
+            **_gemini_fast(self, think),
+        }
+    ).encode()
+    request = urllib.request.Request(
+        f"{self.base_url}/chat/completions",
+        data=payload,
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.api_key}",
+        },
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=self.timeout_s) as response:
+            for raw in response:
+                line = raw.decode("utf-8", errors="replace").strip()
+                if not line.startswith("data:"):
+                    continue
+                data = line[5:].strip()
+                if data == "[DONE]":
+                    return
+                try:
+                    chunk = json.loads(data)
+                except ValueError:
+                    continue
+                for choice in chunk.get("choices", []):
+                    piece = (choice.get("delta") or {}).get("content")
+                    if piece:
+                        yield piece
+    except (urllib.error.URLError, OSError, TimeoutError) as exc:
+        raise ProviderError(f"{self.name}: {exc}") from exc
+
+
+OpenAICompatibleProvider.stream = _openai_stream
 
 
 @dataclass

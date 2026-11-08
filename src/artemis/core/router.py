@@ -67,6 +67,7 @@ class ModelRouter:
     store: Store
     providers: list[Provider] = field(default_factory=list)
     retries_per_tier: int = 1
+    last_streamed: object = None
 
     def register(self, provider: Provider) -> None:
         """Add a provider. Order is by tier, not by registration order."""
@@ -221,6 +222,7 @@ class ModelRouter:
                 continue
 
             attempted.append(provider.name)
+            self.last_streamed = provider  # so the caller can say who answered
             started = False
             pieces: list[str] = []
             try:

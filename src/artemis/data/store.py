@@ -24,7 +24,7 @@ import sqlite3
 import threading
 from collections.abc import Iterator
 from contextlib import contextmanager
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -89,6 +89,21 @@ CREATE TABLE IF NOT EXISTS turns (
     ts         TEXT    NOT NULL,
     role       TEXT    NOT NULL,
     content    TEXT    NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS chat_sessions (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    title      TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS chat_turns (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_id INTEGER NOT NULL REFERENCES chat_sessions(id) ON DELETE CASCADE,
+    said       TEXT,
+    reply      TEXT NOT NULL,
+    created_at TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS app_settings (
@@ -203,6 +218,55 @@ class Store:
         """Run a read and return the first row, or None."""
         with self._lock:
             return self._conn.execute(sql, args).fetchone()
+
+    # -- saved chats -------------------------------------------------------
+
+    #: How long a chat is kept after it was last used.
+    CHAT_KEEP_DAYS = 7
+
+    def create_chat(self, title: str) -> int:
+        with self._write() as conn:
+            cur = conn.execute(
+                "INSERT INTO chat_sessions (title, created_at, updated_at) VALUES (?, ?, ?)",
+                (title[:80] or "Chat", _now(), _now()),
+            )
+            return int(cur.lastrowid)
+
+    def add_chat_turn(self, session_id: int, said: str | None, reply: str) -> None:
+        with self._write() as conn:
+            conn.execute(
+                "INSERT INTO chat_turns (session_id, said, reply, created_at) VALUES (?, ?, ?, ?)",
+                (session_id, said, reply, _now()),
+            )
+            conn.execute(
+                "UPDATE chat_sessions SET updated_at = ? WHERE id = ?", (_now(), session_id)
+            )
+
+    def list_chats(self) -> list[sqlite3.Row]:
+        """Saved chats, newest first. Chats not used for a week are dropped here."""
+        self.purge_old_chats()
+        return self.query("SELECT * FROM chat_sessions ORDER BY updated_at DESC, id DESC")
+
+    def chat_turns(self, session_id: int) -> list[sqlite3.Row]:
+        return self.query(
+            "SELECT said, reply FROM chat_turns WHERE session_id = ? ORDER BY id", (session_id,)
+        )
+
+    def delete_chat(self, session_id: int) -> None:
+        with self._write() as conn:
+            conn.execute("DELETE FROM chat_sessions WHERE id = ?", (session_id,))
+
+    def delete_all_chats(self) -> None:
+        with self._write() as conn:
+            conn.execute("DELETE FROM chat_sessions")
+
+    def purge_old_chats(self) -> int:
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=self.CHAT_KEEP_DAYS)).isoformat(
+            timespec="seconds"
+        )
+        with self._write() as conn:
+            cur = conn.execute("DELETE FROM chat_sessions WHERE updated_at < ?", (cutoff,))
+            return cur.rowcount
 
     # -- settings ----------------------------------------------------------
 

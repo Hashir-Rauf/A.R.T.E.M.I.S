@@ -29,7 +29,8 @@ MAX_HISTORY_TURNS = 6
 MAX_HISTORY_CHARS = 3000
 
 SYSTEM = """You are ARTEMIS, a private assistant that runs on the user's own computer.
-Talk naturally and keep answers short and useful. You can discuss anything.
+Talk naturally. Keep answers short: a few sentences unless the user asks for detail.
+Use plain sentences, not headings or tables. You can discuss anything.
 
 Be honest about what you can do. From this chat the user can ask you to:
 tidy a folder, answer questions about the files in the chosen folder (with the
@@ -78,6 +79,24 @@ class ChatService:
         local = decision.completion.tier == ModelTier.LOCAL
         where = "on this computer" if local else f"via {decision.completion.provider}"
         return ChatReply(decision.completion.text.strip(), model, where)
+
+    def stream_reply(
+        self,
+        workspace_id: int | None,
+        message: str,
+        history: list[tuple[str, str]] | None = None,
+    ):
+        """Yield (text so far, label). The label is empty until the reply is complete."""
+        prompt = self._prompt(message, history or [])
+        text = ""
+        for piece in self._router.stream(workspace_id, prompt, max_tokens=700, think=False):
+            text += piece
+            yield text, ""
+        provider = self._router.last_streamed
+        model = getattr(provider, "model", "")
+        local = getattr(provider, "tier", None) == ModelTier.LOCAL
+        where = "on this computer" if local else f"via {getattr(provider, 'name', 'cloud')}"
+        yield text.strip(), f"{model} \u00b7 {where}"
 
     @staticmethod
     def _prompt(message: str, history: list[tuple[str, str]]) -> str:
