@@ -40,7 +40,7 @@ def build_remote_section(
     def folder_choices():
         return [(r["name"], int(r["id"])) for r in store.list_workspaces()]
 
-    with gr.Accordion("Remote access (optional)", open=False):
+    with gr.Accordion("Remote access (optional)", open=False) as section:
         gr.HTML(
             '<div class="a-sub">Control ARTEMIS from your phone. It is off until you press '
             "Start. Messages are scrambled on your phone and only unscrambled here, so the "
@@ -67,7 +67,7 @@ def build_remote_section(
             devices = gr.Dropdown(label="Paired devices", choices=device_choices(), scale=5)
             remove_btn = gr.Button("Remove device", scale=1)
         folders = gr.CheckboxGroup(
-            label="Folders a paired device may use (none by default)",
+            label="Folders a paired device may use (none by default). Press Check again if a folder is missing.",
             choices=folder_choices(),
             value=sorted(bridge.allowed_workspaces()),
         )
@@ -125,7 +125,12 @@ def build_remote_section(
         )
 
     def check():
-        return gr.update(choices=waiting_choices()), gr.update(choices=device_choices())
+        # The folder list is read fresh every time, so a folder added after the page opened shows up.
+        return (
+            gr.update(choices=waiting_choices()),
+            gr.update(choices=device_choices()),
+            gr.update(choices=folder_choices(), value=sorted(bridge.allowed_workspaces())),
+        )
 
     def confirm(pairing_id):
         if not pairing_id:
@@ -153,13 +158,14 @@ def build_remote_section(
             bridge.allow_workspace(int(row["id"]), int(row["id"]) in chosen)
         return _note("Saved.")
 
-    relay_btn.click(connect_relay, inputs=relay_box, outputs=relay_note)
-    start_btn.click(start, outputs=code_html)
-    check_btn.click(check, outputs=[waiting, devices])
-    confirm_btn.click(confirm, inputs=waiting, outputs=[note, waiting, devices])
-    decline_btn.click(decline, inputs=waiting, outputs=[note, waiting, devices])
-    remove_btn.click(remove, inputs=devices, outputs=[note, waiting, devices])
-    folders.change(save_folders, inputs=folders, outputs=note)
+    section.expand(check, outputs=[waiting, devices, folders])  # fresh every time it is opened
+    relay_btn.click(connect_relay, inputs=relay_box, outputs=relay_note).then(check, outputs=[waiting, devices, folders])
+    start_btn.click(start, outputs=code_html).then(check, outputs=[waiting, devices, folders])
+    check_btn.click(check, outputs=[waiting, devices, folders])
+    confirm_btn.click(confirm, inputs=waiting, outputs=[note, waiting, devices, folders])
+    decline_btn.click(decline, inputs=waiting, outputs=[note, waiting, devices, folders])
+    remove_btn.click(remove, inputs=devices, outputs=[note, waiting, devices, folders])
+    folders.input(save_folders, inputs=folders, outputs=note)
     outward.change(lambda on: bridge.set_outward_stays_local(bool(on)), inputs=outward)
     voice_ok.change(lambda on: bridge.set_voice_allowed(bool(on)), inputs=voice_ok)
     return plane
