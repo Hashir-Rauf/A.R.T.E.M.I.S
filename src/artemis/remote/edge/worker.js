@@ -1,5 +1,5 @@
-// DRAFT, NOT DEPLOYED. Its rules are the ones edge/server.py runs and the tests exercise;
-// this file itself has not been run on Cloudflare. The cloud edge for ARTEMIS remote access.
+// The cloud edge for ARTEMIS remote access. Its rules are the ones edge/server.py runs and the
+// tests exercise. Deploy: npx wrangler deploy (from this folder).
 //
 // It does what src/artemis/remote/relay.py does, which is the version the tests run:
 //   * one Durable Object per room (a pairing, or a paired device);
@@ -19,9 +19,9 @@ const MAX_TRIES = 5;
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-    const match = url.pathname.match(/^\/room\/([A-Za-z0-9:_-]{1,64})$/);
+    const match = decodeURIComponent(url.pathname).match(/^\/room\/([A-Za-z0-9:_-]{1,64})$/);
     if (!match || request.headers.get("Upgrade") !== "websocket") {
-      return new Response("Not found", { status: 404 });
+      return env.ASSETS.fetch(request); // the phone page: static files, no user data
     }
     const stub = env.ROOMS.get(env.ROOMS.idFromName(match[1]));
     return stub.fetch(request);

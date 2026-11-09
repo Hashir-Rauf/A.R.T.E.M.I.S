@@ -74,7 +74,7 @@ const eq = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
 const startsWith = (f, s) => f.length >= s.length && eq(f.slice(0, s.length), te.encode(s));
 
 async function hkdf(secret, info, salt, bytes = 32) {
-  const k = await crypto.subtle.importKey("raw", secret, "HKDF", false, ["deriveBits"]);
+  const k = secret instanceof CryptoKey ? secret : await crypto.subtle.importKey("raw", secret, "HKDF", false, ["deriveBits"]);
   return new Uint8Array(await crypto.subtle.deriveBits({ name: "HKDF", hash: "SHA-256", salt: salt || new Uint8Array(0), info: te.encode(info) }, k, bytes * 8));
 }
 async function sha256hex(text) { return hex(await crypto.subtle.digest("SHA-256", te.encode(text))); }
@@ -111,8 +111,17 @@ function connect(url) {
 }
 const wsUrl = (base, room, proof, ttl) => `${base.replace(/^http/, "ws").replace(/\/$/, "")}/room/${encodeURIComponent(room)}?role=device&proof=${proof}`;
 
-const state = JSON.parse(localStorage.getItem("artemis-remote") || "null");
 const save = (s) => localStorage.setItem("artemis-remote", JSON.stringify(s));
+
+// The device key is kept as a non-extractable CryptoKey in IndexedDB: this page's code can
+// use it to sign in, but nothing can read its bytes out, not even this page.
+function idb() {
+  return new Promise((res, rej) => { const r = indexedDB.open("artemis-remote", 1); r.onupgradeneeded = () => r.result.createObjectStore("k"); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+}
+async function idbDo(mode, fn) { const db = await idb(); return new Promise((res, rej) => { const t = db.transaction("k", mode), q = fn(t.objectStore("k")); t.oncomplete = () => res(q && q.result); t.onerror = () => rej(t.error); }); }
+const keyPut = (k) => idbDo("readwrite", (s) => s.put(k, "device"));
+const keyGet = () => idbDo("readonly", (s) => s.get("device"));
+const keyDel = () => idbDo("readwrite", (s) => s.delete("device"));
 
 async function pairNow() {
   const note = $("pairNote"); note.hidden = true; $("safety").hidden = true;
@@ -138,7 +147,8 @@ async function pairNow() {
       try {
         const reply = JSON.parse(td.decode(await chan.open(frame)));
         const key = await hkdf(pairKey, "artemis-device-secret");
-        save({ base, id: reply.device_id, key: hex(key), name: $("name").value.trim() });
+        await keyPut(await crypto.subtle.importKey("raw", key, "HKDF", false, ["deriveBits"]));
+        save({ base, id: reply.device_id, name: $("name").value.trim() });
         link.close(); return start();
       } catch (e) { /* not for us; keep waiting */ }
     }
@@ -148,7 +158,8 @@ async function pairNow() {
 
 let session = null;
 async function openSession() {
-  const s = JSON.parse(localStorage.getItem("artemis-remote")), key = unhex(s.key);
+  const s = JSON.parse(localStorage.getItem("artemis-remote")), key = await keyGet();
+  if (!key) throw new Error("This device's key is gone. Forget it and pair again.");
   const proof = hex(await hkdf(key, "artemis-room-proof"));
   const link = await connect(wsUrl(s.base, "dev:" + s.id, proof));
   const nonce = crypto.getRandomValues(new Uint8Array(16));
@@ -190,7 +201,7 @@ $("pairBtn").onclick = pairNow;
 $("askBtn").onclick = async () => { try { show(await request({ op: "ask", workspace_id: Number($("ws").value), text: $("text").value })); } catch (e) { show({ error: e.message }); } };
 $("approveBtn").onclick = async () => { try { show(await request({ op: "approve" })); } catch (e) { show({ error: e.message }); } };
 $("rejectBtn").onclick = async () => { try { show(await request({ op: "reject" })); } catch (e) { show({ error: e.message }); } };
-$("forget").onclick = () => { localStorage.removeItem("artemis-remote"); session = null; start(); };
+$("forget").onclick = async () => { localStorage.removeItem("artemis-remote"); await keyDel(); session = null; start(); };
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
 start();
 </script>

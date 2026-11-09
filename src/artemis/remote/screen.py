@@ -49,7 +49,7 @@ def build_remote_section(gr: Any, store: Store, panel_factory: Callable[[], Any]
         with gr.Row():
             relay_box = gr.Textbox(
                 label="Relay address (run  python -m artemis.remote.edge.server  or use your own deployment)",
-                value=store.get_setting("remote.relay_url", "") or "ws://127.0.0.1:8765",
+                value=store.get_setting("remote.relay_url", "") or "wss://artemis-remote.jahangir-saleem-mughal.workers.dev",
                 scale=5,
             )
             relay_btn = gr.Button("Connect", scale=1)
