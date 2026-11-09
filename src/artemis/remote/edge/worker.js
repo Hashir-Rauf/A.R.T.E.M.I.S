@@ -1,4 +1,5 @@
-// DRAFT, NOT DEPLOYED, NOT TESTED. The cloud edge for ARTEMIS remote access.
+// DRAFT, NOT DEPLOYED. Its rules are the ones edge/server.py runs and the tests exercise;
+// this file itself has not been run on Cloudflare. The cloud edge for ARTEMIS remote access.
 //
 // It does what src/artemis/remote/relay.py does, which is the version the tests run:
 //   * one Durable Object per room (a pairing, or a paired device);
@@ -32,6 +33,8 @@ export class Room {
     this.state = state; // durable: proof, expiry, tries. Never message content.
     this.host = null;
     this.device = null;
+    this.toHost = [];   // frames waiting for a side that is not connected yet (opaque)
+    this.toDevice = [];
   }
 
   async fetch(request) {
@@ -63,9 +66,13 @@ export class Room {
     const [client, server] = Object.values(pair);
     server.accept();
     if (role === "host") this.host = server; else this.device = server;
+    const inbox = role === "host" ? this.toHost : this.toDevice;
+    while (inbox.length) server.send(inbox.shift());
     server.addEventListener("message", (event) => {
       const other = role === "host" ? this.device : this.host;
-      if (other) other.send(event.data); // opaque: forwarded, never read
+      if (other) { other.send(event.data); return; } // opaque: forwarded, never read
+      const queue = role === "host" ? this.toDevice : this.toHost;
+      if (queue.length < 64) queue.push(event.data);
     });
     server.addEventListener("close", () => {
       if (role === "host") this.host = null; else this.device = null;

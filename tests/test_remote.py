@@ -30,6 +30,27 @@ MOVE = (
 EMAIL = "SUBJECT: Running late\nBODY:\nHi, I will be late.\nThanks"
 
 
+class FakeKeyring:
+    def __init__(self) -> None:
+        self.items: dict[tuple[str, str], str] = {}
+
+    def set_password(self, service, name, value):
+        self.items[(service, name)] = value
+
+    def get_password(self, service, name):
+        return self.items.get((service, name))
+
+    def delete_password(self, service, name):
+        self.items.pop((service, name), None)
+
+
+@pytest.fixture(autouse=True)
+def keyring(monkeypatch: pytest.MonkeyPatch) -> FakeKeyring:
+    fake = FakeKeyring()
+    monkeypatch.setattr("artemis.data.credentials._keyring", lambda: fake)
+    return fake
+
+
 class Clock:
     def __init__(self) -> None:
         self.now = 1000.0
@@ -349,3 +370,15 @@ def test_the_settings_page_builds_with_the_remote_section_present(store: Store) 
     from artemis.ui.web import build
 
     assert build(store) is not None
+
+
+def test_a_device_key_lives_in_the_keyring_and_never_in_the_database(store: Store, keyring) -> None:
+    relay, plane, _ = _world(store)
+    device = _pair(plane, relay)
+
+    assert ("ARTEMIS", f"remote-device-{device.device_id}") in keyring.items
+    row = store.query_one("SELECT * FROM remote_devices WHERE id = ?", (device.device_id,))
+    assert row["secret"] is None
+
+    plane.revoke(device.device_id)
+    assert ("ARTEMIS", f"remote-device-{device.device_id}") not in keyring.items

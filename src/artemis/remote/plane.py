@@ -16,6 +16,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Callable
 
+from artemis.data import credentials
 from artemis.data.store import Store
 from artemis.remote import crypto
 from artemis.remote.relay import Relay
@@ -24,7 +25,7 @@ _SCHEMA = """
 CREATE TABLE IF NOT EXISTS remote_devices (
     id         TEXT PRIMARY KEY,
     name       TEXT NOT NULL,
-    secret     BLOB,                -- emptied the moment the device is revoked
+    secret     BLOB,                -- unused: the key lives in the system keyring
     paired_at  TEXT NOT NULL,
     revoked_at TEXT
 );
@@ -153,10 +154,17 @@ class RemotePlane:
             raise LookupError("There is no device waiting to be confirmed.")
         device_id = secrets.token_hex(6)
         key = crypto.device_secret(pairing.key)
+        try:
+            # Keys live in the system keyring, like API keys, never in the database.
+            credentials.set_key(f"remote-device-{device_id}", key.hex())
+        except Exception as exc:
+            raise RuntimeError(
+                "ARTEMIS could not save the device's key safely, so it was not paired."
+            ) from exc
         with self._store._write() as conn:
             conn.execute(
-                "INSERT INTO remote_devices (id, name, secret, paired_at) VALUES (?, ?, ?, ?)",
-                (device_id, pairing.device_name, key, _now()),
+                "INSERT INTO remote_devices (id, name, paired_at) VALUES (?, ?, ?)",
+                (device_id, pairing.device_name, _now()),
             )
         channel = crypto.Channel(pairing.key, b"H", b"D")
         self._relay.send(
@@ -187,19 +195,20 @@ class RemotePlane:
     def resume(self) -> None:
         """Reopen a meeting place for every device that is still paired (after a restart)."""
         self._ensure()
-        for r in self._store.query(
-            "SELECT id, secret FROM remote_devices WHERE revoked_at IS NULL"
-        ):
-            self._open_device_room(r["id"], bytes(r["secret"]))
+        for r in self._store.query("SELECT id FROM remote_devices WHERE revoked_at IS NULL"):
+            key = self._device_key(r["id"])
+            if key is not None:
+                self._open_device_room(r["id"], key)
 
     def revoke(self, device_id: str) -> None:
         """Instant, and decided here alone: the device cannot keep a session or open a new one."""
         self._ensure()
         with self._store._write() as conn:
             conn.execute(
-                "UPDATE remote_devices SET revoked_at = ?, secret = NULL WHERE id = ?",
+                "UPDATE remote_devices SET revoked_at = ? WHERE id = ?",
                 (_now(), device_id),
             )
+        credentials.forget_key(f"remote-device-{device_id}")
         self._sessions.pop(device_id, None)
         self._relay.close(f"dev:{device_id}")
         self._store.append_audit("remote.revoked", "done", detail={"device": device_id})
@@ -210,9 +219,10 @@ class RemotePlane:
 
     def _device_key(self, device_id: str) -> bytes | None:
         row = self._store.query_one(
-            "SELECT secret FROM remote_devices WHERE id = ? AND revoked_at IS NULL", (device_id,)
+            "SELECT id FROM remote_devices WHERE id = ? AND revoked_at IS NULL", (device_id,)
         )
-        return bytes(row["secret"]) if row and row["secret"] else None
+        stored = credentials.get_key(f"remote-device-{device_id}") if row else None
+        return bytes.fromhex(stored) if stored else None
 
     # -- sessions and requests --------------------------------------------------
 
@@ -251,6 +261,21 @@ class RemotePlane:
         self._sessions[device_id] = _Session(channel, self._clock() + self._session_ttl)
         self._relay.send(room, True, b"S" + host_nonce)
         self._store.append_audit("remote.session", "started", detail={"device": device_id})
+
+    def use_relay(self, relay: Relay) -> None:
+        """Switch to another relay (the one on the network) and reopen every paired room."""
+        self._relay = relay
+        self._sessions.clear()
+        self._pairings.clear()
+        self.resume()
+
+    def pump_all(self) -> int:
+        """Handle everything every paired device has sent. Run this on a timer."""
+        self._ensure()
+        total = 0
+        for r in self._store.query("SELECT id FROM remote_devices WHERE revoked_at IS NULL"):
+            total += self.pump(r["id"])
+        return total
 
     def end_all_sessions(self) -> None:
         """For when this computer sleeps or ARTEMIS closes: no session outlives it."""

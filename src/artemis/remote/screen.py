@@ -7,6 +7,8 @@ Settings tab simply has no such section and nothing else changes.
 from __future__ import annotations
 
 import html
+import threading
+import time
 from typing import Any, Callable
 
 from artemis.data.store import Store
@@ -42,9 +44,16 @@ def build_remote_section(gr: Any, store: Store, panel_factory: Callable[[], Any]
             "Start. Messages are scrambled on your phone and only unscrambled here, so the "
             "relay in between cannot read them. A device can use only the folders you tick "
             "below, and it can never do more than you can do here. "
-            "<b>No relay service is connected in this build yet</b>, so a real phone cannot "
-            "connect; these controls are the host side of that feature.</div>"
+            "Open the relay's address on your phone to pair.</div>"
         )
+        with gr.Row():
+            relay_box = gr.Textbox(
+                label="Relay address (run  python -m artemis.remote.edge.server  or use your own deployment)",
+                value=store.get_setting("remote.relay_url", "") or "ws://127.0.0.1:8765",
+                scale=5,
+            )
+            relay_btn = gr.Button("Connect", scale=1)
+        relay_note = gr.HTML(_note("Not connected. Nothing is sent anywhere until you connect."))
         start_btn = gr.Button("Start pairing a device")
         code_html = gr.HTML()
         with gr.Row():
@@ -66,11 +75,45 @@ def build_remote_section(gr: Any, store: Store, panel_factory: Callable[[], Any]
         )
         note = gr.HTML()
 
+    state: dict = {"relay": None, "thread": None}
+
+    def pump_forever() -> None:
+        while state["relay"] is not None:
+            try:
+                plane.pump_all()
+            except Exception:
+                pass
+            time.sleep(0.3)
+
+    def connect_relay(url):
+        url = (url or "").strip()
+        if not url.startswith(("ws://", "wss://")):
+            return _note("The address should start with ws:// or wss://", True)
+        try:
+            from artemis.remote.netrelay import NetworkRelay
+
+            old = state["relay"]
+            state["relay"] = None
+            relay = NetworkRelay(url)
+            plane.use_relay(relay)
+        except Exception as exc:
+            return _note(f"Could not connect to the relay: {exc}", True)
+        state["relay"] = relay
+        if old is not None:
+            old.shutdown()
+        if state["thread"] is None or not state["thread"].is_alive():
+            state["thread"] = threading.Thread(target=pump_forever, daemon=True)
+            state["thread"].start()
+        store.set_setting("remote.relay_url", url)
+        return _note("Connected. ARTEMIS dials out to the relay; this computer opens no port.")
+
     def start():
+        if state["relay"] is None:
+            return _note("Connect to a relay first.", True)
         offer = plane.begin_pairing()
         return (
-            f'<div class="a-msg">Type this code on your device: <b style="font-size:1.4em;letter-spacing:.15em">'
-            f"{html.escape(offer.code)}</b><br>It works once and expires in {offer.expires_in // 60} minutes. "
+            f'<div class="a-msg">Type this on your device: <b style="font-size:1.4em;letter-spacing:.15em">'
+            f"{html.escape(offer.pairing_id)}-{html.escape(offer.code)}</b><br>It works once and expires in {offer.expires_in // 60} minutes. "
             "Then press Check again, and confirm only if the safety number matches the one on your device.</div>"
         )
 
@@ -103,6 +146,7 @@ def build_remote_section(gr: Any, store: Store, panel_factory: Callable[[], Any]
             bridge.allow_workspace(int(row["id"]), int(row["id"]) in chosen)
         return _note("Saved.")
 
+    relay_btn.click(connect_relay, inputs=relay_box, outputs=relay_note)
     start_btn.click(start, outputs=code_html)
     check_btn.click(check, outputs=[waiting, devices])
     confirm_btn.click(confirm, inputs=waiting, outputs=[note, waiting, devices])

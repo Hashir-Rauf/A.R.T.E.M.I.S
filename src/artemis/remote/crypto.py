@@ -16,7 +16,7 @@ import struct
 from cryptography.exceptions import InvalidTag
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric.x25519 import X25519PrivateKey, X25519PublicKey
-from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 
 #: No ambiguous characters (0/O, 1/I), so a code can be read out loud or typed from a screen.
@@ -91,7 +91,7 @@ class Channel:
     """
 
     def __init__(self, key: bytes, send_side: bytes, recv_side: bytes) -> None:
-        self._aead = ChaCha20Poly1305(key)
+        self._aead = AESGCM(key)  # AES-256-GCM: also built into every browser
         self._send_side = send_side
         self._recv_side = recv_side
         self._sent = 0

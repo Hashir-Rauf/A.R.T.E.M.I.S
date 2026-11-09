@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#4f46e5">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg">
+<title>ARTEMIS Remote</title>
+<style>
+  :root { --bg:#f7f8fb; --card:#fff; --ink:#1b1d2a; --mute:#5f6475; --line:#dfe2ec; --acc:#4f46e5; --ok:#0f7b4d; --bad:#b3261e; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#12131a; --card:#1b1d29; --ink:#eceef6; --mute:#a0a5b8; --line:#2c2f40; --acc:#8b86ff; --ok:#4fd39a; --bad:#ff8a80; } }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.45 system-ui, sans-serif; }
+  main { max-width: 560px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 1.3rem; margin: 8px 0 2px; } p.sub { color: var(--mute); margin: 0 0 14px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; margin-bottom:12px; }
+  label { display:block; font-size:.85rem; color:var(--mute); margin:8px 0 4px; }
+  input, select, textarea { width:100%; padding:11px; border:1px solid var(--line); border-radius:10px; background:var(--bg); color:var(--ink); font:inherit; }
+  button { padding:11px 16px; border:0; border-radius:10px; background:var(--acc); color:#fff; font:inherit; font-weight:600; margin-top:10px; }
+  button.quiet { background:transparent; color:var(--ink); border:1px solid var(--line); }
+  button:disabled { opacity:.5; }
+  .row { display:flex; gap:8px; } .row > * { flex:1; }
+  .note { margin-top:10px; padding:10px; border-radius:10px; border:1px solid var(--line); white-space:pre-wrap; }
+  .ok { color:var(--ok); } .bad { color:var(--bad); }
+  .big { font-size:2rem; letter-spacing:.2em; text-align:center; font-weight:700; }
+  [hidden] { display:none !important; }
+</style>
+</head>
+<body>
+<main>
+  <h1>ARTEMIS Remote</h1>
+  <p class="sub">Control your own ARTEMIS from here. Messages are scrambled on this device and only opened on your computer.</p>
+
+  <section id="pair" class="card" hidden>
+    <b>Connect to your computer</b>
+    <label for="relay">Relay address</label>
+    <input id="relay" autocapitalize="off" autocomplete="off">
+    <label for="code">Code shown on your computer</label>
+    <input id="code" autocapitalize="characters" autocomplete="off" placeholder="1a2b3c4d5e6f7a8b-ABCDEFGHJK">
+    <label for="name">Name this device</label>
+    <input id="name" value="My phone">
+    <button id="pairBtn">Pair</button>
+    <div id="safety" class="note" hidden>
+      <div>Safety number — it must match the one on your computer:</div>
+      <div class="big" id="safetyNumber"></div>
+      <div>Now press <b>Confirm</b> on your computer.</div>
+    </div>
+    <div id="pairNote" class="note" hidden></div>
+  </section>
+
+  <section id="app" class="card" hidden>
+    <div class="row"><b id="who"></b><button class="quiet" id="forget" style="flex:0 0 auto;margin:0">Forget this device</button></div>
+    <label for="ws">Folder</label>
+    <select id="ws"></select>
+    <label for="text">What would you like done?</label>
+    <textarea id="text" rows="3" placeholder="Tidy up this folder"></textarea>
+    <button id="askBtn">Ask</button>
+    <div id="answer" class="note" hidden></div>
+    <div id="decide" class="row" hidden>
+      <button id="approveBtn">Approve</button>
+      <button id="rejectBtn" class="quiet">No, leave it</button>
+    </div>
+  </section>
+</main>
+<script>
+"use strict";
+const te = new TextEncoder(), td = new TextDecoder();
+const $ = (id) => document.getElementById(id);
+const hex = (b) => [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, "0")).join("");
+const unhex = (h) => new Uint8Array(h.match(/../g).map((x) => parseInt(x, 16)));
+const cat = (...parts) => { const n = parts.reduce((a, p) => a + p.length, 0), o = new Uint8Array(n); let i = 0; for (const p of parts) { o.set(p, i); i += p.length; } return o; };
+const eq = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
+const startsWith = (f, s) => f.length >= s.length && eq(f.slice(0, s.length), te.encode(s));
+
+async function hkdf(secret, info, salt, bytes = 32) {
+  const k = await crypto.subtle.importKey("raw", secret, "HKDF", false, ["deriveBits"]);
+  return new Uint8Array(await crypto.subtle.deriveBits({ name: "HKDF", hash: "SHA-256", salt: salt || new Uint8Array(0), info: te.encode(info) }, k, bytes * 8));
+}
+async function sha256hex(text) { return hex(await crypto.subtle.digest("SHA-256", te.encode(text))); }
+
+class Channel {
+  constructor(keyBytes, send, recv) { this.k = crypto.subtle.importKey("raw", keyBytes, "AES-GCM", false, ["encrypt", "decrypt"]); this.s = send; this.r = recv; this.sent = 0; this.got = -1; }
+  nonce(side, n) { const b = new Uint8Array(12); b.fill(side, 0, 4); new DataView(b.buffer).setBigUint64(4, BigInt(n)); return b; }
+  async seal(bytes) {
+    const n = this.sent++, ct = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv: this.nonce(this.s, n) }, await this.k, bytes));
+    const head = new Uint8Array(8); new DataView(head.buffer).setBigUint64(0, BigInt(n)); return cat(head, ct);
+  }
+  async open(frame) {
+    if (frame.length < 24) throw new Error("damaged");
+    const n = Number(new DataView(frame.buffer, frame.byteOffset, 8).getBigUint64(0));
+    if (n <= this.got) throw new Error("replayed");
+    const pt = new Uint8Array(await crypto.subtle.decrypt({ name: "AES-GCM", iv: this.nonce(this.r, n) }, await this.k, frame.slice(8)));
+    this.got = n; return pt;
+  }
+}
+
+// A WebSocket that queues frames, so nothing is missed between steps.
+function connect(url) {
+  return new Promise((resolve, reject) => {
+    const ws = new WebSocket(url); ws.binaryType = "arraybuffer";
+    const q = [], waiters = []; let closed = false;
+    ws.onmessage = (e) => { const f = new Uint8Array(e.data); const w = waiters.shift(); w ? w(f) : q.push(f); };
+    ws.onclose = () => { closed = true; waiters.splice(0).forEach((w) => w(null)); };
+    ws.onerror = () => reject(new Error("Could not reach the relay."));
+    ws.onopen = () => setTimeout(() => (closed ? reject(new Error("The relay refused that.")) : resolve({
+      send: (b) => ws.send(b), close: () => ws.close(),
+      next: (ms = 30000) => q.length ? Promise.resolve(q.shift()) : new Promise((res) => { waiters.push(res); setTimeout(() => res(undefined), ms); }),
+    })), 300);
+  });
+}
+const wsUrl = (base, room, proof, ttl) => `${base.replace(/^http/, "ws").replace(/\/$/, "")}/room/${encodeURIComponent(room)}?role=device&proof=${proof}`;
+
+const state = JSON.parse(localStorage.getItem("artemis-remote") || "null");
+const save = (s) => localStorage.setItem("artemis-remote", JSON.stringify(s));
+
+async function pairNow() {
+  const note = $("pairNote"); note.hidden = true; $("safety").hidden = true;
+  try {
+    const base = $("relay").value.trim(), raw = $("code").value.trim();
+    const cut = raw.lastIndexOf("-"); if (cut < 1) throw new Error("Type the whole code, with the dash.");
+    const pairingId = raw.slice(0, cut), code = raw.slice(cut + 1).toUpperCase();
+    $("pairBtn").disabled = true;
+    const link = await connect(wsUrl(base, pairingId, await sha256hex("artemis-edge-proof|" + code)));
+    const hello = await link.next(8000); if (!hello || !startsWith(hello, "HELLO")) throw new Error("Your computer did not answer. Start pairing there first.");
+    const kp = await crypto.subtle.generateKey({ name: "X25519" }, true, ["deriveBits"]);
+    const pub = new Uint8Array(await crypto.subtle.exportKey("raw", kp.publicKey));
+    const hostPub = await crypto.subtle.importKey("raw", hello.slice(5), { name: "X25519" }, false, []);
+    const secret = new Uint8Array(await crypto.subtle.deriveBits({ name: "X25519", public: hostPub }, kp.privateKey, 256));
+    const salt = te.encode(code);
+    const pairKey = await hkdf(secret, "artemis-pairing", salt);
+    const safe = new DataView((await hkdf(secret, "artemis-safety-number", salt, 4)).buffer).getUint32(0);
+    link.send(cat(te.encode("JOIN"), pub, te.encode($("name").value.trim() || "A device")));
+    $("safetyNumber").textContent = String(safe % 1000000).padStart(6, "0"); $("safety").hidden = false;
+    const chan = new Channel(pairKey, 0x44, 0x48);
+    for (;;) {
+      const frame = await link.next(300000); if (!frame) throw new Error("Pairing was not confirmed in time.");
+      try {
+        const reply = JSON.parse(td.decode(await chan.open(frame)));
+        const key = await hkdf(pairKey, "artemis-device-secret");
+        save({ base, id: reply.device_id, key: hex(key), name: $("name").value.trim() });
+        link.close(); return start();
+      } catch (e) { /* not for us; keep waiting */ }
+    }
+  } catch (e) { note.textContent = e.message; note.className = "note bad"; note.hidden = false; }
+  finally { $("pairBtn").disabled = false; }
+}
+
+let session = null;
+async function openSession() {
+  const s = JSON.parse(localStorage.getItem("artemis-remote")), key = unhex(s.key);
+  const proof = hex(await hkdf(key, "artemis-room-proof"));
+  const link = await connect(wsUrl(s.base, "dev:" + s.id, proof));
+  const nonce = crypto.getRandomValues(new Uint8Array(16));
+  link.send(cat(te.encode("S"), nonce));
+  const reply = await link.next(10000);
+  if (!reply || reply[0] !== 0x53) throw new Error("Your computer is not answering. Is ARTEMIS open?");
+  session = { link, chan: new Channel(await hkdf(key, "artemis-session", cat(reply.slice(1), nonce)), 0x44, 0x48) };
+}
+async function request(payload) {
+  if (!session) await openSession();
+  await session.link.send(await session.chan.seal(te.encode(JSON.stringify(payload))));
+  for (;;) {
+    const f = await session.link.next(60000);
+    if (!f) { session = null; throw new Error("No answer. Try again."); }
+    if (f.length === 1 && f[0] === 0x45) { session = null; return request(payload); } // expired: sign in again
+    try { return JSON.parse(td.decode(await session.chan.open(f))); } catch (e) { /* keep waiting */ }
+  }
+}
+
+function show(r) {
+  const a = $("answer"); a.hidden = false; a.className = "note" + (r.error ? " bad" : "");
+  a.textContent = r.error || [r.message, r.card].filter(Boolean).join("\n\n");
+  $("decide").hidden = !r.pending;
+  $("approveBtn").disabled = !!r.leaves_computer;
+  if (r.leaves_computer) a.textContent += "\n\nThis would leave your computer, so it must be approved on the computer itself.";
+}
+async function start() {
+  const s = JSON.parse(localStorage.getItem("artemis-remote") || "null");
+  $("pair").hidden = !!s; $("app").hidden = !s; if (!s) return;
+  $("who").textContent = s.name || "This device";
+  try {
+    const r = await request({ op: "workspaces" });
+    $("ws").innerHTML = ""; (r.workspaces || []).forEach((w) => $("ws").add(new Option(w.name, w.id)));
+    if (!(r.workspaces || []).length) show({ error: "No folder is shared with this device yet. On your computer, open Settings → Remote access and tick one." });
+  } catch (e) { show({ error: e.message }); }
+}
+$("relay").value = location.origin.startsWith("http") ? location.origin : "";
+$("pairBtn").onclick = pairNow;
+$("askBtn").onclick = async () => { try { show(await request({ op: "ask", workspace_id: Number($("ws").value), text: $("text").value })); } catch (e) { show({ error: e.message }); } };
+$("approveBtn").onclick = async () => { try { show(await request({ op: "approve" })); } catch (e) { show({ error: e.message }); } };
+$("rejectBtn").onclick = async () => { try { show(await request({ op: "reject" })); } catch (e) { show({ error: e.message }); } };
+$("forget").onclick = () => { localStorage.removeItem("artemis-remote"); session = null; start(); };
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+start();
+</script>
+</body>
+</html>
