@@ -21,11 +21,13 @@ def _note(text: str, warn: bool = False) -> str:
     return f'<div class="a-msg{" warn" if warn else ""}">{html.escape(text)}</div>'
 
 
-def build_remote_section(gr: Any, store: Store, panel_factory: Callable[[], Any]) -> RemotePlane:
+def build_remote_section(
+    gr: Any, store: Store, panel_factory: Callable[[], Any], voice_factory: Callable[[], Any] | None = None
+) -> RemotePlane:
     """Add the section to the current Blocks page. Returns the plane, for the host to run."""
     relay = Relay()
     plane = RemotePlane(store, relay)
-    bridge = RemoteBridge(store, panel_factory)
+    bridge = RemoteBridge(store, panel_factory, voice_factory)
     plane.attach(bridge.handle)
     plane.resume()
 
@@ -72,6 +74,11 @@ def build_remote_section(gr: Any, store: Store, panel_factory: Callable[[], Any]
         outward = gr.Checkbox(
             label="Emails and web searches must be approved on this computer, never from a device",
             value=bridge.outward_stays_local,
+        )
+        voice_ok = gr.Checkbox(
+            label="Allow talking from a paired device (live voice: the audio is turned into words here and never kept)",
+            value=bridge.voice_allowed,
+            interactive=voice_factory is not None,
         )
         note = gr.HTML()
 
@@ -154,4 +161,5 @@ def build_remote_section(gr: Any, store: Store, panel_factory: Callable[[], Any]
     remove_btn.click(remove, inputs=devices, outputs=[note, waiting, devices])
     folders.change(save_folders, inputs=folders, outputs=note)
     outward.change(lambda on: bridge.set_outward_stays_local(bool(on)), inputs=outward)
+    voice_ok.change(lambda on: bridge.set_voice_allowed(bool(on)), inputs=voice_ok)
     return plane

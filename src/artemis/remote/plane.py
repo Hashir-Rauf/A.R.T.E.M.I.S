@@ -35,7 +35,7 @@ PAIRING_TTL_SECONDS = 300
 SESSION_TTL_SECONDS = 3600
 
 #: What a request is answered with. A request is a dict; so is the answer.
-Handler = Callable[[str, dict], dict]
+Handler = Callable[[str, dict], object]  # a dict, a stream of dicts, or None
 
 
 def _now() -> str:
@@ -166,11 +166,12 @@ class RemotePlane:
                 "INSERT INTO remote_devices (id, name, paired_at) VALUES (?, ?, ?)",
                 (device_id, pairing.device_name, _now()),
             )
+        # Open the device's room first: the moment the device hears "paired" it will come in.
+        self._open_device_room(device_id, key)
         channel = crypto.Channel(pairing.key, b"H", b"D")
         self._relay.send(
             pairing_id, True, channel.seal(json.dumps({"device_id": device_id}).encode())
         )
-        self._open_device_room(device_id, key)
         self._store.append_audit(
             "remote.paired", "approved", detail={"device": device_id, "name": pairing.device_name}
         )
@@ -250,7 +251,12 @@ class RemotePlane:
             except (crypto.CryptoError, ValueError):
                 continue
             answer = self._handler(device_id, request) if self._handler else {"error": "off"}
-            self._relay.send(room, True, session.channel.seal(json.dumps(answer).encode()))
+            if answer is None:
+                continue  # a one-way request, such as a piece of audio
+            # A handler may stream: each piece is sealed and sent the moment it exists.
+            pieces = [answer] if isinstance(answer, dict) else answer
+            for piece in pieces:
+                self._relay.send(room, True, session.channel.seal(json.dumps(piece).encode()))
         return handled
 
     def _start_session(self, device_id: str, key: bytes, room: str, device_nonce: bytes) -> None:

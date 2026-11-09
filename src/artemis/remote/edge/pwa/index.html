@@ -24,6 +24,10 @@
   .note { margin-top:10px; padding:10px; border-radius:10px; border:1px solid var(--line); white-space:pre-wrap; }
   .ok { color:var(--ok); } .bad { color:var(--bad); }
   .big { font-size:2rem; letter-spacing:.2em; text-align:center; font-weight:700; }
+  #log { margin-top:10px; display:flex; flex-direction:column; gap:6px; max-height:40vh; overflow:auto; }
+  #log div { padding:8px 10px; border-radius:10px; border:1px solid var(--line); }
+  #log .you { background:var(--bg); } #log .me { background:var(--card); border-color:var(--acc); }
+  button.live { background:var(--bad); color:#fff; border-color:var(--bad); }
   [hidden] { display:none !important; }
 </style>
 </head>
@@ -55,7 +59,9 @@
     <select id="ws"></select>
     <label for="text">What would you like done?</label>
     <textarea id="text" rows="3" placeholder="Tidy up this folder"></textarea>
-    <button id="askBtn">Ask</button>
+    <div class="row"><button id="askBtn">Ask</button><button id="talkBtn" class="quiet">Start talking</button></div>
+    <div id="voiceNote" class="note" hidden></div>
+    <div id="log" hidden></div>
     <div id="answer" class="note" hidden></div>
     <div id="decide" class="row" hidden>
       <button id="approveBtn">Approve</button>
@@ -105,7 +111,7 @@ function connect(url) {
     ws.onerror = () => reject(new Error("Could not reach the relay."));
     ws.onopen = () => setTimeout(() => (closed ? reject(new Error("The relay refused that.")) : resolve({
       send: (b) => ws.send(b), close: () => ws.close(),
-      next: (ms = 30000) => q.length ? Promise.resolve(q.shift()) : new Promise((res) => { waiters.push(res); setTimeout(() => res(undefined), ms); }),
+      next: (ms = 30000) => q.length ? Promise.resolve(q.shift()) : new Promise((res) => { waiters.push(res); setTimeout(() => { const i = waiters.indexOf(res); if (i >= 0) { waiters.splice(i, 1); res(undefined); } }, ms); }),
     })), 300);
   });
 }
@@ -161,22 +167,121 @@ async function openSession() {
   const s = JSON.parse(localStorage.getItem("artemis-remote")), key = await keyGet();
   if (!key) throw new Error("This device's key is gone. Forget it and pair again.");
   const proof = hex(await hkdf(key, "artemis-room-proof"));
-  const link = await connect(wsUrl(s.base, "dev:" + s.id, proof));
+  let link; // the computer may still be opening the room: try a few times
+  for (let i = 0; ; i++) {
+    try { link = await connect(wsUrl(s.base, "dev:" + s.id, proof)); break; }
+    catch (e) { if (i >= 4) throw e; await new Promise((r) => setTimeout(r, 1200)); }
+  }
   const nonce = crypto.getRandomValues(new Uint8Array(16));
   link.send(cat(te.encode("S"), nonce));
   const reply = await link.next(10000);
   if (!reply || reply[0] !== 0x53) throw new Error("Your computer is not answering. Is ARTEMIS open?");
-  session = { link, chan: new Channel(await hkdf(key, "artemis-session", cat(reply.slice(1), nonce)), 0x44, 0x48) };
+  session = { link, chan: new Channel(await hkdf(key, "artemis-session", cat(reply.slice(1), nonce)), 0x44, 0x48), waiting: null };
+  readLoop(session);
+}
+// Every frame from the computer comes through here: live events (voice) go to the voice
+// handler, and the answer to a request goes to whoever is waiting for it.
+async function readLoop(sess) {
+  for (;;) {
+    const f = await sess.link.next(600000);
+    if (f === null) { if (session === sess) session = null; if (sess.waiting) sess.waiting({ error: "Disconnected. Try again." }); return; }
+    if (f === undefined) continue;
+    if (f.length === 1 && f[0] === 0x45) { if (session === sess) session = null; if (sess.waiting) sess.waiting({ error: "session_expired" }); return; }
+    let msg; try { msg = JSON.parse(td.decode(await sess.chan.open(f))); } catch (e) { continue; }
+    if (msg.type) { onEvent(msg); } else if (sess.waiting) { const w = sess.waiting; sess.waiting = null; w(msg); }
+  }
+}
+async function send(payload) {
+  if (!session) await openSession();
+  await session.link.send(await session.chan.seal(te.encode(JSON.stringify(payload))));
 }
 async function request(payload) {
   if (!session) await openSession();
-  await session.link.send(await session.chan.seal(te.encode(JSON.stringify(payload))));
-  for (;;) {
-    const f = await session.link.next(60000);
-    if (!f) { session = null; throw new Error("No answer. Try again."); }
-    if (f.length === 1 && f[0] === 0x45) { session = null; return request(payload); } // expired: sign in again
-    try { return JSON.parse(td.decode(await session.chan.open(f))); } catch (e) { /* keep waiting */ }
+  const sess = session;
+  const answer = new Promise((res) => { sess.waiting = res; setTimeout(() => { if (sess.waiting === res) { sess.waiting = null; res({ error: "No answer. Try again." }); } }, 60000); });
+  await send(payload);
+  const r = await answer;
+  if (r.error === "session_expired") { return request(payload); } // signed out by the time limit: sign in again
+  return r;
+}
+
+// ---- live voice ---------------------------------------------------------------------
+const logLine = (who, text) => { const l = $("log"); l.hidden = false; const d = document.createElement("div"); d.className = who; d.textContent = text; l.appendChild(d); l.scrollTop = l.scrollHeight; };
+const voice = { on: false, stream: null, ctx: null, node: null, listening: false, queue: [], playing: false, readyToListen: false, carry: [] };
+
+function setNote(text, bad) { const n = $("voiceNote"); n.hidden = !text; n.textContent = text || ""; n.className = "note" + (bad ? " bad" : ""); }
+
+async function playNext() {
+  if (voice.playing) return;
+  const item = voice.queue.shift();
+  if (!item) { maybeListen(); return; }
+  voice.playing = true;
+  try {
+    const buf = await voice.ctx.decodeAudioData(item.slice(0));
+    const src = voice.ctx.createBufferSource(); src.buffer = buf; src.connect(voice.ctx.destination);
+    src.onended = () => { voice.playing = false; playNext(); };
+    src.start();
+  } catch (e) { voice.playing = false; playNext(); }
+}
+function maybeListen() {
+  // Listen again only once everything has been said, so ARTEMIS never hears itself.
+  if (voice.on && voice.readyToListen && !voice.playing && !voice.queue.length && !voice.listening) {
+    voice.readyToListen = false; voice.carry = [];
+    send({ op: "voice_resume" }).then(() => { voice.listening = true; setNote("Listening…"); });
   }
+}
+function onEvent(m) {
+  if (m.type === "speech") {
+    logLine("me", m.text);
+    if (m.wav && voice.on) { voice.queue.push(unb64(m.wav).buffer); playNext(); }
+  } else if (m.type === "heard") { logLine("you", m.text); setNote("Thinking…"); }
+  else if (m.type === "thinking") { voice.listening = false; setNote("Thinking…"); }
+  else if (m.type === "reply") {
+    $("decide").hidden = !m.pending; $("approveBtn").disabled = !!m.leaves_computer;
+    if (m.pending) { const a = $("answer"); a.hidden = false; a.className = "note"; a.textContent = [m.card].filter(Boolean).join("\n") + (m.leaves_computer ? "\n\nThis would leave your computer, so it must be approved on the computer itself." : ""); }
+  } else if (m.type === "error") { setNote(m.message, true); voice.readyToListen = true; }
+  else if (m.type === "stopped") { setNote(""); }
+  if (m.type === "listening" || m.type === "done" || m.type === "nothing") { voice.readyToListen = true; voice.listening = false; maybeListen(); }
+}
+const unb64 = (t) => Uint8Array.from(atob(t), (c) => c.charCodeAt(0));
+const b64 = (u8) => { let s = ""; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return btoa(s); };
+
+async function startTalking() {
+  if (!$("ws").value) { setNote("Choose a folder first.", true); return; }
+  try {
+    voice.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, channelCount: 1 } });
+  } catch (e) { setNote("The microphone is blocked. Allow it for this page and try again.", true); return; }
+  voice.ctx = new (window.AudioContext || window.webkitAudioContext)();
+  await voice.ctx.resume();
+  const src = voice.ctx.createMediaStreamSource(voice.stream);
+  voice.node = voice.ctx.createScriptProcessor(4096, 1, 1);
+  const ratio = voice.ctx.sampleRate / 16000;
+  let pos = 0; let chunk = new Int16Array(3200), n = 0;
+  voice.node.onaudioprocess = (e) => {
+    if (!voice.listening) { pos = 0; n = 0; return; } // not recording while ARTEMIS speaks or thinks
+    const input = e.inputBuffer.getChannelData(0);
+    for (; pos < input.length; pos += ratio) {
+      const v = Math.max(-1, Math.min(1, input[Math.floor(pos)]));
+      chunk[n++] = v < 0 ? v * 0x8000 : v * 0x7fff;
+      if (n === chunk.length) { send({ op: "voice_chunk", pcm: b64(new Uint8Array(chunk.buffer.slice(0))) }).catch((e) => console.error("chunk", e && e.message)); n = 0; }
+    }
+    pos -= input.length;
+  };
+  src.connect(voice.node); voice.node.connect(voice.ctx.destination);
+  voice.on = true; voice.listening = false; voice.readyToListen = false;
+  $("talkBtn").textContent = "Stop talking"; $("talkBtn").classList.add("live");
+  setNote("Starting…");
+  try { await send({ op: "voice_start", workspace_id: Number($("ws").value) }); }
+  catch (e) { setNote(e.message, true); stopTalking(false); }
+}
+function stopTalking(tell = true) {
+  if (tell && session) send({ op: "voice_stop" }).catch(() => {});
+  voice.on = false; voice.listening = false; voice.queue = [];
+  if (voice.node) { voice.node.disconnect(); voice.node = null; }
+  if (voice.stream) { voice.stream.getTracks().forEach((t) => t.stop()); voice.stream = null; }
+  if (voice.ctx) { voice.ctx.close(); voice.ctx = null; }
+  $("talkBtn").textContent = "Start talking"; $("talkBtn").classList.remove("live");
+  if (tell) setNote("");
 }
 
 function show(r) {
@@ -198,10 +303,11 @@ async function start() {
 }
 $("relay").value = location.origin.startsWith("http") ? location.origin : "";
 $("pairBtn").onclick = pairNow;
+$("talkBtn").onclick = () => (voice.on ? stopTalking() : startTalking());
 $("askBtn").onclick = async () => { try { show(await request({ op: "ask", workspace_id: Number($("ws").value), text: $("text").value })); } catch (e) { show({ error: e.message }); } };
 $("approveBtn").onclick = async () => { try { show(await request({ op: "approve" })); } catch (e) { show({ error: e.message }); } };
 $("rejectBtn").onclick = async () => { try { show(await request({ op: "reject" })); } catch (e) { show({ error: e.message }); } };
-$("forget").onclick = async () => { localStorage.removeItem("artemis-remote"); await keyDel(); session = null; start(); };
+$("forget").onclick = async () => { stopTalking(false); localStorage.removeItem("artemis-remote"); await keyDel(); session = null; start(); };
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
 start();
 </script>

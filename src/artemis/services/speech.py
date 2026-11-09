@@ -66,6 +66,14 @@ class Turn:
 class FasterWhisperTranscriber:
     """Local speech-to-text. The model is loaded the first time it is needed."""
 
+    def transcribe_pcm(self, pcm: bytes) -> str:
+        """Words from audio held in memory (16 kHz, 16-bit, mono). Nothing is written to disk."""
+        try:
+            samples = _pcm_to_samples(pcm)
+        except Exception as exc:
+            raise SpeechUnavailable("ARTEMIS could not make out that audio.") from exc
+        return self._run(samples)
+
     def __init__(self, model_size: str = "base.en") -> None:
         self._model_size = model_size
         self._model = None
@@ -79,6 +87,9 @@ class FasterWhisperTranscriber:
         return True
 
     def transcribe(self, audio_path: Path) -> str:
+        return self._run(str(audio_path))
+
+    def _run(self, source) -> str:
         try:
             from faster_whisper import WhisperModel
         except ImportError as exc:
@@ -96,12 +107,19 @@ class FasterWhisperTranscriber:
                     ) from exc
             model = self._model
         try:
-            segments, _info = model.transcribe(str(audio_path), vad_filter=True, language="en")
+            segments, _info = model.transcribe(source, vad_filter=True, language="en")
             return " ".join(s.text.strip() for s in segments).strip()
         except Exception as exc:  # an unreadable or damaged recording, or a broken install
             raise SpeechUnavailable(
                 "ARTEMIS could not make out that recording. Try again, or type it."
             ) from exc
+
+
+def _pcm_to_samples(pcm: bytes):
+    """16-bit little-endian mono audio at 16 kHz, as the floats the speech model reads."""
+    import numpy as np
+
+    return np.frombuffer(pcm, dtype="<i2").astype("float32") / 32768.0
 
 
 class WindowsSpeaker:
@@ -368,7 +386,31 @@ class VoiceSession:
         self._audit("voice.heard", "recorded")  # that it happened, never the audio
         return Turn(text=text, spoken=True)
 
+    def hear_pcm(self, pcm: bytes) -> Turn | None:
+        """Like `hear`, for audio that arrived from a paired device and was never a file."""
+        if not self._armed:
+            raise NotArmed("Voice is off. Turn it on first; nothing was recorded.")
+        words = getattr(self._transcriber, "transcribe_pcm", None)
+        if words is None:
+            raise SpeechUnavailable("Voice typing is not available for this audio.")
+        text = (words(pcm) or "").strip()
+        if not text:
+            return None
+        self._audit("voice.heard", "recorded")  # that it happened, never the audio or the words
+        return Turn(text=text, spoken=True)
+
     # -- output ------------------------------------------------------------
+
+    def speak_bytes(self, text: str) -> bytes | None:
+        """The spoken form of `text` as a sound file's bytes, or None. No file is left behind."""
+        path = self.speak(text)
+        if path is None:
+            return None
+        try:
+            return path.read_bytes()
+        finally:
+            with contextlib.suppress(OSError):
+                path.unlink()
 
     def speak(self, text: str) -> Path | None:
         """A sound file reading `text` aloud, or None when reading aloud is off."""

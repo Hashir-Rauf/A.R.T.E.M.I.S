@@ -1354,7 +1354,10 @@ def build(store: Store) -> gr.Blocks:
                         except ImportError:
                             build_remote_section = None
                         if build_remote_section is not None:
-                            build_remote_section(gr, store, lambda: AssistantPanel(store))
+                            build_remote_section(
+                                gr, store, lambda: AssistantPanel(store),
+                                lambda: VoiceSession(voice._transcriber, voice._speaker, audit=store.append_audit),
+                            )
 
         # -- wiring. Each action returns the same four outputs so the page is
         # always re-read from the stores rather than patched in place.

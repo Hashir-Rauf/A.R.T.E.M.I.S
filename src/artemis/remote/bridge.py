@@ -14,6 +14,8 @@ stricter than local, never looser:
 
 from __future__ import annotations
 
+import base64
+import binascii
 import html
 import json
 import re
@@ -23,6 +25,7 @@ from artemis.data.store import Store
 
 ALLOWED_KEY = "remote.allowed_workspaces"
 LOCAL_OUTWARD_KEY = "remote.outward_approval_stays_local"
+VOICE_KEY = "remote.voice_allowed"
 
 
 def _plain(markup: str) -> str:
@@ -31,10 +34,18 @@ def _plain(markup: str) -> str:
 
 
 class RemoteBridge:
-    def __init__(self, store: Store, panel_factory: Callable[[], Any]) -> None:
+    def __init__(
+        self,
+        store: Store,
+        panel_factory: Callable[[], Any],
+        voice_factory: Callable[[], Any] | None = None,
+    ) -> None:
         self._store = store
         self._panel_factory = panel_factory
+        #: Makes a voice session (speech in and out). None means this computer has no voice.
+        self._voice_factory = voice_factory
         self._panels: dict[str, Any] = {}
+        self._voices: dict[str, Any] = {}
 
     # -- what the owner allows -------------------------------------------------
 
@@ -57,6 +68,17 @@ class RemoteBridge:
     def set_outward_stays_local(self, on: bool) -> None:
         self._store.set_setting(LOCAL_OUTWARD_KEY, "1" if on else "0")
 
+    @property
+    def voice_allowed(self) -> bool:
+        return (self._store.get_setting(VOICE_KEY, "0") or "0") == "1"
+
+    def set_voice_allowed(self, on: bool) -> None:
+        self._store.set_setting(VOICE_KEY, "1" if on else "0")
+        if not on:
+            for voice in self._voices.values():
+                voice.stop()
+            self._voices.clear()
+
     # -- requests ----------------------------------------------------------------
 
     def handle(self, device_id: str, request: dict) -> dict:
@@ -66,6 +88,10 @@ class RemoteBridge:
             "ask": self._ask,
             "approve": self._approve,
             "reject": self._reject,
+            "voice_start": self._voice_start,
+            "voice_chunk": self._voice_chunk,
+            "voice_resume": self._voice_resume,
+            "voice_stop": self._voice_stop,
         }
         handler = handlers.get(op)
         if handler is None:
@@ -136,3 +162,54 @@ class RemoteBridge:
         message, _card = panel.reject()
         self._audit(device_id, "reject", "declined")
         return {"message": _plain(message), "pending": False}
+
+    # -- voice ----------------------------------------------------------------------
+
+    def _audit_voice(self, device_id: str):
+        def write(event: str, outcome: str, detail: dict) -> None:
+            self._store.append_audit(event, outcome, detail={"device": device_id, **detail})
+
+        return write
+
+    def _voice_start(self, device_id: str, request: dict):
+        from artemis.remote.voice import RemoteVoice
+
+        if self._voice_factory is None:
+            return {"type": "error", "message": "Voice is not available on this computer."}
+        if not self.voice_allowed:
+            self._audit(device_id, "voice_start", "refused", "voice not allowed for paired devices")
+            return {"type": "error", "message": "Voice from devices is switched off on the computer."}
+        try:
+            workspace_id = int(request.get("workspace_id"))
+        except (TypeError, ValueError):
+            return {"type": "error", "message": "Choose a folder first."}
+        if workspace_id not in self.allowed_workspaces():
+            self._audit(device_id, "voice_start", "refused", "folder not available remotely")
+            return {"type": "error", "message": "That folder is not available remotely."}
+        old = self._voices.pop(device_id, None)
+        if old is not None:
+            old.stop()
+        session = self._voice_factory()
+        voice = RemoteVoice(session, self._panel(device_id), workspace_id, self._audit_voice(device_id))
+        self._voices[device_id] = voice
+        self._audit(device_id, "voice_start", "approved")
+        return voice.start()
+
+    def _voice_chunk(self, device_id: str, request: dict):
+        voice = self._voices.get(device_id)
+        if voice is None or not self.voice_allowed:
+            return None  # not started (or since switched off): the audio is dropped unread
+        try:
+            pcm = base64.b64decode(str(request.get("pcm", "")), validate=True)
+        except (binascii.Error, ValueError):
+            return None
+        return voice.feed(pcm)
+
+    def _voice_resume(self, device_id: str, request: dict):
+        voice = self._voices.get(device_id)
+        return voice.resume() if voice is not None else None
+
+    def _voice_stop(self, device_id: str, request: dict):
+        voice = self._voices.pop(device_id, None)
+        self._audit(device_id, "voice_stop", "done")
+        return voice.stop() if voice is not None else {"type": "stopped"}

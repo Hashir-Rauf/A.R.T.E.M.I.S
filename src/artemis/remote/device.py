@@ -81,6 +81,24 @@ class RemoteDevice:
                 return True
         return False
 
+    def send(self, **payload) -> None:
+        """A one-way request, such as a piece of audio. No answer is waited for."""
+        if self._channel is None:
+            raise RuntimeError("Not signed in.")
+        self._relay.send(self._room, False, self._channel.seal(json.dumps(payload).encode()))
+
+    def events(self) -> list[dict]:
+        """Everything the host has sent since the last call (speech, replies, ...)."""
+        found = []
+        for frame in self._relay.receive(self._room, as_host=False):
+            if self._channel is None:
+                break
+            try:
+                found.append(json.loads(self._channel.open(frame)))
+            except (crypto.CryptoError, ValueError):
+                continue
+        return found
+
     def request(self, host_pump, **payload) -> dict:
         if self._channel is None:
             raise RuntimeError("Not signed in.")
