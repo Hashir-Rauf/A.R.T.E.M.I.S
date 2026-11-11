@@ -1,0 +1,20 @@
+{"sprint":"sprint-5","agent":"agent-c","verdict":"FAIL",
+"items":[{"item":"User can pick up where they left off (resume notes)","status":"PARTIAL"},
+{"item":"User can tidy a folder after previewing every move","status":"FAIL"},
+{"item":"Automation offered only after a pattern repeats three times","status":"PASS"},
+{"item":"Capability services reach the filesystem only through the broker","status":"PASS"},
+{"item":"Stage gate: three features run end to end through real gates","status":"PARTIAL"}],
+"bugs":[
+{"id":"B1","severity":"high","title":"Tidy with colliding names half-fails and Undo overwrites an original file while saying files are back as they were","repro":"Folder with a.txt, 'a (2).txt', Documents/a.txt, p.pdf, q.pdf. Suggest a tidy-up, Approve, Undo. Reproduced twice.","evidence":"40-preview-collide.png, 41-result.png, 42-undo.png; original a.txt content lost, 'a (2).txt' gone"},
+{"id":"B2","severity":"medium","title":"Saved note is dropped after the next approved change or undo","repro":"Save note, tidy and approve, What changed: note missing","evidence":"What changed text after tidy; checkpoint written with empty note"},
+{"id":"B3","severity":"medium","title":"Loose file named like a target group (Images) makes the create-folder step fail and the images are not moved; preview does not warn","repro":"Loose file 'Images' plus 5 images, tidy, approve","evidence":"11-tidy-approved.png; 7 steps did not run"}],
+"undesired":[
+{"id":"U1","severity":"medium","title":"Dotfiles such as .gitignore are moved into Other/ or Documents/ (while .env is skipped)","detail":"10-tidy-preview.png"},
+{"id":"U2","severity":"low","title":"Long unbroken note overflows the card horizontally","detail":"02-note4.png"},
+{"id":"U3","severity":"low","title":"Notes over 500 chars cut silently, newlines flattened, RTL override garbles display","detail":"What changed output"},
+{"id":"U4","severity":"low","title":"Empty note gives no visible feedback","detail":"02-note0.png"},
+{"id":"U5","severity":"low","title":"Vague habit label 'creating a folder for files'; one tidy yields three offers","detail":"habit dropdown"},
+{"id":"U6","severity":"low","title":"Habit dropdown empty after reload until another button is pressed","detail":"dropdown empty before pressing Repeated tasks"},
+{"id":"U7","severity":"low","title":"Files added on disk invisible to tidy until Check for changes (on another tab); 'create 1 folder' shown when folder exists","detail":"'Only 0 loose files' message"},
+{"id":"U8","severity":"low","title":"Echoed user message drops backslashes","detail":"31-q3.png"},
+{"id":"U9","severity":"low","title":"Partial tidy does not say which step failed","detail":"41-result.png"}]}

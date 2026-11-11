@@ -1,0 +1,41 @@
+16:19:19 typed folder path
+16:19:20 clicked Add folder
+ARTEMIS
+Bounded desktop assistant
+Everything is stored on this computer. Nothing has been sent anywhere.
++ New chat
+Your chats (kept for 7 days)
+Delete this chat
+Switch light / dark
+1
+folders visible
+3
+files known
+7
+actions recorded
+118108 KB
+stored locally
+Added 'stuff'. ARTEMIS now knows about 3 files in it.
+Work
+Folders
+What it knows
+Settings
+Work
+Folders
+What it knows
+Settings
+Folders ARTEMIS can see
+It can only ever see folders you add here, and nothing outside them.
+Folder to add
+Browse
+Add folder
+stuff
+3 files
+E:\Education\FAST-NUCES\Final Year Project\A.R.T.E.M.I.S\tests\agents\work\ua-06\stuff
+ARTEMIS can read and change files here, with your approval
+Cloud models are off here: everything stays on this computer.
+Folder
+Allow cloud models here
+Keep it on this computer
+16:19:23 back to Work
+[(None, 'border-none svelte-1xfsv4t'), ('Tidy up this folder', 'svelte-1hguek3'), ('Where I stopped, what to do next', 'svelte-1hguek3')]

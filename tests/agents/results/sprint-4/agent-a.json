@@ -1,0 +1,21 @@
+{"sprint": "sprint-4", "agent": "agent-a", "verdict": "PASS WITH ISSUES",
+ "items": [
+  {"item": "Routes to local model by default, bounded failover", "status": "PARTIAL"},
+  {"item": "Workspace data never reaches a disabled model tier", "status": "PARTIAL"},
+  {"item": "Model shown with each reply and where it ran", "status": "PARTIAL"},
+  {"item": "Retrieval limited to active folder", "status": "PASS"},
+  {"item": "Inspectable plan without executing", "status": "PASS"},
+  {"item": "Only dispatcher executes / gateway cannot act around gates", "status": "PASS"}],
+ "bugs": [
+  {"id": "B1", "severity": "medium", "title": "Cloud permission folder picker empty after folders are added (until restart)", "repro": "Add two folders, open fresh page, Folders tab, open bottom Folder dropdown", "evidence": "14_cloud_dropdown.png vs 14b_after_restart.png; 2/2"},
+  {"id": "B2", "severity": "high", "title": "Allow cloud models here with empty picker silently allows cloud for the first folder", "repro": "Click Allow cloud models here without choosing a folder", "evidence": "15_allow_noselect.png; banner says allowed for docs_a; persisted after reload; 2/2"},
+  {"id": "B3", "severity": "medium", "title": "Retrieval misses facts present in the folder; stray [] in NOT FOUND", "repro": "docs_a: Who owns Project Orion and what is the deadline?", "evidence": "12_a_orion2.png; 3 reproductions"},
+  {"id": "B4", "severity": "medium", "title": "Move request plan has no moves and uses jargon 'list dir'", "repro": "docs_a: move the invoices into a folder called Bills", "evidence": "19_move_plan.png"}],
+ "undesired": [
+  {"id": "U1", "severity": "medium", "title": "Model / where-it-ran missing on grounded, plan, tidy, refusal and NOT FOUND replies", "detail": "Only plain chat shows it"},
+  {"id": "U2", "severity": "medium", "title": "What model are you answered as NOT FOUND IN YOUR FILES", "detail": "23_model.png"},
+  {"id": "U3", "severity": "medium", "title": "Plan-only rename request just lists files", "detail": "24_plan_only.png"},
+  {"id": "U4", "severity": "medium", "title": "Allowing cloud has no confirmation", "detail": "single click"},
+  {"id": "U5", "severity": "low", "title": "What changed says nothing changed while counter shows 22+ actions", "detail": "related to known audit issue"},
+  {"id": "U6", "severity": "low", "title": "Reply below the fold after Ask; button text echoed as user message", "detail": "07 and 10 screenshots"},
+  {"id": "U7", "severity": "low", "title": "Model offers to search online / refers to files shown earlier", "detail": "misleading"}]}

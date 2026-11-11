@@ -1,0 +1,19 @@
+{"sprint":"sprint-6","agent":"agent-a","verdict":"PASS WITH ISSUES",
+"items":[{"item":"Incremental indexing without blocking the UI","status":"PARTIAL"},
+{"item":"Notes answers with every claim tied to a source file","status":"PARTIAL"},
+{"item":"Stage gate: unsupported claim shown as unsupported","status":"PARTIAL"},
+{"item":"Ask about code, get a diff, never an edit","status":"PASS"},
+{"item":"Retrieval stays fast as folder grows","status":"PARTIAL"}],
+"bugs":[
+{"id":"B1","severity":"high","title":"An irrelevant file is cited as the source of an answer that says it could not find it","repro":"notes_user: ask 'what is the budget for project orion?' (and 'what is the Phoenix budget?' before Check for changes)","evidence":"q0: 'I could not find it. budget 2026.xlsx:1 Sources: budget 2026.xlsx:1'; phoenix before check returned 'sample content of budget 2026.xlsx' as the answer. Reproduced 2x. Orion budget is really in notes.txt."},
+{"id":"B2","severity":"high","title":"Retrieval misses facts that are in the files (false NOT FOUND, inconsistent)","repro":"notes_user: 'who is the owner of Orion and when is the deadline?' then 'summarise my notes'; big folder: 'which files mention subject 5?'","evidence":"Owner/deadline NOT FOUND while the summary returned Sara Khan and 14 March from notes.txt. Big folder subject-5 question NOT FOUND though about 24 files match. Works: January meeting, lecture 3, shout, README, document 123, hardware risks. Likely the known missing embedding model."},
+{"id":"B3","severity":"medium","title":"With a folder selected, a count question makes the assistant ask which folder","repro":"Select big, ask 'how many documents are there about subject 3?'","evidence":"Reply asked which folder or files to look in although big (400 files) was selected."},
+{"id":"B4","severity":"low","title":"Citations repeat and always say line 1","repro":"Ask 'summarise my notes'","evidence":"'notes.txt:1, notes.txt:1'; every citation is ':1' even for later lines (q5.png)."}],
+"undesired":[
+{"id":"U1","severity":"medium","title":"No visible indexing progress","detail":"400-file add took about 3 s showing only the generic processing timer, then 'Added big. ...400 files'. UI stayed responsive but nothing says indexing is happening."},
+{"id":"U2","severity":"medium","title":"Vague code request does not find the code","detail":"'there is a bug in add(), please fix it' got 'show me the code file that has add()' though app/main.py is in the folder; naming the file gave the diff."},
+{"id":"U3","severity":"medium","title":"'Nothing ran.' for a missing file","detail":"'what is in the file called secrets.txt?' answers only 'Nothing ran.'"},
+{"id":"U4","severity":"low","title":"Rewrite request on a note just echoes it","detail":"'rewrite notes.txt to be shorter and save it' shows the file text, no diff or explanation; file unchanged on disk."},
+{"id":"U5","severity":"low","title":"Two different unsupported wordings","detail":"'NOT FOUND IN YOUR FILES ... not backed by a file' vs 'I could not find it.' plus a source line; the second hides the unsupported state."},
+{"id":"U6","severity":"low","title":"Talk panel pushes answers below the fold; fresh install says pick up where we left off","detail":"Expanded Talk section is tall so the reply is off screen after Ask. A brand-new data folder greets 'Hi again. Let us pick up where we left off.'"},
+{"id":"U7","severity":"low","title":"New files unseen until Check for changes (known)","detail":"Before the check the Phoenix question got an unrelated file (see B1); after it answered correctly and What changed said 'added: phoenix.txt'."}]}

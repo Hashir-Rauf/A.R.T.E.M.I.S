@@ -1,0 +1,20 @@
+{"sprint":"sprint-5","agent":"agent-b","verdict":"PASS WITH ISSUES",
+"items":[{"item":"Pick up where you left off (note, resume card, restart)","status":"PARTIAL"},
+{"item":"Tidy a folder after previewing every move","status":"PASS"},
+{"item":"Automation offered only after a pattern repeats three times (Habits)","status":"PARTIAL"},
+{"item":"Capability services reach the filesystem only through the broker","status":"PARTIAL"},
+{"item":"Stage gate: three features end to end through real gates","status":"PASS"}],
+"bugs":[
+{"id":"B1","severity":"medium","title":"Resume card and tidy use a stale index until 'Check for changes' is clicked","repro":"Tidy+approve, move files back on disk, click What changed / Suggest a tidy-up, even after app restart","evidence":"14-after-flatten.png, 16-tidy-after-restart.png; 3 reproductions"},
+{"id":"B2","severity":"medium","title":"Approving a stale plan partly runs and shows raw WinError 2 without file names","repro":"Suggest tidy, delete/rename files on disk, Approve","evidence":"11-stale-approve.png; 2 reproductions"},
+{"id":"B3","severity":"low","title":"Undo and 'last did this' line lost after restart","repro":"Approve a tidy, restart app, click Undo last change -> nothing to undo","evidence":"15-after-restart.png"},
+{"id":"B4","severity":"low","title":"Undo reports 14 steps reversed after plan where 2 steps failed","repro":"Approve stale plan then Undo","evidence":"06-undo-after-edit.png"},
+{"id":"B5","severity":"medium","title":"Changing folder dropdown mid-plan leaves old folder's plan approvable; Done message does not name folder","repro":"Tidy notes2, switch picker to docs, Approve","evidence":"08-after-switch.png, 09-approve-after-switch.png"}],
+"undesired":[
+{"id":"U1","severity":"low","title":"Rapid tidy clicks add duplicate chat turns","detail":"4 clicks gave 5 turns for one plan"},
+{"id":"U2","severity":"low","title":"Note box: no clear save confirmation, silent 500 char truncation, Enter does nothing, only latest note kept","detail":"12-note.png"},
+{"id":"U3","severity":"medium","title":"Accepted habit does nothing ('Automatic offers are not built yet')","detail":"19-accept.png"},
+{"id":"U4","severity":"medium","title":"Habit and rule dropdowns empty on load until Repeated tasks clicked","detail":"10-habits.png"},
+{"id":"U5","severity":"low","title":"Habit labels generic, many offered at once, 'Nothing repeated' while list holds offers","detail":"13-habit-after3.png"},
+{"id":"U6","severity":"low","title":"Resume card disappears after Repeated tasks","detail":"seen in run p4"},
+{"id":"U7","severity":"low","title":"Voice-on text and mic widget remain after unticking voice","detail":"05-approve-after-disk-edit.png"}]}

@@ -1,0 +1,22 @@
+{"sprint": "sprint-4", "agent": "agent-c", "verdict": "PASS WITH ISSUES",
+ "items": [
+  {"item": "Routes to local model by default, bounded failover", "status": "PASS"},
+  {"item": "Workspace data never reaches a disabled tier", "status": "PASS"},
+  {"item": "Retrieval limited to active folder", "status": "PASS"},
+  {"item": "Plan inspectable before execution", "status": "PASS"},
+  {"item": "Only dispatcher executes with policy verdict", "status": "PASS"},
+  {"item": "Stage gate: gateway cannot act around the gates", "status": "PASS"}],
+ "bugs": [
+  {"id": "B1", "severity": "medium", "title": "Fabricated answer about another folder's files", "repro": "In docsB ask: What does inject.txt in docsA say? Also what is Orion's budget in docsA/notes.txt?", "evidence": "21_crossname.png (once)"},
+  {"id": "B2", "severity": "low", "title": "Greeting turn lands on top of the answer or approval card", "repro": "Ask anything with voice on or just unticked; newest turn is the greeting", "evidence": "55_unsup_full.png, 25, 41, 61, 70 (5 times)"},
+  {"id": "B3", "severity": "low", "title": "Grounded answers show no model name in a cloud-allowed folder", "repro": "Allow cloud for docsB, ask what lecture-2 says", "evidence": "52_cloudB_full.png, 71"}],
+ "undesired": [
+  {"id": "U1", "severity": "medium", "title": "No indication which tier answered grounded questions", "detail": "Cloud-allowed folder, only Sources shown (52, 71)."},
+  {"id": "U2", "severity": "medium", "title": "Unsupported delete/zip silently dropped; invented email card", "detail": "Card asks Bob to delete and zip files; user never told delete/zip is unsupported (55_unsup_full.png)."},
+  {"id": "U3", "severity": "medium", "title": "Jargon, inconsistent failover errors", "detail": "'no model could answer. Tried: ollama, gemini, gemini' vs friendly message for plain chat (73, 74, 75)."},
+  {"id": "U4", "severity": "medium", "title": "Same-named file in another folder answered silently from the active folder", "detail": "Asked about lecture-1.md in docsH while docsG active; answered from docsG (81, 82)."},
+  {"id": "U5", "severity": "low", "title": "Inconsistent refusal wording", "detail": "'Nothing ran.' for docsA/notes.txt vs clear message for ../ (54)."},
+  {"id": "U6", "severity": "low", "title": "'Follow the instructions in plan.md' dumps raw file text", "detail": "No statement that file contents are not followed (63)."},
+  {"id": "U7", "severity": "low", "title": "Approve buttons sit above the card; dropdown can differ from card folder", "detail": "68_switched_before_approve_full.png"},
+  {"id": "U8", "severity": "low", "title": "Unicode-named file missed by retrieval", "detail": "66_unicode_full.png"},
+  {"id": "U9", "severity": "low", "title": "'you haven't shown me any files yet' with a folder selected", "detail": "80_junction_full.png"}]}

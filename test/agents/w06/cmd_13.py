@@ -1,0 +1,5 @@
+print("main.py:", open(os.path.join(folder,"app","main.py")).read())
+say("Fix the bug in add() in app/main.py")
+c=convo(); k=c.find("Undo last change"); print(c[k:k+900])
+print([(b.inner_text(),b.is_enabled()) for b in page.query_selector_all("button") if b.is_visible() and b.inner_text() in ("Approve","No, leave it","Approve, don't ask again")])
+shot(page, folder, "fix")

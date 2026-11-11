@@ -1,0 +1,82 @@
+16:26:07 clicked Approve on tidy plan
+['Documents', 'Images', 'budget 2026.xlsx', 'random.zip']
+16:26:13 clicked Undo last change
+after undo: ['Invoice_March.pdf', 'budget 2026.xlsx', 'holiday photo 1.jpg', 'holiday photo 2.jpg', 'invoice-april.pdf', 'meeting-notes-jan.txt', 'notes.txt', 'random.zip', 'readme.txt', 'resume_final_v3.docx', 'resume_final_v3_REAL.docx', 'screenshot (1).png', 'screenshot (2).png', 'todo.md']
+Undo last change
+Undo last change
+Undone. 14 steps reversed, and your files are back as they were.
+Approve
+Done: 2 folders created, 12 files moved.
+Suggest a tidy-up
+Would move 12 files and create 2 folders, leaving budget 2026.xlsx, random.zip where they are. Nothing is deleted.
+Fix the bug in add() in app/main.py
+A proposed change to app/main.py:
+--- a/app/main.py
++++ b/app/main.py
+@@ -1,5 +1,5 @@
+ def add(a, b):
+-    return a - b  # BUG: should add
++    return a + b  # Fixed bug to perform ad
+16:26:19 opened What it knows
+s
+16:26:21 opened Settings
+
+Settings
+Where ARTEMIS keeps what it knows
+Everything it remembers lives in one folder on this computer. Move it anywhere, including another drive.
+Currently in
+E:\Education\FAST-NUCES\Final Year Project\A.R.T.E.M.I.S\tests\agents\work\ua-06\home
+New location
+Browse
+Move it here
+Cloud models
+ARTEMIS uses the model on this computer by default. A cloud model is faster, but your request leaves this machine, so it is only used for folders you have set to allow it.
+Local model
+Using gemma4:e4b (chosen automatically).
+gemma4:e4b
+9.6 GB
+In use
+Use this local model
+Use it
+Choose for me
+Check again
+Cloud services
+Use cloud models for plain chat when no folder is chosen (what you type is sent to the cloud service)
+Google Gemini
+gemini-2.0-flash
+Key saved
+OpenAI
+gpt-4o-mini
+Not set up
+Anthropic Claude
+claude-sonnet-4-20250514
+Not set up
+Keys are kept in the Windows Credential Manager, never in the ARTEMIS folder. A cloud model is only used for a folder you have set to allow it.
+Service
+API key
+Save key
+Forget key
+Model name for the service chosen above
+Use this model
+Default
+Email
+So ARTEMIS can send emails for you. It always shows you the email first and only sends it if you say yes.
+Email is not connected yet, so ARTEMIS cannot send emails.
+Who provides your email?
+How to connect Gmail
+Gmail does not let programs use your normal password. You make a special one, once:
+Open myaccount.google.com/apppasswords in your browser and sign in.
+(If it says the page is not available: go to Security and turn on 2-Step Verification first, then try again.)
+Type a name such as ARTEMIS and press Create.
+Google shows 16 letters in a yellow box. Copy them. Google only shows them once.
+Paste them in Your password below. Spaces do not matter.
+Press Connect my email, then Test connection.
+Your email address
+Your password
+Advanced: type the server details yourself
+▼
+Connect my email
+Test connection
+Disconnect
+Remote access (optional)
+▼

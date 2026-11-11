@@ -1,0 +1,57 @@
+ARTEMIS
+Bounded desktop assistant
+Everything is stored on this computer. Nothing has been sent anywhere.
++ New chat
+Your chats (kept for 7 days)
+Chat · today
+Delete this chat
+Switch light / dark
+1
+folders visible
+13
+files known
+7
+actions recorded
+114231 KB
+stored locally
+Added 'stuff'. ARTEMIS now knows about 13 files in it.
+Work
+Folders
+What it knows
+Settings
+Work
+Folders
+What it knows
+Settings
+What would you like done?
+ARTEMIS plans the work and shows you every step. Nothing changes until you say yes.
+In this folder
+What would you like done
+Ask
+Talk instead of typing
+▼
+Voice starts on its own when ARTEMIS opens; untick the box to stop it. While it is on, just talk and pause when you are done. Your words appear in the box and are handled exactly like typed words, so anything that changes something still asks you first. The recording is deleted as soon as it has been turned into words.
+Voice is on (microphone allowed)
+Read answers aloud
+Microphone
+Record
+No microphone found
+Voice is on. Just talk; I listen when I am not speaking.
+ARTEMIS speaking
+0:04
+0:04
+1x
+Suggest a tidy-up
+What changed
+Repeated tasks
+Undo last change
+Good afternoon! I'm ARTEMIS. I'm listening. What can I help you with?
+Clear conversation
+Approve
+Approve, don't ask again
+No, leave it
+Nothing has changed outside ARTEMIS since a moment ago.
+Leave a note for next time
+Save note
+Habits and choices ARTEMIS remembers
+▼

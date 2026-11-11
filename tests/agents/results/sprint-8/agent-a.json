@@ -1,0 +1,18 @@
+{"sprint": "sprint-8", "agent": "agent-a", "verdict": "PASS WITH ISSUES",
+ "items": [
+  {"item": "User can speak a request and reach the same gates as typing", "status": "PASS"},
+  {"item": "User is never recorded unless they armed the session", "status": "PARTIAL"},
+  {"item": "User can hear a spoken result for a voice turn", "status": "PARTIAL"},
+  {"item": "Stage gate: speech required no new approval gates", "status": "PASS"}],
+ "bugs": [
+  {"id": "B1", "severity": "high", "title": "Mic recorder stays usable and transcribes when Voice is unticked early after page load", "repro": "Open page, untick Voice about 1.2 s later, click Record in Microphone widget, wait, Stop", "evidence": "manual_record_while_voice_off.png, manual_record_result.png; reproduced 3 times"},
+  {"id": "B2", "severity": "low", "title": "Brand-new chat gets a second greeting 'Hi again. Let's pick up where we left off'", "repro": "New chat, reload, wait 4 s; also on every Voice re-tick", "evidence": "silence_50s.png; about 6 times"}],
+ "undesired": [
+  {"id": "U1", "severity": "medium", "title": "Voice request just after refresh gets which-folder answer because dropdown is empty", "detail": "folder dropdown not yet set"},
+  {"id": "U2", "severity": "low", "title": "Very casual reply tone", "detail": "gotta... for ya"},
+  {"id": "U3", "severity": "medium", "title": "Approval card far below voice widgets", "detail": "needs scrolling"},
+  {"id": "U4", "severity": "medium", "title": "Voice keeps listening while approval pending", "detail": "more requests may stack or replace"},
+  {"id": "U5", "severity": "low", "title": "Identical repeated spoken request not re-heard", "detail": "possibly harness artefact"},
+  {"id": "U6", "severity": "low", "title": "Nudge only once then silent without indication", "detail": "no state shown"},
+  {"id": "U7", "severity": "low", "title": "Identical Chat - today entries pile up", "detail": "known"},
+  {"id": "U8", "severity": "low", "title": "Plan says make folder Docs although docs exists", "detail": "case-insensitive; result fine"}]}

@@ -151,6 +151,12 @@ INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\tex\latex\setspace\sets
 INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\tex\latex\setspace\setspace.sty
 INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\tex\latex\psnfss\mathptmx.sty
 INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\tex\latex\psnfss\mathptmx.sty
+INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\tex\latex\float\float.sty
+INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\tex\latex\float\float.sty
+INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\tex\latex\tools\longtable.sty
+INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\tex\latex\tools\longtable.sty
+INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\tex\latex\needspace\needspace.sty
+INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\tex\latex\needspace\needspace.sty
 INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\tex\latex\psnfss\ot1ptm.fd
 INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\tex\latex\psnfss\ot1ptm.fd
 INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\tex\latex\psnfss\ot1ptm.fd
@@ -177,6 +183,8 @@ OUTPUT F26-008.pdf
 INPUT .\F26-008.out
 INPUT .\F26-008.out
 OUTPUT F26-008.out
+INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\tex\latex\caption\ltcaption.sty
+INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\tex\latex\caption\ltcaption.sty
 INPUT .\Figures\nulogo.png
 INPUT .\Figures\nulogo.png
 INPUT .\Figures\nulogo.png
@@ -309,27 +317,18 @@ INPUT .\Figures\Picture1.png
 INPUT .\Figures\Picture1.png
 INPUT .\Figures\Picture1.png
 INPUT .\Figures\Picture1.png
+INPUT .\Figures\fig_sdg_selected.pdf
+INPUT .\Figures\fig_sdg_selected.pdf
+INPUT .\Figures\fig_sdg_selected.pdf
+INPUT .\Figures\fig_sdg_selected.pdf
+INPUT .\Figures\fig_sdg_selected.pdf
+INPUT .\Figures\fig_sdg_selected.pdf
 INPUT .\Figures\fig_assistant_pref.pdf
 INPUT .\Figures\fig_assistant_pref.pdf
 INPUT .\Figures\fig_assistant_pref.pdf
 INPUT .\Figures\fig_assistant_pref.pdf
 INPUT .\Figures\fig_assistant_pref.pdf
 INPUT .\Figures\fig_assistant_pref.pdf
-INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\zptmcm7t.tfm
-INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\zptmcm7t.tfm
-INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\zptmcm7m.tfm
-INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\zptmcm7m.tfm
-INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\zptmcm7y.tfm
-INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\zptmcm7y.tfm
-INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\zptmcm7v.tfm
-INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\zptmcm7v.tfm
-INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam10.tfm
-INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam10.tfm
-INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm10.tfm
-INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm10.tfm
-INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmb7t.tfm
-INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmri7t.tfm
-INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmri7t.tfm
 INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\vf\adobe\times\ptmr7t.vf
 INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmr8r.tfm
 INPUT .\Figures\fig_features.pdf
@@ -338,102 +337,196 @@ INPUT .\Figures\fig_features.pdf
 INPUT .\Figures\fig_features.pdf
 INPUT .\Figures\fig_features.pdf
 INPUT .\Figures\fig_features.pdf
-INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\vf\adobe\times\ptmri7t.vf
+INPUT .\Figures\fig_nav.pdf
+INPUT .\Figures\fig_nav.pdf
+INPUT .\Figures\fig_nav.pdf
+INPUT .\Figures\fig_nav.pdf
+INPUT .\Figures\fig_nav.pdf
+INPUT .\Figures\fig_nav.pdf
+INPUT .\Figures\s_work.png
+INPUT .\Figures\s_work.png
+INPUT .\Figures\s_work.png
+INPUT .\Figures\s_work.png
+INPUT .\Figures\s_work.png
+INPUT .\Figures\s_work.png
+INPUT .\Figures\s_work.png
+INPUT .\Figures\s_folders.png
+INPUT .\Figures\s_folders.png
+INPUT .\Figures\s_folders.png
+INPUT .\Figures\s_folders.png
+INPUT .\Figures\s_folders.png
+INPUT .\Figures\s_folders.png
+INPUT .\Figures\s_folders.png
+INPUT .\Figures\s_knows.png
+INPUT .\Figures\s_knows.png
+INPUT .\Figures\s_knows.png
+INPUT .\Figures\s_knows.png
+INPUT .\Figures\s_knows.png
+INPUT .\Figures\s_knows.png
+INPUT .\Figures\s_knows.png
+INPUT .\Figures\s_undo.png
+INPUT .\Figures\s_undo.png
+INPUT .\Figures\s_undo.png
+INPUT .\Figures\s_undo.png
+INPUT .\Figures\s_undo.png
+INPUT .\Figures\s_undo.png
+INPUT .\Figures\s_undo.png
+INPUT .\Figures\s_approval.png
+INPUT .\Figures\s_approval.png
+INPUT .\Figures\s_approval.png
+INPUT .\Figures\s_approval.png
+INPUT .\Figures\s_approval.png
+INPUT .\Figures\s_approval.png
+INPUT .\Figures\s_approval.png
+INPUT .\Figures\s_settings.png
+INPUT .\Figures\s_settings.png
+INPUT .\Figures\s_settings.png
+INPUT .\Figures\s_settings.png
+INPUT .\Figures\s_settings.png
+INPUT .\Figures\s_settings.png
+INPUT .\Figures\s_settings.png
+INPUT .\Figures\s_remote.png
+INPUT .\Figures\s_remote.png
+INPUT .\Figures\s_remote.png
+INPUT .\Figures\s_remote.png
+INPUT .\Figures\s_remote.png
+INPUT .\Figures\s_remote.png
+INPUT .\Figures\s_remote.png
+INPUT .\Figures\s_dark.png
+INPUT .\Figures\s_dark.png
+INPUT .\Figures\s_dark.png
+INPUT .\Figures\s_dark.png
+INPUT .\Figures\s_dark.png
+INPUT .\Figures\s_dark.png
+INPUT .\Figures\s_dark.png
+INPUT .\Figures\fig_er.pdf
+INPUT .\Figures\fig_er.pdf
+INPUT .\Figures\fig_er.pdf
+INPUT .\Figures\fig_er.pdf
+INPUT .\Figures\fig_er.pdf
+INPUT .\Figures\fig_er.pdf
+INPUT .\Figures\fig_layers.pdf
+INPUT .\Figures\fig_layers.pdf
+INPUT .\Figures\fig_layers.pdf
+INPUT .\Figures\fig_layers.pdf
+INPUT .\Figures\fig_layers.pdf
+INPUT .\Figures\fig_layers.pdf
+INPUT .\Figures\fig_lifecycle.pdf
+INPUT .\Figures\fig_lifecycle.pdf
+INPUT .\Figures\fig_lifecycle.pdf
+INPUT .\Figures\fig_lifecycle.pdf
+INPUT .\Figures\fig_lifecycle.pdf
+INPUT .\Figures\fig_lifecycle.pdf
+INPUT .\Figures\fig_gateway.pdf
+INPUT .\Figures\fig_gateway.pdf
+INPUT .\Figures\fig_gateway.pdf
+INPUT .\Figures\fig_gateway.pdf
+INPUT .\Figures\fig_gateway.pdf
+INPUT .\Figures\fig_gateway.pdf
+INPUT .\Figures\fig_router.pdf
+INPUT .\Figures\fig_router.pdf
+INPUT .\Figures\fig_router.pdf
+INPUT .\Figures\fig_router.pdf
+INPUT .\Figures\fig_router.pdf
+INPUT .\Figures\fig_router.pdf
+INPUT .\Figures\fig_tiers.pdf
+INPUT .\Figures\fig_tiers.pdf
+INPUT .\Figures\fig_tiers.pdf
+INPUT .\Figures\fig_tiers.pdf
+INPUT .\Figures\fig_tiers.pdf
+INPUT .\Figures\fig_tiers.pdf
+INPUT .\Figures\fig_context.pdf
+INPUT .\Figures\fig_context.pdf
+INPUT .\Figures\fig_context.pdf
+INPUT .\Figures\fig_context.pdf
+INPUT .\Figures\fig_context.pdf
+INPUT .\Figures\fig_context.pdf
+INPUT .\Figures\fig_policy_order.pdf
+INPUT .\Figures\fig_policy_order.pdf
+INPUT .\Figures\fig_policy_order.pdf
+INPUT .\Figures\fig_policy_order.pdf
+INPUT .\Figures\fig_policy_order.pdf
+INPUT .\Figures\fig_policy_order.pdf
+INPUT .\Figures\fig_approval.pdf
+INPUT .\Figures\fig_approval.pdf
+INPUT .\Figures\fig_approval.pdf
+INPUT .\Figures\fig_approval.pdf
+INPUT .\Figures\fig_approval.pdf
+INPUT .\Figures\fig_approval.pdf
+INPUT .\Figures\fig_services.pdf
+INPUT .\Figures\fig_services.pdf
+INPUT .\Figures\fig_services.pdf
+INPUT .\Figures\fig_services.pdf
+INPUT .\Figures\fig_services.pdf
+INPUT .\Figures\fig_services.pdf
+INPUT .\Figures\fig_broker.pdf
+INPUT .\Figures\fig_broker.pdf
+INPUT .\Figures\fig_broker.pdf
+INPUT .\Figures\fig_broker.pdf
+INPUT .\Figures\fig_broker.pdf
+INPUT .\Figures\fig_broker.pdf
+INPUT .\Figures\fig_memory.pdf
+INPUT .\Figures\fig_memory.pdf
+INPUT .\Figures\fig_memory.pdf
+INPUT .\Figures\fig_memory.pdf
+INPUT .\Figures\fig_memory.pdf
+INPUT .\Figures\fig_memory.pdf
+INPUT .\Figures\fig_memory_vs_index.pdf
+INPUT .\Figures\fig_memory_vs_index.pdf
+INPUT .\Figures\fig_memory_vs_index.pdf
+INPUT .\Figures\fig_memory_vs_index.pdf
+INPUT .\Figures\fig_memory_vs_index.pdf
+INPUT .\Figures\fig_memory_vs_index.pdf
+INPUT .\Figures\fig_remote.pdf
+INPUT .\Figures\fig_remote.pdf
+INPUT .\Figures\fig_remote.pdf
+INPUT .\Figures\fig_remote.pdf
+INPUT .\Figures\fig_remote.pdf
+INPUT .\Figures\fig_remote.pdf
+INPUT .\Figures\fig_pairing.pdf
+INPUT .\Figures\fig_pairing.pdf
+INPUT .\Figures\fig_pairing.pdf
+INPUT .\Figures\fig_pairing.pdf
+INPUT .\Figures\fig_pairing.pdf
+INPUT .\Figures\fig_pairing.pdf
+INPUT .\Figures\fig_performance.pdf
+INPUT .\Figures\fig_performance.pdf
+INPUT .\Figures\fig_performance.pdf
+INPUT .\Figures\fig_performance.pdf
+INPUT .\Figures\fig_performance.pdf
+INPUT .\Figures\fig_performance.pdf
+INPUT .\Figures\fig_class.pdf
+INPUT .\Figures\fig_class.pdf
+INPUT .\Figures\fig_class.pdf
+INPUT .\Figures\fig_class.pdf
+INPUT .\Figures\fig_class.pdf
+INPUT .\Figures\fig_class.pdf
+INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmtt10.tfm
+INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\vf\adobe\times\zptmcm7t.vf
+INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\symbol\psyr.tfm
+INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\vf\adobe\times\zptmcm7y.vf
+INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmsy10.tfm
+INPUT C:\Users\Hashir Rauf\AppData\Local\MiKTeX\fonts\tfm\public\rsfs\rsfs10.tfm
+INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\vf\adobe\times\zptmcm7m.vf
+INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\psyro.tfm
+INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmmi10.tfm
 INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmri8r.tfm
-INPUT .\Figures\fig_layers.pdf
-INPUT .\Figures\fig_layers.pdf
-INPUT .\Figures\fig_layers.pdf
-INPUT .\Figures\fig_layers.pdf
-INPUT .\Figures\fig_layers.pdf
-INPUT .\Figures\fig_layers.pdf
-INPUT .\Figures\fig_lifecycle.pdf
-INPUT .\Figures\fig_lifecycle.pdf
-INPUT .\Figures\fig_lifecycle.pdf
-INPUT .\Figures\fig_lifecycle.pdf
-INPUT .\Figures\fig_lifecycle.pdf
-INPUT .\Figures\fig_lifecycle.pdf
-INPUT .\Figures\fig_gateway.pdf
-INPUT .\Figures\fig_gateway.pdf
-INPUT .\Figures\fig_gateway.pdf
-INPUT .\Figures\fig_gateway.pdf
-INPUT .\Figures\fig_gateway.pdf
-INPUT .\Figures\fig_gateway.pdf
-INPUT .\Figures\fig_router.pdf
-INPUT .\Figures\fig_router.pdf
-INPUT .\Figures\fig_router.pdf
-INPUT .\Figures\fig_router.pdf
-INPUT .\Figures\fig_router.pdf
-INPUT .\Figures\fig_router.pdf
-INPUT .\Figures\fig_context.pdf
-INPUT .\Figures\fig_context.pdf
-INPUT .\Figures\fig_context.pdf
-INPUT .\Figures\fig_context.pdf
-INPUT .\Figures\fig_context.pdf
-INPUT .\Figures\fig_context.pdf
-INPUT .\Figures\fig_tiers.pdf
-INPUT .\Figures\fig_tiers.pdf
-INPUT .\Figures\fig_tiers.pdf
-INPUT .\Figures\fig_tiers.pdf
-INPUT .\Figures\fig_tiers.pdf
-INPUT .\Figures\fig_tiers.pdf
-INPUT .\Figures\fig_policy_order.pdf
-INPUT .\Figures\fig_policy_order.pdf
-INPUT .\Figures\fig_policy_order.pdf
-INPUT .\Figures\fig_policy_order.pdf
-INPUT .\Figures\fig_policy_order.pdf
-INPUT .\Figures\fig_policy_order.pdf
-INPUT .\Figures\fig_approval.pdf
-INPUT .\Figures\fig_approval.pdf
-INPUT .\Figures\fig_approval.pdf
-INPUT .\Figures\fig_approval.pdf
-INPUT .\Figures\fig_approval.pdf
-INPUT .\Figures\fig_approval.pdf
-INPUT .\Figures\fig_services.pdf
-INPUT .\Figures\fig_services.pdf
-INPUT .\Figures\fig_services.pdf
-INPUT .\Figures\fig_services.pdf
-INPUT .\Figures\fig_services.pdf
-INPUT .\Figures\fig_services.pdf
-INPUT .\Figures\fig_broker.pdf
-INPUT .\Figures\fig_broker.pdf
-INPUT .\Figures\fig_broker.pdf
-INPUT .\Figures\fig_broker.pdf
-INPUT .\Figures\fig_broker.pdf
-INPUT .\Figures\fig_broker.pdf
-INPUT .\Figures\fig_memory.pdf
-INPUT .\Figures\fig_memory.pdf
-INPUT .\Figures\fig_memory.pdf
-INPUT .\Figures\fig_memory.pdf
-INPUT .\Figures\fig_memory.pdf
-INPUT .\Figures\fig_memory.pdf
-INPUT .\Figures\fig_memory_vs_index.pdf
-INPUT .\Figures\fig_memory_vs_index.pdf
-INPUT .\Figures\fig_memory_vs_index.pdf
-INPUT .\Figures\fig_memory_vs_index.pdf
-INPUT .\Figures\fig_memory_vs_index.pdf
-INPUT .\Figures\fig_memory_vs_index.pdf
-INPUT .\Figures\fig_remote.pdf
-INPUT .\Figures\fig_remote.pdf
-INPUT .\Figures\fig_remote.pdf
-INPUT .\Figures\fig_remote.pdf
-INPUT .\Figures\fig_remote.pdf
-INPUT .\Figures\fig_remote.pdf
-INPUT .\Figures\fig_pairing.pdf
-INPUT .\Figures\fig_pairing.pdf
-INPUT .\Figures\fig_pairing.pdf
-INPUT .\Figures\fig_pairing.pdf
-INPUT .\Figures\fig_pairing.pdf
-INPUT .\Figures\fig_pairing.pdf
-INPUT .\Figures\fig_performance.pdf
-INPUT .\Figures\fig_performance.pdf
-INPUT .\Figures\fig_performance.pdf
-INPUT .\Figures\fig_performance.pdf
-INPUT .\Figures\fig_performance.pdf
-INPUT .\Figures\fig_performance.pdf
+INPUT .\Figures\fig_campaign.pdf
+INPUT .\Figures\fig_campaign.pdf
+INPUT .\Figures\fig_campaign.pdf
+INPUT .\Figures\fig_campaign.pdf
+INPUT .\Figures\fig_campaign.pdf
+INPUT .\Figures\fig_campaign.pdf
+INPUT .\Figures\fig_obs_trust.pdf
+INPUT .\Figures\fig_obs_trust.pdf
+INPUT .\Figures\fig_obs_trust.pdf
+INPUT .\Figures\fig_obs_trust.pdf
+INPUT .\Figures\fig_obs_trust.pdf
+INPUT .\Figures\fig_obs_trust.pdf
 INPUT .\F26-008.bbl
 INPUT .\F26-008.bbl
 INPUT F26-008.bbl
-INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmtt10.tfm
+INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\vf\adobe\times\ptmri7t.vf
 INPUT .\Figures\fig_interview.pdf
 INPUT .\Figures\fig_interview.pdf
 INPUT .\Figures\fig_interview.pdf
@@ -485,6 +578,10 @@ INPUT .\Figures\fig_open_feedback_themes.pdf
 INPUT F26-008.aux
 INPUT .\F26-008.out
 INPUT .\F26-008.out
+INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi10.pfb
+INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi10.pfb
+INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmsy10.pfb
+INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmsy10.pfb
 INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmtt10.pfb
 INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmtt10.pfb
 INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\type1\urw\times\utmb8a.pfb

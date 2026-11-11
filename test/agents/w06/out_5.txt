@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "E:\Education\FAST-NUCES\Final Year Project\A.R.T.E.M.I.S\test\agents\w06\driver.py", line 21, in <module>
+    try: exec(open(f,encoding="utf-8").read(),G)
+         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 1
+    page.get_by_placeholder("C:\Users\you\Documents\Thesis").fill(str(folder)); log("typed folder path")
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+SyntaxError: (unicode error) 'unicodeescape' codec can't decode bytes in position 2-3: truncated \UXXXXXXXX escape

@@ -1,0 +1,20 @@
+{"sprint": "sprint-3", "agent": "agent-c", "verdict": "FAIL",
+ "items": [
+  {"item": "Every action in exactly one risk tier", "status": "PARTIAL"},
+  {"item": "No code path to a destructive operation", "status": "PARTIAL"},
+  {"item": "Preview and approve/reject", "status": "PARTIAL"},
+  {"item": "Undo an approved plan as a single unit", "status": "PARTIAL"},
+  {"item": "Append-only audit record of every proposal and action", "status": "PARTIAL"},
+  {"item": "Stage gate: gates hold against placeholder tools", "status": "PARTIAL"}],
+ "bugs": [
+  {"id": "B1", "severity": "high", "title": "'empty notes.txt' / 'rm notes.txt' overwrite an existing file, shown as 'Save 1 new file'", "repro": "Type 'empty notes.txt' (or 'rm notes.txt'); card says Save 1 new file, step 'Write to notes.txt'; Approve; notes.txt becomes empty. Reproduced 2x.", "evidence": "write_card_emp.png, write_card_rm.png, p6_0.png; disk: notes.txt empty"},
+  {"id": "B2", "severity": "high", "title": "Undo silently overwrites a file created at the original path after the move", "repro": "Move readme.txt into RR, Approve, create new readme.txt, click Undo last change; new content lost while message says files are back as they were. Reproduced 2x.", "evidence": "undo_occupied.png, undo_occupied3.png; disk readme.txt has original content"},
+  {"id": "B3", "severity": "high", "title": "'Approve, don't ask again' on one move lets later bulk tidy run with no card and no approval audit rows", "repro": "Move one file, click 'Approve, don't ask again'; then 'tidy up this folder' -> Done: 14 files moved, no card; audit ids 36-52 have no approval rows.", "evidence": "tidy_noask.png, dontask.png; audit_log"},
+  {"id": "B4", "severity": "medium", "title": "Audit record not readable in UI; 'What changed' ignores ARTEMIS's own actions", "repro": "After approved moves click What changed: 'Nothing has changed outside ARTEMIS'. No tab lists actions.", "evidence": "whatchanged.png, tab_What_it_knows.png"}],
+ "undesired": [
+  {"id": "U1", "severity": "medium", "title": "New request silently replaces a pending plan; refusal leaves older plan approvable", "detail": "two_plans.png; no audit row for the superseded plan"},
+  {"id": "U2", "severity": "medium", "title": "Only the latest plan can be undone", "detail": "Move A, move B, undo twice: second says nothing to undo while A stays moved."},
+  {"id": "U3", "severity": "medium", "title": "Rename previewed without a destination; model invents destination names", "detail": "script_rename.png, rename_card.png: step 'Move notes.txt' then approve fails 'needs a destination'; an HTML-laden request was planned as rename to 'renamed-notes.txt'."},
+  {"id": "U4", "severity": "low", "title": "Partial results worded as Done with raw OS error; move sometimes planned as folder only", "detail": "missing_source.png: 'Done: 1 folder created. 1 step did not run: [WinError 2]...'"},
+  {"id": "U5", "severity": "low", "title": "Approval buttons sit above the card they act on", "detail": "two_plans.png"},
+  {"id": "U6", "severity": "low", "title": "Approve once showed greeting instead of Done message", "detail": "Seen once on rm notes.txt approve; not reproduced."}]}

@@ -1,0 +1,21 @@
+16:22:19 typed: Look through the app folder and tell me what this project does, and suggest a fix for anything that looks buggy
+16:22:19 clicked Ask
+16:22:24 done after 5s
+Suggest a tidy-up
+What changed
+Repeated tasks
+Undo last change
+Look through the app folder and tell me what this project does, and suggest a fix for anything that looks buggy
+I need to look at some files in your 'app' folder before I can do that. Could you please select or add the folders you want me to examine? Once you point them out, I can tell you what they seem to be doing and check for any potential bugs.
+gemma4:e4b · on this computer
+Type a message first.
+Good afternoon! I'm ARTEMIS. I'm listening. What can I help you with?
+Clear conversation
+Approve
+Approve, don't ask again
+No, leave it
+Nothing has changed outside ARTEMIS since 3 minutes ago.
+Leave a note for next time
+Save note
+Habits and choices ARTEMIS remembers
+▼

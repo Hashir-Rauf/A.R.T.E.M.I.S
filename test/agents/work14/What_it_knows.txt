@@ -1,0 +1,61 @@
+ARTEMIS
+Bounded desktop assistant
+Everything is stored on this computer. Nothing has been sent anywhere.
++ New chat
+Your chats (kept for 7 days)
+Chat · today
+Delete this chat
+Switch light / dark
+1
+folders visible
+13
+files known
+9
+actions recorded
+118337 KB
+stored locally
+Added 'stuff'. ARTEMIS now knows about 13 files in it.
+Work
+Folders
+What it knows
+Settings
+Work
+Folders
+What it knows
+Settings
+Everything ARTEMIS holds
+Forget never deletes. These buttons remove what ARTEMIS remembers; your files stay exactly where they are.
+Folder
+Show files
+Check for changes
+Forget this folder
+2026-11-08_journal.md
+156 B
+2026-11-weekly-review.md
+108 B
+a_home.png
+62,991 B
+b_added.png
+65,377 B
+c_work.png
+67,231 B
+d_What .png
+74,327 B
+d_Where.png
+73,650 B
+d_reply.png
+72,972 B
+lecture-1.md
+76 B
+lecture-2.md
+76 B
+lecture-3.md
+76 B
+lecture-4.md
+76 B
+lecture-5.md
+76 B
+One file
+Forget this file
+Erasing removes everything ARTEMIS remembers about your folders. The activity log is kept, so you can always check what ARTEMIS did.
+Erase everything ARTEMIS knows

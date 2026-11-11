@@ -1,0 +1,60 @@
+[16:25:46] el 0 BUTTON  ph= + New chat
+[16:25:46] el 1 LABEL  ph= Chat · today
+[16:25:46] el 2 INPUT  ph= 
+[16:25:46] el 3 BUTTON  ph= Delete this chat
+[16:25:46] el 4 BUTTON  ph= Switch light / dark
+[16:25:46] el 5 BUTTON  ph= Work
+[16:25:46] el 6 BUTTON  ph= Folders
+[16:25:46] el 7 BUTTON  ph= What it knows
+[16:25:46] el 8 BUTTON  ph= Settings
+[16:25:46] el 9 BUTTON tab ph= Work
+[16:25:46] el 10 BUTTON tab ph= Folders
+[16:25:46] el 11 BUTTON tab ph= What it knows
+[16:25:46] el 12 BUTTON tab ph= Settings
+[16:25:46] el 13 INPUT listbox ph= 
+[16:25:46] el 14 LABEL  ph= What would you like done
+[16:25:46] el 15 TEXTAREA  ph=Tidy up this folder 
+[16:25:46] el 16 BUTTON  ph= Ask
+[16:25:46] el 17 BUTTON  ph= Talk instead of typing
+▼
+[16:25:46] el 18 LABEL  ph= Voice is on (microphone allowed)
+[16:25:46] el 19 INPUT  ph= 
+[16:25:46] el 20 LABEL  ph= Read answers aloud
+[16:25:46] el 21 INPUT  ph= 
+[16:25:46] el 22 LABEL  ph= Microphone
+[16:25:46] el 23 LABEL  ph= ARTEMIS speaking
+[16:25:46] el 24 BUTTON  ph= Suggest a tidy-up
+[16:25:46] el 25 BUTTON  ph= What changed
+[16:25:46] el 26 BUTTON  ph= Repeated tasks
+[16:25:46] el 27 BUTTON  ph= Undo last change
+[16:25:46] el 28 BUTTON  ph= Clear conversation
+[16:25:46] el 29 BUTTON  ph= Approve
+[16:25:46] el 30 BUTTON  ph= Approve, don't ask again
+[16:25:46] el 31 BUTTON  ph= No, leave it
+[16:25:46] el 32 LABEL  ph= Leave a note for next time
+[16:25:46] el 33 TEXTAREA  ph=Where I stopped, what to do next 
+[16:25:46] el 34 BUTTON  ph= Save note
+[16:25:46] el 35 BUTTON  ph= Habits and choices ARTEMIS remembers
+▼
+[16:26:36] TAIL:
+Undo last change
+Where is the bug in this project? Show me the line.
+The README mentions that there is "A tiny demo project with a bug in add()". README.md:1
+Sources: README.md:1
+Hi again. Let's pick up where we left off. What's next?
+Fix the most obvious bug in the code
+I need a specific file from that folder before I can suggest fixing anything with a diff. Which file should I look at?
+gemma4:e4b · on this computer
+Find every TODO or FIXME in this folder
+Please tell me which folder you want me to search through so I can find all those comments for you.
+gemma4:e4b · on this computer
+Where is the retry logic and is there anything in the code that looks like a bug?
+I still don't have any files open to check through for you right now. If you point me toward the folder or file containing your payment client, I can look around for the retry logic and see if anything jumps out as potentially buggy in that code.
+gemma4:e4b · on this computer
+Hi again. Let's pick up where we left off. What's next?
+Suggest a fix for the most obvious bug, show me as a diff
+Hmm, since we were just talking about finding TODOs or FIXMEs in that folder, do you want me to look at any specific file now so I can suggest a fix with a diff?
+gemma4:e4b · on this computer
+Find every TODO or FIXME in this folder
+Oh yeah, I can do that for you. Just let me know which folder you want me to check through and I'll find all those comments right away. Want me to start with the whole thing?
+gemma4:e4b · on this computer

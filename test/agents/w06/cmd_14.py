@@ -1,0 +1,13 @@
+mf = make_user_folder(WORK / "ua-06" / "downloads", "messy")
+print(os.listdir(mf))
+page.get_by_role("tab",name="Folders").click(timeout=5000)
+page.get_by_placeholder("Thesis").fill(str(mf)); page.get_by_role("button",name="Add folder").click(timeout=5000); log("added messy folder"); time.sleep(3)
+page.get_by_role("tab",name="Work").click(timeout=5000)
+try: page.locator("select").first.select_option(index=1); 
+except Exception as e: print("select",e)
+print([ (o.inner_text()) for o in page.locator("select option").all()][:6])
+page.get_by_role("button",name="Suggest a tidy-up").click(timeout=5000); log("clicked Suggest a tidy-up")
+time.sleep(20)
+c=convo(); k=c.find("Undo last change"); print(c[k:k+1800])
+print([(b.inner_text(),b.is_enabled()) for b in page.query_selector_all("button") if b.is_visible() and b.inner_text() in ("Approve","No, leave it","Approve, don't ask again")])
+shot(page, folder, "tidy")

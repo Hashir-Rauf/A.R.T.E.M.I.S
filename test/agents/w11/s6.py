@@ -1,0 +1,32 @@
+from common import *
+app = App("ua-11", 7951).start()
+folder = make_user_folder(WORK / "ua-11" / "stuff", "messy")
+(folder/"AML_policy_review_notes.txt").write_text("Invented notes: review of AML transaction monitoring thresholds. Action: escalate 3 alerts by Friday. Owner: Naveed.\n")
+(folder/"audit_findings_Q3.txt").write_text("Invented: Finding 4 - access recertification overdue for 12 accounts. Due date 30 Nov.\n")
+def ask(page,q,wait=40000):
+    b=page.get_by_placeholder("Tidy up this folder"); b.fill(q); log(f"ASK: {q}")
+    page.get_by_role("button",name="Ask",exact=True).click(); page.wait_for_timeout(wait)
+    t=vis(page); log("SCREEN: "+t[t.find("What would you like done"):][:2800])
+with sync_playwright() as pw:
+    browser, page = browser_page(pw, app)
+    page.wait_for_timeout(2000)
+    tab(page,"Folders")
+    page.get_by_label("Folder to add").fill(str(folder)); page.get_by_role("button",name="Add folder").click(); page.wait_for_timeout(5000)
+    tab(page,"Work")
+    try: page.get_by_text("Voice is on").first.click(); log("unticked voice")
+    except Exception as e: log("voice untick failed")
+    def snap(label,wait=30000):
+        page.wait_for_timeout(wait); t=vis(page); a=t.find("Undo last change"); log(label+": "+t[a:a+2200]); 
+    page.get_by_role("button",name="Suggest a tidy-up").click(); log("CLICK Suggest a tidy-up"); snap("TIDY")
+    shot(page,folder,"tidy")
+    log("files before approve: "+str(sorted(os.listdir(folder))))
+    page.get_by_role("button",name="Approve",exact=True).click(); log("CLICK Approve"); snap("APPROVED",15000)
+    log("files after approve: "+str(sorted(os.listdir(folder))))
+    page.get_by_role("button",name="What changed").click(); log("CLICK What changed"); snap("WHATCHANGED",6000)
+    page.get_by_role("button",name="Undo last change").click(); log("CLICK Undo"); snap("UNDO",10000)
+    log("files after undo: "+str(sorted(os.listdir(folder))))
+    shot(page,folder,"undo")
+    tab(page,"What it knows"); log("KNOWS: "+vis(page)[vis(page).find("Everything ARTEMIS holds"):][:1800])
+    page.get_by_role("tab",name="Work").click()
+    browser.close()
+app.stop()

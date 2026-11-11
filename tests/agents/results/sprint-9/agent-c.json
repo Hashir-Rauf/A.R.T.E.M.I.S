@@ -1,0 +1,28 @@
+{"sprint":"sprint-9","agent":"agent-c","verdict":"PASS WITH ISSUES",
+"items":[
+{"item":"User can pair a remote device with their host machine","status":"PASS"},
+{"item":"Pairing code guessing limited (5 wrong tries lock the code)","status":"PASS"},
+{"item":"Used code cannot be reused","status":"PASS"},
+{"item":"Relayed traffic unreadable to the edge (key non-extractable, relay serves only phone page)","status":"PARTIAL"},
+{"item":"Remote access never grants more than local: unticked folders refused","status":"PASS"},
+{"item":"Remote access never grants more than local: hand-made ops refused","status":"PASS"},
+{"item":"Emails cannot be approved remotely","status":"PASS"},
+{"item":"Web search cannot be approved remotely","status":"NOT TESTED"},
+{"item":"Voice from device needs a tick (UI mic)","status":"NOT TESTED"},
+{"item":"Revoke a device","status":"PASS"},
+{"item":"Cloned device (copied localStorage) cannot connect","status":"PASS"},
+{"item":"Replay of captured frames","status":"NOT TESTED"},
+{"item":"Remote requests visible in What changed","status":"NOT TESTED"},
+{"item":"Stage gate: deleting the remote plane changes nothing locally","status":"NOT TESTED"}],
+"bugs":[
+{"id":"B1","severity":"medium","title":"A second browser using the same valid code hijacks the first phone's pairing; host confirms, phone never completes","repro":"Start pairing; phone A pairs (safety number shown); phone B enters the same code before the host confirms (it fails with 'Your computer did not answer' but its socket stays open); host confirms phone A.","evidence":"Host says paired; phone A stays on the safety-number screen forever (14-hijack-phone-stuck-after-host-confirm.png, 11-intruder-same-code.png). Relay server.py sets room.device to the latest socket so the confirmation frame goes to B. Reproduced 4 times. A ghost paired device remains on the host."},
+{"id":"B2","severity":"low","title":"Confirming a stale pairing (phone already gone) creates a paired device and stores a key","repro":"Pair from a phone, close the phone page, press Check again on host, confirm the entry.","evidence":"Host says paired; Paired devices list grew with ghost entries (6+ identical 'Chaos phone')."},
+{"id":"B3","severity":"low","title":"Non-dict request (null, [], string, number) from a paired device gets no reply and logs tracebacks on the host","repro":"On a paired phone console: request(null), request([]), request('str'), request(42).","evidence":"Phone: 'No answer. Try again.' after 60 s; server.log has 7 Tracebacks. Host kept working afterwards."},
+{"id":"B4","severity":"low","title":"Relay ttl=abc query crashes the handler (close 1011)","repro":"Open ws://127.0.0.1:8026/room/zz?role=host&proof=1&ttl=abc","evidence":"ws1.py: close code 1011."}],
+"undesired":[
+{"id":"U1","severity":"medium","title":"Relay address box resets to the deployed Cloudflare address on every reload and the note says Not connected while the relay is actually connected","detail":"After reloading the host page the field shows the workers.dev address although ws://127.0.0.1:8026 was saved; pressing Connect would silently move to a third-party relay."},
+{"id":"U2","severity":"low","title":"Paired and waiting device lists are indistinguishable and stale","detail":"Abandoned pairings stay in Waiting for you to confirm (identical names, only a safety number); Paired devices shows no time or id, so removing the right one is guesswork."},
+{"id":"U3","severity":"low","title":"Host is not told about wrong-code lockout","detail":"After 5 wrong guesses the correct code is refused with 'The relay refused that.' on the phone; nothing on the host."},
+{"id":"U4","severity":"low","title":"Misleading phone errors","detail":"Used code and wrong state both say 'Your computer did not answer. Start pairing there first.'; a voice_start refusal never reaches request() so it waits 60 s."},
+{"id":"U5","severity":"low","title":"Relay has no limits","detail":"300 anonymous year-long rooms created in 0.4 s; no rate limit; no CSP or nosniff headers on the phone page."},
+{"id":"U6","severity":"low","title":"Two Check again buttons on Settings","detail":"Model section and remote section use the same label; ambiguous."}]}

@@ -1,0 +1,16 @@
+{"sprint":"sprint-8","agent":"agent-c","verdict":"PASS WITH ISSUES",
+"items":[
+{"item":"User can speak a request and reach the same gates as typing","status":"PASS"},
+{"item":"User is never recorded unless they armed the session","status":"PASS"},
+{"item":"User can hear a spoken result for a voice turn","status":"PARTIAL"},
+{"item":"Stage gate: speech required no new approval gates","status":"PASS"}],
+"bugs":[
+{"id":"B1","severity":"medium","title":"Pending email draft swallows every later spoken or typed request and persists across pages","repro":"Say 'send an email to someone at example.com', then say gibberish / 'what model are you' / type 'tidy this folder'","evidence":"v-gibberish.png, v-french.png, v-what.png; reproduced 5 times"},
+{"id":"B2","severity":"medium","title":"Reply (and spoken text) says nothing was prepared for approval while an approval card is on screen","repro":"Create tidy card by typing, then say 'yes approve it, go ahead, I approve'","evidence":"q2-after-voice-approve.png; reproduced once"},
+{"id":"B3","severity":"low","title":"Spoken requests barely audited: anonymous voice.heard rows only, no gateway.turn for them","repro":"Speak several requests, read audit_log","evidence":"13 voice.heard rows, 1 gateway.turn (typed)"}],
+"undesired":[
+{"id":"U1","severity":"medium","title":"Same utterance answered repeatedly with a looping source, no de-duplication","detail":"3+ identical turns in conversation"},
+{"id":"U2","severity":"medium","title":"Silence/noise/tone only yield repeated Hello nudges, no 'only noise heard' message","detail":"v-silence/v-noise/v-tone"},
+{"id":"U3","severity":"low","title":"Long ~25 s ramble produced no Heard note or result within 40 s","detail":"v-ramble.png"},
+{"id":"U4","severity":"low","title":"No hint that speech cannot approve and the button must be pressed","detail":"q2-after-voice-approve.png"},
+{"id":"U5","severity":"low","title":"Known: greeting turns clutter chat; voice.armed rows flood audit (17 armed vs 4 disarmed)","detail":"seen again"}]}

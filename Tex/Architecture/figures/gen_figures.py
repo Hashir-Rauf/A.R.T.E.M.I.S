@@ -346,7 +346,7 @@ def boxtop(ax, x, top, w, label, *, min_h=0.0, **kw):
 
 
 def fig_layers():
-    fig, ax = new_canvas(7.4, 8.2)
+    fig, ax = new_canvas(6.2, 8.2)
     H = ax.get_ylim()[1]
 
     x0, w = 4.0, 92.0
@@ -1025,7 +1025,7 @@ def fig_memory_vs_index():
 
 
 def fig_remote():
-    fig, ax = new_canvas(6.4, 5.2)
+    fig, ax = new_canvas(5.2, 5.2)
     H = ax.get_ylim()[1]
     GAP = 5.0
 

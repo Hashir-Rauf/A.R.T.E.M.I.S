@@ -1,0 +1,17 @@
+{"sprint":"sprint-5","agent":"agent-a","verdict":"PASS WITH ISSUES",
+"items":[{"item":"Pick up where you left off","status":"PARTIAL"},{"item":"Tidy a folder after previewing every move","status":"PASS"},{"item":"Automation offered only after 3 repeats","status":"PARTIAL"},{"item":"Capabilities reach files only through the broker","status":"PARTIAL"},{"item":"Stage gate: three features end to end through real gates","status":"PARTIAL"}],
+"bugs":[
+{"id":"B1","severity":"medium","title":"Natural tidy phrasings only list files","repro":"Type 'please tidy up this folder' / 'can you organise my files' / 'sort files by type'","evidence":"11-phrasings.png, 05-vague.png"},
+{"id":"B2","severity":"medium","title":"Tidy says tidy enough while new files are unseen until Check for changes","repro":"Add files on disk, ask Tidy up this folder","evidence":"12-folders.png, 14-knows.png"},
+{"id":"B3","severity":"medium","title":"Accepting a habit does nothing (automatic offers not built)","repro":"Repeated tasks after 3 tidies, pick habit, Yes that is a habit","evidence":"17-accepted.png"},
+{"id":"B4","severity":"low","title":"Plan and result claim creating 2 folders that already exist","repro":"Tidy a second time with new files","evidence":"08-round3-preview.png"},
+{"id":"B5","severity":"medium","title":"What changed returns the saved note instead of changes","repro":"Save note, click What changed","evidence":"20-after-restart.png"},
+{"id":"B6","severity":"medium","title":"Undo lost after restart; extra Chat entry per restart","repro":"Tidy, restart app, Undo last change","evidence":"t13 output"},
+{"id":"B7","severity":"low","title":"Repeated tasks says nothing repeated while panel lists a pattern","repro":"Click Repeated tasks again after proposals exist","evidence":"18-declined-habit.png"}],
+"undesired":[
+{"id":"U1","severity":"medium","title":"Resume greeting shown with no note and repeated on every reload","detail":"Hi again. Let's pick up where we left off appears on fresh data."},
+{"id":"U2","severity":"medium","title":"Vague habit wording and empty habit dropdowns","detail":"creating a folder for files; no folder or example; dropdowns empty until Repeated tasks pressed."},
+{"id":"U3","severity":"low","title":"Empty note save gives no feedback","detail":"No message."},
+{"id":"U4","severity":"low","title":"Approve buttons above a small scrolling preview; no folder path","detail":"7 of 14 steps visible."},
+{"id":"U5","severity":"low","title":"Greyed buttons after reload unexplained; clipped chat bubble","detail":"06-habits-open.png"},
+{"id":"U6","severity":"low","title":"Vague request gets only a file list","detail":"No hint toward Suggest a tidy-up."}]}

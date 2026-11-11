@@ -1,0 +1,17 @@
+{"sprint":"extras","agent":"agent-b","verdict":"PASS WITH ISSUES",
+"items":[{"item":"Plain chat without folder","status":"PASS"},{"item":"Conversation memory within a chat","status":"PARTIAL"},{"item":"Saved chats new/switch","status":"PARTIAL"},{"item":"Saved chat delete","status":"PARTIAL"},{"item":"Chats survive app restart","status":"PASS"},{"item":"7-day retention","status":"NOT TESTED"},{"item":"Streaming replies","status":"PASS"},{"item":"Dark/light switch","status":"PASS"},{"item":"Model names shown","status":"PASS"},{"item":"Error and empty messages","status":"PASS"},{"item":"Responsive layout","status":"PASS"},{"item":"Keyboard navigation","status":"PARTIAL"},{"item":"Long paste","status":"PASS"},{"item":"Settings page generally","status":"NOT TESTED"}],
+"bugs":[
+{"id":"B1","severity":"medium","title":"Deleting a chat while it is answering brings it back","repro":"Ask for a 20-line poem, click Delete this chat after 1s; about 25s later the chat reappears","evidence":"08-delete-while-answering.png; DB session 6 holds the turn"},
+{"id":"B2","severity":"medium","title":"Switching chats mid-stream saves the reply into the wrong chat","repro":"Start a long reply, click another saved chat; turn saved into the other chat's session (3 repros)","evidence":"06-switch-while-streaming.png, 07-switched-mid-stream.png, DB rows"},
+{"id":"B3","severity":"medium","title":"Reload mid-answer loses request and leaves two junk chats","repro":"Ask poem, reload after 1.5s","evidence":"11-reload-midstream.png"},
+{"id":"B4","severity":"low","title":"Greeting saved as a real turn on every reload and voice re-tick, stacking","repro":"Reload with voice on; untick then tick voice","evidence":"10-retick-voice.png"},
+{"id":"B5","severity":"low","title":"Empty Chat entries pile up on every reload","repro":"Reload several times","evidence":"16-phone.png"}],
+"undesired":[
+{"id":"U1","severity":"medium","title":"Identical 'Chat - today' titles make switching impossible","detail":"No time or preview"},
+{"id":"U2","severity":"low","title":"Typing while a reply runs is silently ignored","detail":"Text stays in box, no message"},
+{"id":"U3","severity":"low","title":"Console and server-log noise","detail":"AbortError BodyStreamBuffer, Connection errored out, play() failed, microphone Not supported x5, ConnectionResetError traceback in server log"},
+{"id":"U4","severity":"medium","title":"Memory silently capped at 40 turns","detail":"Code word from turn 1 forgotten after 50 turns, also after reopening the chat"},
+{"id":"U5","severity":"medium","title":"Keyboard order starts with audio widgets; Escape does nothing","detail":"Ask box reached late"},
+{"id":"U6","severity":"low","title":"Phone width puts sidebar and long chat list above work area","detail":"16-phone.png"},
+{"id":"U7","severity":"low","title":"stored locally figure jumps to 118 MB because voice models are counted","detail":"home/voice is 116 MB"},
+{"id":"U8","severity":"low","title":"No feedback for very long pasted input","detail":"11,200 chars accepted silently"}]}

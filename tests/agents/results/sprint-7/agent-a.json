@@ -1,0 +1,23 @@
+{"sprint":"sprint-7","agent":"agent-a","verdict":"PASS WITH ISSUES",
+"items":[
+{"item":"User can search the web on demand and never in the background","status":"PARTIAL"},
+{"item":"User can send mail only after approving the draft","status":"PASS"},
+{"item":"User can generate a draft document without losing an existing one","status":"PASS"},
+{"item":"User can see exactly what left the machine and when","status":"FAIL"},
+{"item":"Stage gate: no outward action escapes its gate","status":"PARTIAL"}],
+"bugs":[
+{"id":"B1","severity":"high","title":"Assistant claims it searched the web without any card or search (typo 'serch the web')","repro":"Type 'serch the web for how to bake sourdough bread'; reply says 'I found a few good articles...' with no card. 3 of 4 tries.","evidence":"40_typo_0_r.png, 40_typo_1_r.png, 20_search_card.png"},
+{"id":"B2","severity":"high","title":"Banner 'Nothing has been sent anywhere' stays after web search / email attempt","repro":"Approve a web search; banner top-left unchanged.","evidence":"21_search_approved_r.png"},
+{"id":"B3","severity":"medium","title":"Email draft ignores the requested subject, leaves [Your Name] placeholder, invents content","repro":"Ask 'send an email to someone@example.com and other@example.com saying hello, subject Hi'; card shows Subject 'Hello Message', body 'Best regards, [Your Name] Thanks'.","evidence":"42_email_two_r.png, 23_email_card_r.png"},
+{"id":"B4","severity":"medium","title":"Draft document invents content and ignores the user's own notes (45,000 dollars budget)","repro":"Ask 'write a short report about the Orion project budget' in a folder whose notes.txt states the budget.","evidence":"30_draft_card_r.png"},
+{"id":"B5","severity":"medium","title":"Asking what left the computer gives irrelevant or made-up answers with bogus sources (random.zip:1)","repro":"Ask 'what has left my computer so far, and when?' and 'which websites did you search and what was sent?'","evidence":"36_left_r.png, 46_whatsent_r.png"}],
+"undesired":[
+{"id":"U1","severity":"high","title":"No view of outward actions (searches, emails) with time and content","detail":"What changed says nothing changed outside ARTEMIS after a search and an email attempt; no such list in Settings, Folders or What it knows."},
+{"id":"U2","severity":"medium","title":"Approving an email with no account gives 'Nothing was changed. 1 step did not run' and no pointer to Settings","detail":"Card warns, but Approve is still allowed."},
+{"id":"U3","severity":"medium","title":"Approval card sits below the buttons, far down the page","detail":"Voice widgets push the card away from the buttons; card says 'buttons above'."},
+{"id":"U4","severity":"medium","title":"Search results shown raw with no note of service, query sent, or time","detail":"Shown under an 'Approve' turn with no summary."},
+{"id":"U5","severity":"low","title":"Inconsistent wording 'This would search' vs 'This will search'","detail":"Same type of request."},
+{"id":"U6","severity":"low","title":"Weather answer confusing and does not offer a gated web search","detail":"'search the web for general information like recipes or guides you give me access to'."},
+{"id":"U7","severity":"low","title":"Stale 'Voice is on' message and Record widget after unticking voice","detail":"23_email_card_r.png"},
+{"id":"U8","severity":"low","title":"Stored-locally figure jumps by tens of MB; draft preview cut off in card","detail":"60 MB, 115 MB, 39 MB; 30_draft_card_r.png"},
+{"id":"U9","severity":"low","title":"Draft saved as .md with markdown asterisks","detail":"report-orion-project-budget.md"}]}

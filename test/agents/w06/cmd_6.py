@@ -1,0 +1,6 @@
+page.get_by_placeholder("Thesis").fill(str(folder)); log("typed folder path")
+page.get_by_role("button",name="Add folder").click(timeout=5000); log("clicked Add folder")
+time.sleep(3)
+print(page.inner_text("body")[-900:])
+page.get_by_role("tab",name="Work").click(timeout=5000); log("back to Work")
+print([(e.get_attribute("placeholder"),e.get_attribute("class")) for e in page.query_selector_all("textarea,input[type=text],input:not([type])") if e.is_visible()])

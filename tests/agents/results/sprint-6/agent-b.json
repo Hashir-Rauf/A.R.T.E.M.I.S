@@ -1,0 +1,23 @@
+{"sprint":"sprint-6","agent":"agent-b","verdict":"PASS WITH ISSUES",
+"items":[
+{"item":"Incremental indexing does not block UI","status":"PASS"},
+{"item":"Incremental indexing completes for a large folder","status":"FAIL"},
+{"item":"Edit files on disk / Check for changes","status":"PARTIAL"},
+{"item":"Grounded answers with sources","status":"PARTIAL"},
+{"item":"Stage gate: unsupported claim renders as unsupported","status":"FAIL"},
+{"item":"Code question gives diff, never an edit","status":"PASS"},
+{"item":"Retrieval fast on 400-file folder","status":"PASS"}],
+"bugs":[
+{"id":"B1","severity":"high","title":"Invented answer shown with no source and no unsupported label","repro":"folder huge, ask 'what does late file 7 say?'","evidence":"23-huge-q.png"},
+{"id":"B2","severity":"high","title":"NOT FOUND label on correct cited answers","repro":"docs: 'Is the Orion deadline 14 March and the owner Sara Khan?'; proj: 'explain app/main.py and show how to change it'","evidence":"17-summary.png, 15-explain.png"},
+{"id":"B3","severity":"medium","title":"Large folder index silently stops short (4543 of 5030)","repro":"add 5000-file folder, add files mid-index, reload mid-index","evidence":"21-huge-after.png, 22-knows.png"},
+{"id":"B4","severity":"medium","title":"Compound or two-attribute questions return NOT FOUND though facts exist","repro":"'who maintains zebra and where is the warehouse'","evidence":"06-who_maintain.png, 10-big-q.png"},
+{"id":"B5","severity":"medium","title":"'Could not find it' answers cite a wrong file as source","repro":"docs: 'What is Project Orion budget?'","evidence":"06-What_is_Proj.png"},
+{"id":"B6","severity":"medium","title":"Question sent just before page reload vanishes without trace","repro":"ask then reload within 0.3 s","evidence":"19-reload.png"}],
+"undesired":[
+{"id":"U1","severity":"medium","title":"Per-folder counts stale and no still-indexing indicator","detail":"Folders tab shows 3340 while header shows 4962 and growing"},
+{"id":"U2","severity":"low","title":"Inconsistent out-of-scope handling","detail":"CEO salary gets chat reply, Sara salary gets NOT FOUND banner"},
+{"id":"U3","severity":"low","title":"Approve buttons shown on proposal-only diff","detail":"unclear what Approve does"},
+{"id":"U4","severity":"low","title":"Check for changes acts on one folder without naming it","detail":"result text lacks folder name"},
+{"id":"U5","severity":"low","title":"Identical 'Chat - today' list entries","detail":"hard to tell chats apart"},
+{"id":"U6","severity":"low","title":"Dropped rapid-fire requests and voice greeting (known)","detail":"left voice on"}]}

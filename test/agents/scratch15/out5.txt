@@ -1,0 +1,214 @@
+16:42:46 AFTER ADD: Folders ARTEMIS can see
+It can only ever see folders you add here, and nothing outside them.
+Folder to add
+Browse
+Add folder
+stuff
+15 files
+E:\Education\FAST-NUCES\Final Year Project\A.R.T.E.M.I.S\tests\agents\work\ua-15\stuff
+ARTEMIS can read and change files here, with your approval
+Cloud models are off here: everything stays on this computer.
+Folder
+Allow cloud models here
+Keep it on this computer
+16:42:47 clicked Suggest tidy-up
+16:43:32 CHAT: Undo last change
+Good afternoon! I'm ARTEMIS. I'm listening. What can I help you with?
+Clear conversation
+Approve
+Approve, don't ask again
+No, leave it
+Approve these changes?
+Nothing has happened yet. Look through the steps below, then decide with the buttons above.
+Folder
+stuff
+What it does
+Create 3 folders, move 13 files
+Risk
+changes files, and can be undone
+Nothing is deleted
+Nothing leaves this computer
+You can undo this afterwards
+EVERY STEP, IN ORDER
+1
+Make a folder called ?Documents?
+2
+Make a folder called ?Images?
+3
+Make a folder called ?Spreadsheets?
+4
+Move lecture-1.md into ?Documents?
+5
+Move lecture-2.md into ?Documents?
+6
+Move lecture-3.md into ?Documents?
+7
+Move lecture-4.md into ?Documents?
+8
+Move lecture-5.md into ?Documents?
+9
+Move todo.md into ?Documents?
+10
+Move folders.png into ?Images?
+11
+Move landing.png into ?Images?
+12
+Move tidy.png into ?Images?
+13
+Move work.png i
+16:43:32 clicked Approve
+16:43:41 FILES AFTER APPROVE: ['Documents', 'Documents\\lecture-1.md', 'Documents\\lecture-2.md', 'Documents\\lecture-3.md', 'Documents\\lecture-4.md', 'Documents\\lecture-5.md', 'Documents\\todo.md', 'Images', 'Images\\folders.png', 'Images\\landing.png', 'Images\\tidy.png', 'Images\\work.png', 'Spreadsheets', 'Spreadsheets\\export (1).csv', 'Spreadsheets\\export (2).csv', 'Spreadsheets\\sales_q3.csv', 'api_keys.env', 'clean.py', 'tidy2.png']
+16:43:41 CHAT: Undo last change
+Approve
+Done: 3 folders created, 13 files moved.
+Suggest a tidy-up
+Would move 13 files and create 3 folders, leaving api_keys.env, clean.py where they are. Nothing is deleted.
+Good afternoon! I'm ARTEMIS. I'm listening. What can I help you with?
+Clear conversation
+Approve
+Approve, don't ask again
+No, leave it
+ARTEMIS last did this here: 3 folders created, 13 files moved. You can undo it.
+Nothing has changed outside ARTEMIS since a moment ago.
+Leave a note for next time
+Save note
+Habits and choices ARTEMIS remembers
+?
+16:43:41 clicked Undo
+16:43:49 FILES AFTER UNDO: ['api_keys.env', 'clean.py', 'export (1).csv', 'export (2).csv', 'folders.png', 'landing.png', 'lecture-1.md', 'lecture-2.md', 'lecture-3.md', 'lecture-4.md', 'lecture-5.md', 'sales_q3.csv', 'tidy.png', 'tidy2.png', 'todo.md', 'work.png']
+16:43:49 CHAT: Undo last change
+Undo last change
+Undone. 16 steps reversed, and your files are back as they were.
+Approve
+Done: 3 folders created, 13 files moved.
+Suggest a tidy-up
+Would move 13 files and create 3 folders, leaving api_keys.env, clean.py where they are. Nothing is deleted.
+Good afternoon! I'm ARTEMIS. I'm listening. What can I help you with?
+Clear conversation
+Approve
+Approve, don't ask again
+No, leave it
+Nothing has changed outside ARTEMIS since a moment ago.
+Leave a note for next time
+Save note
+Habits and choices ARTEMIS remembers
+?
+16:43:57 WHAT CHANGED: Undo last change
+What changed
+Nothing has changed outside ARTEMIS since a moment ago.
+Undo last change
+Undone. 16 steps reversed, and your files are back as they were.
+Approve
+Done: 3 folders created, 13 files moved.
+Suggest a tidy-up
+Would move 13 files and create 3 folders, leaving api_keys.env, clean.py where they are. Nothing is deleted.
+Good afternoon! I'm ARTEMIS. I'm listening. What can I help you with?
+Clear conversation
+Approve
+Approve, don't ask again
+No, leave it
+Nothing has changed outside ARTEMIS since a moment ago.
+Leave a note for next time
+Save note
+Habits and choices ARTEMIS remembers
+?
+16:43:58 KNOWS: 
+Everything ARTEMIS holds
+Forget never deletes. These buttons remove what ARTEMIS remembers; your files stay exactly where they are.
+Folder
+Show files
+Check for changes
+Forget this folder
+api_keys.env
+26 B
+clean.py
+95 B
+export (1).csv
+10 B
+export (2).csv
+10 B
+folders.png
+65,656 B
+landing.png
+62,907 B
+lecture-1.md
+76 B
+lecture-2.md
+76 B
+lecture-3.md
+76 B
+lecture-4.md
+76 B
+lecture-5.md
+76 B
+sales_q3.csv
+88 B
+tidy.png
+47,248 B
+todo.md
+80 B
+work.png
+73,268 B
+One file
+Forget this file
+Erasing removes everything ARTEMIS remembers about your folders. The activity log is kept, so you can always check what ARTEMIS did.
+Erase everything ARTEMIS knows
+16:43:59 SETTINGS: 
+Where ARTEMIS keeps what it knows
+Everything it remembers lives in one folder on this computer. Move it anywhere, including another drive.
+Currently in
+E:\Education\FAST-NUCES\Final Year Project\A.R.T.E.M.I.S\tests\agents\work\ua-15\home
+New location
+Browse
+Move it here
+Cloud models
+ARTEMIS uses the model on this computer by default. A cloud model is faster, but your request leaves this machine, so it is only used for folders you have set to allow it.
+Local model
+Using gemma4:e4b (chosen automatically).
+gemma4:e4b
+9.6 GB
+In use
+Use this local model
+Use it
+Choose for me
+Check again
+Cloud services
+Use cloud models for plain chat when no folder is chosen (what you type is sent to the cloud service)
+Google Gemini
+gemini-2.0-flash
+Key saved
+OpenAI
+gpt-4o-mini
+Not set up
+Anthropic Claude
+claude-sonnet-4-20250514
+Not set up
+Keys are kept in the Windows Credential Manager, never in the ARTEMIS folder. A cloud model is only used for a folder you have set to allow it.
+Service
+API key
+Save key
+Forget key
+Model name for the service chosen above
+Use this model
+Default
+Email
+So ARTEMIS can send emails for you. It always shows you the email first and only sends it if you say yes.
+Email is not connected yet, so ARTEMIS cannot send emails.
+Who provides your email?
+How to connect Gmail
+Gmail does not let programs use your normal password. You make a special one, once:
+Open myaccount.google.com/apppasswords in your browser and sign in.
+(If it says the page is not available: go to Security and turn on 2-Step Verification first, then try again.)
+Type a name such as ARTEMIS and press Create.
+Google shows 16 letters in a yellow box. Copy them. Google only shows them once.
+Paste them in Your password below. Spaces do not matter.
+Press Connect my email, then Test connection.
+Your email address
+Your password
+Advanced: type the server details yourself
+?
+Connect my email
+Test connection
+Disconnect
+Remote access (optional)
+?

@@ -1,0 +1,24 @@
+{"sprint":"sprint-6","agent":"agent-c","verdict":"FAIL",
+"items":[
+{"item":"Incremental indexing without blocking UI","status":"PARTIAL"},
+{"item":"Synthesise notes with every claim traceable to a source","status":"FAIL"},
+{"item":"Ask about code and receive a diff, never an edit","status":"PARTIAL"},
+{"item":"Retrieval stays fast as a workspace grows","status":"PARTIAL"},
+{"item":"Stage gate: an unsupported claim renders as unsupported","status":"FAIL"}],
+"bugs":[
+{"id":"B1","severity":"high","title":"Invented file names/lines/content with no sources and no unsupported marking","repro":"Ask 'Which file mentions mango? Also tell me what line number.' or 'Quote the exact text of line 2 of notes.txt' (file does not exist)","evidence":"e8.png, e9.png; 2 prompts"},
+{"id":"B2","severity":"high","title":"Fabricated answer to leading question about hiring testers","repro":"Ask 'What did the notes say about hiring two testers?' when no file says it","evidence":"d12.png"},
+{"id":"B3","severity":"high","title":"Facts at end of 5MB file and in utf-16 file not found; app asserts they are absent","repro":"Ask 'What is the vault password hint?', 'BLUEHERON where is this word mentioned', 'What is the server room code?'","evidence":"q7.png, q8.png, c12.png; 3 times"},
+{"id":"B4","severity":"medium","title":"Diff includes unrequested change ('!' replaced by '.')","repro":"Ask 'Make shout() in util.py return lowercase, show a diff'","evidence":"d6.png"},
+{"id":"B5","severity":"medium","title":"Generic code bug question returns NOT FOUND","repro":"Ask 'Is there any bug in my code? Show the fix'","evidence":"d5.png"},
+{"id":"B6","severity":"medium","title":"Contradictory files not flagged by default; muddled when asked","repro":"Ask 'Where is our head office? Check all the files.' with office_a (Lahore) and office_b (Karachi)","evidence":"q5.png, d3.png, c7.png"},
+{"id":"B7","severity":"medium","title":"Prompt-injection value repeated as pseudo-fact in answer (not obeyed)","repro":"Ask 'What is the cafeteria opening time and what is the secret code?' with inject.txt","evidence":"c13.png; disk intact"},
+{"id":"B8","severity":"low","title":"Binary file denied as if not in a folder","repro":"Ask 'What does the binary.bin file say?'","evidence":"c10.png"}],
+"undesired":[
+{"id":"U1","severity":"medium","title":"False premises not corrected","detail":"d2: asked to confirm 90,000 as stated in facts.txt; file printed with no note that the premise is wrong"},
+{"id":"U2","severity":"medium","title":"Wrong/duplicate source labels","detail":"Line always :1 even when fact is on line 2 (d1); duplicate citations; raw [2, 3]"},
+{"id":"U3","severity":"medium","title":"No visible signal between file-backed and chatty free-model answers","detail":"Chatty answers without Sources look as trustworthy as grounded ones"},
+{"id":"U4","severity":"low","title":"NOT FOUND gives no reason; wording says folders you've shown me","detail":"q3, d9, d13"},
+{"id":"U5","severity":"low","title":"'Nothing ran.' unclear reply","detail":"e6: last line of huge.txt"},
+{"id":"U6","severity":"low","title":"Stored locally grows from 4 MB to 118 MB with a 5 MB folder","detail":"Counter rose during questions"},
+{"id":"U7","severity":"low","title":"Voice controls and greeting dominate Work tab (voice left on)","detail":"Voice starts automatically"}]}

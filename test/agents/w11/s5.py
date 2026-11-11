@@ -1,0 +1,22 @@
+from common import *
+app = App("ua-11", 7951).start()
+folder = make_user_folder(WORK / "ua-11" / "stuff", "messy")
+(folder/"AML_policy_review_notes.txt").write_text("Invented notes: review of AML transaction monitoring thresholds. Action: escalate 3 alerts by Friday. Owner: Naveed.\n")
+(folder/"audit_findings_Q3.txt").write_text("Invented: Finding 4 - access recertification overdue for 12 accounts. Due date 30 Nov.\n")
+def ask(page,q,wait=40000):
+    b=page.get_by_placeholder("Tidy up this folder"); b.fill(q); log(f"ASK: {q}")
+    page.get_by_role("button",name="Ask",exact=True).click(); page.wait_for_timeout(wait)
+    t=vis(page); log("SCREEN: "+t[t.find("What would you like done"):][:2800])
+with sync_playwright() as pw:
+    browser, page = browser_page(pw, app)
+    page.wait_for_timeout(2000)
+    tab(page,"Folders")
+    page.get_by_label("Folder to add").fill(str(folder)); page.get_by_role("button",name="Add folder").click(); page.wait_for_timeout(5000)
+    tab(page,"Work")
+    try: page.get_by_text("Voice is on").first.click(); log("unticked voice")
+    except Exception as e: log("voice untick failed")
+    ask(page,"What overdue items are in my audit findings, and which file did you get that from?")
+    ask(page,"Can you show me exactly what you have looked at and what you have done so far, as a log I could hand to an auditor?")
+    shot(page,folder,"asks")
+    browser.close()
+app.stop()

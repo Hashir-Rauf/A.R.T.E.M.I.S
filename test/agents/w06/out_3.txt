@@ -1,0 +1,37 @@
+['Work', 'Folders', 'What it knows', 'Settings']
+16:18:34 clicked Folders tab
+ARTEMIS
+Bounded desktop assistant
+Everything is stored on this computer. Nothing has been sent anywhere.
++ New chat
+Your chats (kept for 7 days)
+Delete this chat
+Switch light / dark
+0
+folders visible
+0
+files known
+0
+actions recorded
+19005 KB
+stored locally
+Work
+Folders
+What it knows
+Settings
+Work
+Folders
+What it knows
+Settings
+Folders ARTEMIS can see
+It can only ever see folders you add here, and nothing outside them.
+Folder to add
+Browse
+Add folder
+◉
+ARTEMIS cannot see anything on this computer.
+It stays that way until you add a folder. Even then, it only ever looks inside the folders you choose.
+Folder
+Allow cloud models here
+Keep it on this computer
+[(None, None, False), ('Tidy up this folder', None, False), (None, None, False), (None, None, False), ('Where I stopped, what to do next', None, False), ('C:\\Users\\you\\Documents\\Thesis', None, True), (None, None, True)]

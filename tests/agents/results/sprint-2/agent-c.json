@@ -1,0 +1,20 @@
+{"sprint": "sprint-2", "agent": "agent-c", "verdict": "PASS WITH ISSUES",
+ "items": [
+  {"item": "User can opt a folder in as a workspace", "status": "PASS"},
+  {"item": "System cannot resolve any path outside a granted workspace", "status": "PARTIAL"},
+  {"item": "User can see every file the system has indexed, and delete any of it", "status": "PASS"},
+  {"item": "Stage gate: traversal and symlink escapes are refused and logged", "status": "PARTIAL"}],
+ "bugs": [
+  {"id": "B1", "severity": "high", "title": "Whole drives and system folders (C:\\, D:\\, System32, ~\\Documents) can be granted with no warning", "repro": "Folders > Folder to add > C:\\ > Add folder; also D:\\ and C:\\Windows\\System32; granted and fully indexed (C:\\ 2054 files)", "evidence": "04_folders_with_C.png, 20_D_drive_granted.png, audit workspace.grant"},
+  {"id": "B2", "severity": "high", "title": "Refused escape attempts are not written to the audit log", "repro": "Work tab, folder docs: ask to read ../outside/secret.txt or move todo.md to ..\\outside; refusal shown but no audit_log row (4 of 4); What changed shows nothing", "evidence": "14_q1.png, 14_q2.png, 14_q5.png, 15_what_changed.png, read-only audit_log query"},
+  {"id": "B3", "severity": "medium", "title": "Hardlink to an outside file is indexed and answered as inside content", "repro": "hardlink outside/secret.txt into docs, Check for changes, ask what hardlink_secret.txt says -> TOPSECRET outside", "evidence": "14_q3.png"},
+  {"id": "B4", "severity": "medium", "title": "Relative folder path resolved against app cwd (typing docs granted the repo Docs folder)", "repro": "Type docs in Folder to add, Add folder", "evidence": "04_folders_with_C.png"},
+  {"id": "B5", "severity": "medium", "title": "Settings New location writes the real per-user pointer file even with ARTEMIS_HOME set (code reading, not exercised)", "repro": "paths.set_home writes platformdirs user_config_dir location unconditionally", "evidence": "src/artemis/data/paths.py set_home"}],
+ "undesired": [
+  {"id": "U1", "severity": "medium", "title": "Toast lags and is unreliable; D:\\ was granted while toast showed an old error; no progress while indexing a drive", "detail": "Add D:\\ then read toast: stale 'folder does not exist: %ProgramFiles%'"},
+  {"id": "U2", "severity": "medium", "title": "Granting E:\\ or the repo folder says 'cannot grant the ARTEMIS store directory'", "detail": "Wording does not explain that the folder contains ARTEMIS's own data"},
+  {"id": "U3", "severity": "low", "title": "Drive-root folder has an empty name in card, dropdown and forget toast", "detail": "04_folders_with_C.png, 06_dropdown.png"},
+  {"id": "U4", "severity": "low", "title": "Folder card counts go stale after forgetting a file; clicking a row does not select it for Forget this file", "detail": "Needs separate One file dropdown; 'Choose a file first.' gives no hint"},
+  {"id": "U5", "severity": "low", "title": "Overlapping/nested grants allowed; symlink alias silently resolved", "detail": "C:\\ granted alongside docs; docs\\linkdir -> already granted: outside"},
+  {"id": "U6", "severity": "low", "title": "~ silently expands to the real home folder", "detail": "~\\Documents granted the real Documents"},
+  {"id": "U7", "severity": "low", "title": "voice.armed rows flood the audit log", "detail": "11 of 42 rows with empty detail"}]}

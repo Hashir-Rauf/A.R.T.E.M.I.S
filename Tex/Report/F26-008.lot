@@ -1,24 +1,51 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {2.1}{\ignorespaces Stakeholders, their roles with respect to the system, and the primary concern each brings to it.}}{12}{table.caption.6}%
+\contentsline {table}{\numberline {2.1}{\ignorespaces Stakeholders and their concerns.}}{13}{table.2.1}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {3.1}{\ignorespaces Summary of the reviewed literature, giving the theme, contribution, relevance to this project and stated limitations of each study.}}{22}{table.caption.8}%
+\contentsline {table}{\numberline {3.1}{\ignorespaces Summary of the reviewed literature.}}{22}{table.3.1}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {4.1}{\ignorespaces Use case UC-1, by which a user grants a folder as a workspace and the system establishes the boundary within which it may operate.}}{30}{table.caption.10}%
-\contentsline {table}{\numberline {4.2}{\ignorespaces Use case UC-2, by which a user tidies a folder, exercising classification, preview, approval, snapshot, execution and reversal in a single path.}}{31}{table.caption.11}%
-\contentsline {table}{\numberline {4.3}{\ignorespaces Use case UC-3, in which an operation attempts to reach outside a granted workspace and the boundary refuses it.}}{32}{table.caption.12}%
-\contentsline {table}{\numberline {4.4}{\ignorespaces Use case UC-4, by which a user sends electronic mail, demonstrating that an outward action is gated in all circumstances.}}{33}{table.caption.13}%
-\contentsline {table}{\numberline {4.5}{\ignorespaces Minimum and recommended host hardware for development and deployment.}}{33}{table.caption.14}%
-\contentsline {table}{\numberline {4.6}{\ignorespaces Software required for development and deployment, with the purpose of each component.}}{34}{table.caption.15}%
-\contentsline {table}{\numberline {4.7}{\ignorespaces Data dictionary for the relational system of record, giving the purpose and principal attributes of each table.}}{35}{table.caption.16}%
-\contentsline {table}{\numberline {4.8}{\ignorespaces Project risks with likelihood, impact and mitigation.}}{36}{table.caption.17}%
+\contentsline {table}{\numberline {4.1}{\ignorespaces Use case UC-1: grant a folder as a workspace.}}{34}{table.4.1}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces Use case UC-2: tidy a folder.}}{34}{table.4.2}%
+\contentsline {table}{\numberline {4.3}{\ignorespaces Use case UC-3: attempt to reach outside a workspace.}}{35}{table.4.3}%
+\contentsline {table}{\numberline {4.4}{\ignorespaces Use case UC-4: draft and send electronic mail.}}{36}{table.4.4}%
+\contentsline {table}{\numberline {4.5}{\ignorespaces Host hardware requirements.}}{37}{table.4.5}%
+\contentsline {table}{\numberline {4.6}{\ignorespaces Software requirements.}}{38}{table.4.6}%
+\contentsline {table}{\numberline {4.7}{\ignorespaces Data dictionary of the relational system of record.}}{46}{table.4.7}%
+\contentsline {table}{\numberline {4.8}{\ignorespaces Project risks.}}{48}{table.4.8}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {5.1}{\ignorespaces The four risk tiers, their definitions, default treatment and recoverability.}}{39}{table.caption.18}%
-\contentsline {table}{\numberline {5.2}{\ignorespaces The build sequence, stating the deliverable of each stage and the reason for its position.}}{41}{table.caption.19}%
+\contentsline {table}{\numberline {5.1}{\ignorespaces The four risk tiers.}}{52}{table.5.1}%
+\contentsline {table}{\numberline {5.2}{\ignorespaces The build sequence.}}{54}{table.5.2}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {6.1}{\ignorespaces Component inventory, stating the layer, responsibility and governing invariant of each component.}}{47}{table.caption.21}%
-\contentsline {table}{\numberline {6.2}{\ignorespaces The capability services and the highest risk tier each may request.}}{52}{table.caption.30}%
-\contentsline {table}{\numberline {6.3}{\ignorespaces The degradation contract: required behaviour as each external capability is withdrawn.}}{54}{table.caption.32}%
+\contentsline {table}{\numberline {6.1}{\ignorespaces Component inventory.}}{61}{table.6.1}%
+\contentsline {table}{\numberline {6.2}{\ignorespaces Capability services and risk tiers.}}{67}{table.6.2}%
+\contentsline {table}{\numberline {6.3}{\ignorespaces The degradation contract.}}{70}{table.6.3}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {A.1}{\ignorespaces Respondent role and frequency of multi-file project work, from 374 valid responses.}}{66}{table.caption.39}%
-\contentsline {table}{\numberline {A.2}{\ignorespaces Selected measures by respondent segment.}}{67}{table.caption.40}%
+\contentsline {table}{\numberline {7.1}{\ignorespaces Implementation status by stage.}}{78}{table.7.1}%
+\contentsline {table}{\numberline {7.2}{\ignorespaces Platform, libraries and services.}}{79}{table.7.2}%
+\contentsline {table}{\numberline {7.3}{\ignorespaces Test case TC-01: workspace boundary.}}{85}{table.7.3}%
+\contentsline {table}{\numberline {7.4}{\ignorespaces Test case TC-02: policy engine classification.}}{86}{table.7.4}%
+\contentsline {table}{\numberline {7.5}{\ignorespaces Test case TC-03: tool dispatcher.}}{87}{table.7.5}%
+\contentsline {table}{\numberline {7.6}{\ignorespaces Test case TC-04: undo of an approved plan.}}{88}{table.7.6}%
+\contentsline {table}{\numberline {7.7}{\ignorespaces Test case TC-05: approval broker.}}{89}{table.7.7}%
+\contentsline {table}{\numberline {7.8}{\ignorespaces Test case TC-06: grounding gate.}}{90}{table.7.8}%
+\contentsline {table}{\numberline {7.9}{\ignorespaces Test case TC-07: outward actions.}}{91}{table.7.9}%
+\contentsline {table}{\numberline {7.10}{\ignorespaces Test case TC-08: remote device limits.}}{92}{table.7.10}%
+\contentsline {table}{\numberline {7.11}{\ignorespaces Test case TC-09: speech and the approval gates.}}{93}{table.7.11}%
+\contentsline {table}{\numberline {7.12}{\ignorespaces Test metrics.}}{94}{table.7.12}%
+\contentsline {table}{\numberline {7.13}{\ignorespaces Requirements traceability.}}{95}{table.7.13}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {9.1}{\ignorespaces The experiments reported in this chapter.}}{98}{table.9.1}%
+\contentsline {table}{\numberline {9.2}{\ignorespaces Enforcement and retrieval cost.}}{99}{table.9.2}%
+\contentsline {table}{\numberline {9.3}{\ignorespaces Time to scan and to index a folder, by size.}}{99}{table.9.3}%
+\contentsline {table}{\numberline {9.4}{\ignorespaces Results of the two hands-on rounds.}}{100}{table.9.4}%
+\contentsline {table}{\numberline {9.5}{\ignorespaces Session verdicts by area and stage gate status.}}{101}{table.9.5}%
+\contentsline {table}{\numberline {9.6}{\ignorespaces Stated trust, 30 prospective users.}}{103}{table.9.6}%
+\contentsline {table}{\numberline {9.7}{\ignorespaces Persona simulation results.}}{105}{table.9.7}%
+\contentsline {table}{\numberline {9.8}{\ignorespaces Assessment of the central hypothesis.}}{106}{table.9.8}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {10.1}{\ignorespaces Status of the project objectives.}}{108}{table.10.1}%
+\contentsline {table}{\numberline {10.2}{\ignorespaces Plan of work for the second phase.}}{111}{table.10.2}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {A.1}{\ignorespaces Respondent role and work frequency.}}{117}{table.A.1}%
+\contentsline {table}{\numberline {A.2}{\ignorespaces Selected measures by respondent segment.}}{119}{table.A.2}%

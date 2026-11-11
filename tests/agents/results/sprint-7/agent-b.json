@@ -1,0 +1,20 @@
+{"sprint": "sprint-7", "agent": "agent-b", "verdict": "PASS WITH ISSUES",
+ "items": [
+  {"item": "Web search on demand, never in the background", "status": "PASS"},
+  {"item": "Send mail only after approving the draft", "status": "PARTIAL"},
+  {"item": "Generate a draft document without losing an existing one", "status": "PASS"},
+  {"item": "See exactly what left the machine and when", "status": "FAIL"},
+  {"item": "Stage gate: no outward action escapes its gate", "status": "PASS"}],
+ "bugs": [
+  {"id": "B1", "severity": "medium", "title": "Banner 'Nothing has been sent anywhere' and What changed claim nothing left after a search left the computer", "repro": "Ask for a web search, Approve; banner and What changed unchanged while audit row web.search sent exists", "evidence": "05-after-dblclick.png, 06-whatchanged.png, audit rows 18 and 33, 4 repros"},
+  {"id": "B2", "severity": "medium", "title": "No UI screen shows what left the machine and when", "repro": "After a search or mail attempt check Work, What changed, What it knows, Settings", "evidence": "09-What-it-knows.png, 09-Settings.png"},
+  {"id": "B3", "severity": "low", "title": "Outward card replaced by a newer request is dropped silently and stays pending in the audit", "repro": "Ask search then email 0.3 s later", "evidence": "14-queued.png, audit rows 41 and 43"}],
+ "undesired": [
+  {"id": "U1", "severity": "medium", "title": "Conversation replaced by voice greeting ~30 s after asking; user turn vanished while card remained", "detail": "03-full.png, seen once"},
+  {"id": "U2", "severity": "medium", "title": "Draft file name ignores requested name and extension", "detail": "document-called-notes-txt.md and file-called-plan-md.md"},
+  {"id": "U3", "severity": "low", "title": "Approve buttons above the card; mail-not-set-up warning not on the card", "detail": "07-email-card.png"},
+  {"id": "U4", "severity": "low", "title": "Reject after Approve gives no feedback; search still ran", "detail": "10-approve-then-reject.png"},
+  {"id": "U5", "severity": "low", "title": "Folder changed mid-card does not match card folder, no warning", "detail": "15-foldchange.png"},
+  {"id": "U6", "severity": "low", "title": "Email body invented and signed ARTEMIS; requested subject ignored", "detail": "07-email-card.png, 23-multi.png"},
+  {"id": "U7", "severity": "low", "title": "Every refresh adds a Chat - today entry; stale banners persist", "detail": "17-draft-card.png"},
+  {"id": "U8", "severity": "low", "title": "Voice re-arms and box re-ticks after refresh", "detail": "audit voice.armed after reload"}]}

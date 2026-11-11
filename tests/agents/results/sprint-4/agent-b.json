@@ -1,0 +1,24 @@
+{"sprint":"sprint-4","agent":"agent-b","verdict":"PASS WITH ISSUES",
+"items":[
+{"item":"Routes to local model by default","status":"PASS"},
+{"item":"Bounded failover","status":"NOT TESTED"},
+{"item":"Model shown with each reply and where it ran","status":"PARTIAL"},
+{"item":"Per-folder cloud permission / disabled tier never reached","status":"PARTIAL"},
+{"item":"Retrieval limited to the active folder","status":"FAIL"},
+{"item":"Inspectable plan before execution","status":"PASS"},
+{"item":"Only dispatcher executes with a policy verdict","status":"PASS"},
+{"item":"Stage gate: gateway cannot act around the gates","status":"PASS"}],
+"bugs":[
+{"id":"B1","severity":"high","title":"Folder content leaks across folders through conversation memory","repro":"Ask about notes.txt in docsA, switch dropdown to docsB in same chat, ask Orion budget; reply cites the docsA file. 2/2.","evidence":"22_q2.png, 23_tidy.png; clean chat does not leak (51_newchat_B.png)"},
+{"id":"B2","severity":"high","title":"Conversation vanishes from screen about 10 s after each reply (DB still has it)","repro":"Ask any question, wait 10 s; only the greeting remains. 4/4.","evidence":"66_vanish.png, 65_plain_cloud2.png; chat_turns rows present on disk"},
+{"id":"B3","severity":"medium","title":"Refresh while model is answering silently loses the request","repro":"Send long request, reload after 1-2 s; question and answer never appear. 2/2.","evidence":"41_after_refresh.png, 52_refresh.png"},
+{"id":"B4","severity":"medium","title":"Natural question about in-folder fact returns NOT FOUND","repro":"In docsA ask 'what is the Project Orion budget and who owns it?'; notes.txt has it. 3/3. Audit shows index.embed unavailable (ollama 404).","evidence":"11_q1_docsA.png, 20_q1.png, audit_log rows 7 and 13"}],
+"undesired":[
+{"id":"U1","severity":"medium","title":"Rapid requests: only first answered, silent drop (known)","detail":"13_rapid.png"},
+{"id":"U2","severity":"medium","title":"No model/where line on retrieval, tidy, list answers","detail":"21_q1b.png, 23_tidy.png"},
+{"id":"U3","severity":"medium","title":"Cloud toggle, model tier and most chat turns not in audit","detail":"actions recorded counter 13 unchanged across 8 toggles; 1 gateway.turn for about 6 requests"},
+{"id":"U4","severity":"medium","title":"Same intent, different wording: plan vs file listing","detail":"'tidy up this folder' gives plan, 'tidy this folder up' lists files; 40_tidy_plan.png"},
+{"id":"U5","severity":"low","title":"Header always says nothing has been sent anywhere, even with cloud allowed","detail":"61_settings_cb.png"},
+{"id":"U6","severity":"low","title":"No 'no folder' option in dropdown; chat below voice player so answer is off-screen","detail":"11_q1_docsA.png"},
+{"id":"U7","severity":"low","title":"Stale status banner persists across tabs","detail":"02_folders.png, 03_settings.png"},
+{"id":"U8","severity":"low","title":"Allowing cloud has no visible effect and UI never says when cloud would be used","detail":"31_cloud_q.png, 32_cloud_chat.png all ran locally"}]}

@@ -1,0 +1,18 @@
+{"sprint": "sprint-3", "agent": "agent-a", "verdict": "PASS WITH ISSUES",
+ "items": [
+  {"item": "Every action in exactly one risk tier", "status": "PASS"},
+  {"item": "No code path to a destructive operation", "status": "PASS"},
+  {"item": "Preview and approve or reject", "status": "PASS"},
+  {"item": "Undo an approved plan as a single unit", "status": "PASS"},
+  {"item": "Auditor can read an append-only record", "status": "PARTIAL"},
+  {"item": "Stage gate: gates hold against placeholder tools", "status": "PASS"}],
+ "bugs": [
+  {"id": "B1", "severity": "medium", "title": "Audit record cannot be read from the UI; What changed does not list ARTEMIS's own actions", "repro": "Tidy, approve, undo, then open What changed / What it knows / Settings / Folders", "evidence": "09-whatchanged.png, 11-whatchanged2.png, 12-tab-Whatitknows.png; audit_log on disk has 38 rows; reproduced 3x"},
+  {"id": "B2", "severity": "low", "title": "What changed shows 'Last worked on' names that no longer exist", "repro": "Tidy, approve, click What changed", "evidence": "09-whatchanged.png (seen once)"}],
+ "undesired": [
+  {"id": "U1", "severity": "medium", "title": "Approval buttons far from card; step list in small inner scroll", "detail": "06b-full.png"},
+  {"id": "U2", "severity": "medium", "title": "What changed says nothing changed right after ARTEMIS moved 12 files", "detail": "09-whatchanged.png"},
+  {"id": "U3", "severity": "low", "title": "'sort my stuff' returns a bare file list", "detail": "05-sort-my-stuff.png"},
+  {"id": "U4", "severity": "low", "title": "'There is nothing to undo' shown as a red error", "detail": "11-whatchanged2.png"},
+  {"id": "U5", "severity": "low", "title": "'Approve, don't ask again' does not say what is remembered or how to undo it", "detail": "audit shows create_dir and move_file remembered"},
+  {"id": "U6", "severity": "low", "title": "Voice panel and spinner remnants push the approval card down", "detail": "03-work.png, 11-whatchanged2.png"}]}

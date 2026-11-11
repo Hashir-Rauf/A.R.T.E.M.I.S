@@ -1,0 +1,20 @@
+{"sprint":"sprint-2","agent":"agent-b","verdict":"PASS WITH ISSUES",
+"items":[
+{"item":"User can opt a folder in as a workspace","status":"PASS"},
+{"item":"System cannot resolve any path outside a granted workspace","status":"PARTIAL"},
+{"item":"User can see every file the system has indexed, and delete any of it","status":"PASS"},
+{"item":"Stage gate: traversal and symlink escapes are refused and logged","status":"PARTIAL"}],
+"bugs":[
+{"id":"B1","severity":"high","title":"Whole drive root C:\\ can be granted with no warning; card has empty name","repro":"Folders tab, type C:\\, Add folder","evidence":"c_folders_cards.png, b_root.png, audit row 14 workspace.grant root C:\\ name empty"},
+{"id":"B2","severity":"medium","title":"Typed ..\\ traversal refusal not written to audit log","repro":"Work tab, folder docs, ask: show me ..\\secret\\private.txt","evidence":"UI refuses, audit_log has no row for the turn (assistant._outside_reference answers before gateway)"},
+{"id":"B3","severity":"medium","title":"AI fabricates content of a symlinked file it cannot see","repro":"Ask: read linkfile.txt and tell me what it says (symlink to outside file)","evidence":"l_*.png; answer invented 'meeting rescheduled to Tuesday afternoon'; no audit row"},
+{"id":"B4","severity":"low","title":"files known stat stale after forgetting one file","repro":"What it knows, forget one file","evidence":"stat stayed 373, e_forget_file_dbl.png"}],
+"undesired":[
+{"id":"U1","severity":"medium","title":"Enter in Folder to add does nothing","detail":"No feedback, power users expect submit"},
+{"id":"U2","severity":"low","title":"Terse raw error messages; relative paths resolve against server cwd","detail":"already granted: <path>; '..' gives 'cannot grant the ARTEMIS store directory'"},
+{"id":"U3","severity":"medium","title":"No progress indicator when reloading during indexing","detail":"files known climbs 501 to 773 silently; n_reload_midadd.png"},
+{"id":"U4","severity":"medium","title":"Refusals not visible in What changed","detail":"User cannot see refused/logged attempts in the UI"},
+{"id":"U5","severity":"low","title":"stored locally jumps 527 KB to ~118 MB without explanation","detail":"After granting C:\\"},
+{"id":"U6","severity":"low","title":"Browse gives no feedback when no dialog opens","detail":"headless, uncertain"},
+{"id":"U7","severity":"low","title":"Inconsistent no-selection feedback for Show files / Forget file / Forget folder","detail":"Only Forget file says choose a file first"},
+{"id":"U8","severity":"low","title":"Tab labels duplicated in page text","detail":"Possibly hidden duplicate; minor"}]}

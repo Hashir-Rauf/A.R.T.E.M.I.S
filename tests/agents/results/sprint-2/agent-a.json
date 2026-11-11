@@ -1,0 +1,21 @@
+{"sprint":"sprint-2","agent":"agent-a","verdict":"PASS WITH ISSUES",
+"items":[
+{"item":"User can opt a folder in as a workspace","status":"PARTIAL"},
+{"item":"System cannot resolve any path outside a granted workspace","status":"PARTIAL"},
+{"item":"User can see every file indexed and delete any of it","status":"PARTIAL"},
+{"item":"Stage gate: traversal and symlink escapes are refused and logged","status":"PARTIAL"}],
+"bugs":[
+{"id":"B1","severity":"high","title":"Whole drive (C:\\) can be granted as a workspace with no warning","repro":"Folders tab, type C:\\, Add folder (2 times)","evidence":"42-folders-after-forget.png: card with blank name, 2661 files"},
+{"id":"B2","severity":"high","title":"Adding C:\\Windows freezes the whole UI for 9+ minutes, no cancel or progress","repro":"Folders tab, type C:\\Windows, Add folder","evidence":"50-add-0.png, 50-add-1.png, 50-add-4.png: processing 62s..563s, stats stay 0"},
+{"id":"B3","severity":"medium","title":"Relative name 'docs' silently resolves against server working directory and grants the project's Docs folder","repro":"Folders tab, type docs, Add folder","evidence":"60-add-0.png; audit_log workspace.grant root ...\\A.R.T.E.M.I.S\\Docs"},
+{"id":"B4","severity":"medium","title":"Refusals (store dir, outside reads, bad paths) are not in audit log or What changed","repro":"Add ..\\.. or ask for ..\\outside\\secret.txt, then open What changed / read audit_log","evidence":"32-what-changed.png; audit_log rows only grant/scan/session/embed"}],
+"undesired":[
+{"id":"U1","severity":"medium","title":"Enter in the folder path box does nothing","detail":"10-added-enter.png, reproduced twice"},
+{"id":"U2","severity":"medium","title":"No remove button on Folders tab; removal is 'Forget this folder' elsewhere","detail":"42-folders-after-forget.png"},
+{"id":"U3","severity":"low","title":"Stats bar goes stale after Forget this file","detail":"24-forget-file.png files known stays 14"},
+{"id":"U4","severity":"medium","title":"What changed says 'removed' for a forgotten file that is still on disk; forgetting not sticky","detail":"32-what-changed.png"},
+{"id":"U5","severity":"low","title":"Jargon message: cannot grant the ARTEMIS store directory","detail":"12-traversal-add.png"},
+{"id":"U6","severity":"low","title":"Folder card for C:\\ has blank title","detail":"42-folders-after-forget.png"},
+{"id":"U7","severity":"low","title":"Error banner persists when switching tabs","detail":"14-knows.png"},
+{"id":"U8","severity":"low","title":"Duplicate add re-shows earlier success message","detail":"11-dup.png"},
+{"id":"U9","severity":"low","title":"audit_log gets index.embed unavailable (ollama 404) on every scan","detail":"audit_log rows 7 and 13"}]}

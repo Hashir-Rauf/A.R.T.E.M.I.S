@@ -141,3 +141,4 @@ scratch/
 Tex/**/_latexbuild/
 Tex/**/_preview/
 .wrangler/
+tests/agents/work/

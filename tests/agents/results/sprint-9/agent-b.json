@@ -1,0 +1,26 @@
+{"sprint": "sprint-9", "agent": "agent-b", "verdict": "PASS WITH ISSUES",
+ "items": [
+  {"item": "User can pair a remote device with their host machine", "status": "PASS"},
+  {"item": "Relayed traffic is unreadable to the edge", "status": "PASS"},
+  {"item": "Remote access never grants more than local access", "status": "FAIL"},
+  {"item": "Revoke a device", "status": "PARTIAL"},
+  {"item": "Stage gate: deleting the remote plane changes nothing locally", "status": "NOT TESTED"},
+  {"item": "Session time limit (1 hour) and pairing code expiry (5 min)", "status": "NOT TESTED"},
+  {"item": "Audit entries for remote activity", "status": "PARTIAL"}],
+ "bugs": [
+  {"id": "B1", "severity": "high", "title": "Pending phone plan can be approved after the folder is unticked", "repro": "Phone asks tidy in docs1; host unticks docs1; phone presses Approve", "evidence": "26-phone-approve-after-untick.png; files moved on disk; audit approval.decided f34e619c3170"},
+  {"id": "B2", "severity": "medium", "title": "Decline then Confirm shows raw Gradio error 'Value ... is not in the list of choices'", "repro": "Select waiting device, Decline, press Confirm", "evidence": "07a-confirm-after-decline-error.png; server.log traceback"},
+  {"id": "B3", "severity": "medium", "title": "Refresh phone mid-pairing leaves a confirmable ghost device", "repro": "Phone joins, refresh phone, host Confirm the stale entry", "evidence": "36, 38, 39 png"},
+  {"id": "B4", "severity": "medium", "title": "Change approved from phone could not be undone from host ('nothing to undo')", "repro": "Phone tidy + Approve, host Undo last change", "evidence": "24-second-undo.png; undo_journal rows for plan f34e619c3170 remain"},
+  {"id": "B5", "severity": "medium", "title": "Phone shows stale card when a second request arrives while a card is pending", "repro": "Phone web-search card pending, then ask an email; card unchanged, audit shows send-mail plan requested", "evidence": "28-phone-email.png; audit rows 144, 147"}],
+ "undesired": [
+  {"id": "U1", "severity": "medium", "title": "Abandoned pairings pile up in the waiting list with ambiguous names and never expire", "detail": "06-host-waiting.png"},
+  {"id": "U2", "severity": "medium", "title": "After host restart the relay is not reconnected automatically; status says Not connected on every refresh; phone says computer not answering", "detail": "30, 31, 32 png"},
+  {"id": "U3", "severity": "high", "title": "Removed phone looks normal and gives no message", "detail": "34, 35 png"},
+  {"id": "U4", "severity": "medium", "title": "Phone folder list does not refresh; empty-folder message misleading", "detail": "needs reload after tick"},
+  {"id": "U5", "severity": "medium", "title": "Refresh mid-request loses the phone answer silently", "detail": "14 png"},
+  {"id": "U6", "severity": "medium", "title": "Same plan approvable on host and phone; stale host approve says Done though 12 steps did not run", "detail": "22 png"},
+  {"id": "U7", "severity": "medium", "title": "Voice refusal or switch-off leaves phone on Stop talking / Listening with mic open", "detail": "41, 42 png"},
+  {"id": "U8", "severity": "low", "title": "Remote audit rows lack folder, request text, plan id; wrong-code attempts not audited", "detail": "read from artemis.db"},
+  {"id": "U9", "severity": "low", "title": "Relay box defaults to deployed Cloudflare address; wrong-code message vague", "detail": "Settings default value"},
+  {"id": "U10", "severity": "low", "title": "Relay server log shows long tracebacks when a phone closes", "detail": "work/s9-b/relay.log"}]}

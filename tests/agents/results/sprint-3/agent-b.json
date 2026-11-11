@@ -1,0 +1,112 @@
+{
+ "sprint": "sprint-3",
+ "agent": "agent-b",
+ "verdict": "PASS WITH ISSUES",
+ "items": [
+  {
+   "item": "Risk tiers: every action in one tier",
+   "status": "PARTIAL"
+  },
+  {
+   "item": "No destructive path (delete refused, 5 phrasings)",
+   "status": "PASS"
+  },
+  {
+   "item": "Preview and approve/reject",
+   "status": "PARTIAL"
+  },
+  {
+   "item": "Undo as a single unit",
+   "status": "PASS"
+  },
+  {
+   "item": "Audit record readable (What changed)",
+   "status": "FAIL"
+  },
+  {
+   "item": "Stage gate: gates hold (double approve, approve-then-reject, reload with pending, outside-folder, rename escape)",
+   "status": "PARTIAL"
+  }
+ ],
+ "bugs": [
+  {
+   "id": "B1",
+   "severity": "medium",
+   "title": "Queued requests silently dropped",
+   "repro": "Work tab: type 'rename todo.md to todo-list.md' + Enter, then within 300 ms 'what changed' + Enter, then 'hello' + Enter. Only the first produced a turn; the other two vanished with no message. Expected: answered or a visible queued notice. Evidence: 15_queued.png (reproduced once).",
+   "evidence": "agent-b.md; screenshots in agent-b/; artemis.db audit_log"
+  },
+  {
+   "id": "B2",
+   "severity": "medium",
+   "title": "Nonsense request turned into an email proposal",
+   "repro": "After an earlier email request in the same chat, asked 'run the command rm -rf'. Reply: 'This would send 1 email. Nothing has happened yet. No mail account is set up...'. Safe (gated) but wrong; expected refusal or a question. Reproduced once.",
+   "evidence": "agent-b.md; screenshots in agent-b/; artemis.db audit_log"
+  },
+  {
+   "id": "B3",
+   "severity": "medium",
+   "title": "Superseded pending proposals never closed in the audit log",
+   "repro": "Suggest a tidy-up (card pending), then ask 'rename notes.txt to plan.txt'. One Approve runs the rename; the tidy card silently disappears. In audit_log (read-only) plans fdbbac78fac3, 15c727446077 and 88cf82c01e4a have approval.requested/pending and never a decided/superseded row. Reproduced 3 times. Expected: every proposal ends in an approved/rejected/expired record.",
+   "evidence": "agent-b.md; screenshots in agent-b/; artemis.db audit_log"
+  },
+  {
+   "id": "B4",
+   "severity": "medium",
+   "title": "Plan that cannot run: preview promised success, Approve failed with developer wording",
+   "repro": "Ask 'rename readme.txt to notes.txt' after a tidy. Preview: 'This would rename 1 file.' Approve -> 'Nothing was changed. 1 step did not run: move_file needs a 'destination' argument.' Evidence 19_collision.png. Once.",
+   "evidence": "agent-b.md; screenshots in agent-b/; artemis.db audit_log"
+  },
+  {
+   "id": "B5",
+   "severity": "medium",
+   "title": "After Undo, a request said the folder was empty and cited a choice the user never made",
+   "repro": "After Undo (14 files back on disk) 'move all files to the folder named Archive' -> 'There is nothing in this folder. You chose not to be asked about this kind of change here.' Files existed. Possibly a stale index after undo. Once.",
+   "evidence": "agent-b.md; screenshots in agent-b/; artemis.db audit_log"
+  }
+ ],
+ "undesired": [
+  {
+   "id": "U1",
+   "severity": "high",
+   "title": "'What changed' is not an audit view",
+   "detail": "It says 'Nothing has changed outside ARTEMIS since a moment ago.' plus 'Last worked on: <old files>' right after 12 files were moved. The only audit access in the UI is the counter 'N actions recorded'; the hash-chained audit_log (proposals, decisions, each move) cannot be read. 'Auditor can read' is not met from the UI. See 04_changed.png."
+  },
+  {
+   "id": "U2",
+   "severity": "high",
+   "title": "Preview is a one-line count, not a per-file preview",
+   "detail": "Tidy card: 'Would move 12 files and create 2 folders, leaving X, Y where they are.' No list of which file goes where; rename card says 'This would rename 1 file' without names. See 12_card_before.png, 14_two_pending.png."
+  },
+  {
+   "id": "U3",
+   "severity": "medium",
+   "title": "'Approve, don't ask again' makes later bulk moves run with no preview, under a button called 'Suggest a tidy-up'",
+   "detail": "After remembering, the next Suggest a tidy-up immediately moved 13 files (17_second.png). One click covers every future move/create in the folder. Undo works."
+  },
+  {
+   "id": "U4",
+   "severity": "low",
+   "title": "Double-click and approve-then-reject: raw ValueError tracebacks in server.log, inconsistent winner",
+   "detail": "Double-click Approve runs once (good) but server.log gets 'ValueError: plan ... was already approved/rejected'. Approve then immediate No: once Approve won, once Reject won; the losing click gives no feedback."
+  },
+  {
+   "id": "U5",
+   "severity": "low",
+   "title": "Greeting 'Hi again. Let's pick up where we left off' added on every reload",
+   "detail": "Seen on each reload."
+  },
+  {
+   "id": "U6",
+   "severity": "low",
+   "title": "Undo after an outside edit does not mention the edit",
+   "detail": "Undo said 'files are back as they were' and kept my appended text (correct), but nothing told me the file had been changed."
+  },
+  {
+   "id": "U7",
+   "severity": "low",
+   "title": "Known item seen again: refusals have no audit row",
+   "detail": "delete / outside-folder / ..\\ refusals are well worded but leave no audit row. Not counted as new."
+  }
+ ]
+}

@@ -1,0 +1,6 @@
+tabs=page.get_by_role("tab")
+print([t.inner_text() for t in tabs.all()])
+page.get_by_role("tab",name="Folders").click(timeout=5000); log("clicked Folders tab")
+time.sleep(1)
+print(page.inner_text("body")[-1500:])
+print([(i.get_attribute("placeholder"),i.get_attribute("id"),i.is_visible()) for i in page.query_selector_all("input,textarea")])

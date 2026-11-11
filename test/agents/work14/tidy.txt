@@ -1,0 +1,108 @@
+ARTEMIS
+Bounded desktop assistant
+Everything is stored on this computer. Nothing has been sent anywhere.
++ New chat
+Your chats (kept for 7 days)
+Chat · today
+Delete this chat
+Switch light / dark
+1
+folders visible
+13
+files known
+9
+actions recorded
+118337 KB
+stored locally
+Added 'stuff'. ARTEMIS now knows about 13 files in it.
+Work
+Folders
+What it knows
+Settings
+Work
+Folders
+What it knows
+Settings
+What would you like done?
+ARTEMIS plans the work and shows you every step. Nothing changes until you say yes.
+In this folder
+What would you like done
+Ask
+Talk instead of typing
+▼
+Voice starts on its own when ARTEMIS opens; untick the box to stop it. While it is on, just talk and pause when you are done. Your words appear in the box and are handled exactly like typed words, so anything that changes something still asks you first. The recording is deleted as soon as it has been turned into words.
+Voice is on (microphone allowed)
+Read answers aloud
+Microphone
+Record
+No microphone found
+Voice is on. Just talk; I listen when I am not speaking.
+ARTEMIS speaking
+0:04
+0:04
+1x
+Suggest a tidy-up
+What changed
+Repeated tasks
+Undo last change
+Suggest a tidy-up
+Would move 13 files and create 2 folders. Nothing is deleted.
+What do I still need to do this week?
+Book viva slot and fix reference list. 2026-11-weekly-review.md:1
+Sources: 2026-11-weekly-review.md:1
+Where did I stop on my thesis?
+In the methods chapter, section 3.2. 2026-11-08_journal.md:1
+The lit review is done and the methods draft is at 60% completion. 2026-11-weekly-review.md:1
+Sources: 2026-11-08_journal.md:1, 2026-11-weekly-review.md:1
+Good afternoon! I'm ARTEMIS. I'm listening. What can I help you with?
+Clear conversation
+Approve
+Approve, don't ask again
+No, leave it
+Approve these changes?
+Nothing has happened yet. Look through the steps below, then decide with the buttons above.
+Folder
+stuff
+What it does
+Create 2 folders, move 13 files
+Risk
+changes files, and can be undone
+Nothing is deleted
+Nothing leaves this computer
+You can undo this afterwards
+EVERY STEP, IN ORDER
+1
+Make a folder called “Documents”
+2
+Make a folder called “Images”
+3
+Move 2026-11-08_journal.md into “Documents”
+4
+Move 2026-11-weekly-review.md into “Documents”
+5
+Move lecture-1.md into “Documents”
+6
+Move lecture-2.md into “Documents”
+7
+Move lecture-3.md into “Documents”
+8
+Move lecture-4.md into “Documents”
+9
+Move lecture-5.md into “Documents”
+10
+Move a_home.png into “Images”
+11
+Move b_added.png into “Images”
+12
+Move c_work.png into “Images”
+13
+Move d_What .png into “Images”
+14
+Move d_Where.png into “Images”
+15
+Move d_reply.png into “Images”
+Nothing has changed outside ARTEMIS since a minute ago.
+Leave a note for next time
+Save note
+Habits and choices ARTEMIS remembers
+▼

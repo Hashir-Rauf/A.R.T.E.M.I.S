@@ -1,0 +1,137 @@
+[16:27:55] messy files: ['Invoice_March.pdf', 'budget 2026.xlsx', 'holiday photo 1.jpg', 'holiday photo 2.jpg', 'invoice-april.pdf', 'meeting-notes-jan.txt', 'notes.txt', 'random.zip', 'readme.txt', 'resume_final_v3.docx', 'resume_final_v3_REAL.docx', 'screenshot (1).png', 'screenshot (2).png', 'todo.md']
+[16:28:51] TIDY:
+Undo last change
+Suggest a tidy-up
+Would move 12 files and create 2 folders, leaving budget 2026.xlsx, random.zip where they are. Nothing is deleted.
+Hi again. Let's pick up where we left off. What's next?
+Fix the bug in app/main.py
+A proposed change to app/main.py:
+--- a/app/main.py
++++ b/app/main.py
+@@ -1,5 +1,5 @@
+ def add(a, b):
+-    return a - b  # BUG: should add
++    return a + b  # Fixed to correctly add numbers
+ 
+ 
+ if __name__ == '__main__':
+This is a proposal only. ARTEMIS has not changed your file, and it never edits code itself.
+Hi again. Let's pick up where we left off. What's next?
+Where is the bug in this project? Show me the line.
+The README mentions that there is "A tiny demo project with a bug in add()". README.md:1
+Sources: README.md:1
+Hi again. Let's pick up where we left off. What's next?
+Fix the most obvious bug in the code
+I need a specific file from that folder before I can suggest fixing anything with a diff. Which file should I look at?
+gemma4:e4b · on this computer
+Find every TODO or FIXME in this folder
+Please tell me which folder you want me to search through so I can find all those comments for you.
+gemma4:e4b · on this computer
+Where is the retry logic and is there anything in the code that looks like a bug?
+I still don't have any files open to check through for you right now. If you point me toward the folder or file containing your payment client, I can look around for the retry logic and see if anything jumps out as potentially buggy in that code.
+gemma4:e4b · on this computer
+Hi again. Let's pick up where we left off. What's next?
+Suggest a fix for the most obvious bug, show me as a diff
+Hmm, since we were just talking about finding TODOs or FIXMEs in that folder, do you want me to look at any specific file now so I can suggest a fix 
+[16:28:51] buttons: ['Ask', 'Talk instead of typing\n▼', 'Suggest a tidy-up', 'What changed', 'Repeated tasks', 'Undo last change', 'Clear conversation', 'Approve', "Approve, don't ask again", 'No, leave it', 'Save note', 'Habits and choices ARTEMIS remembers\n▼']
+[16:29:01] after approve:
+Undo last change
+Approve
+Done: 2 folders created, 12 files moved.
+Suggest a tidy-up
+Would move 12 files and create 2 folders, leaving budget 2026.xlsx, random.zip where they are. Nothing is deleted.
+Hi again. Let's pick up where we left off. What's next?
+Fix the bug in app/main.py
+A proposed change to app/main.py:
+--- a/app/main.py
++++ b/app/main.py
+@@ -1,5 +1,5 @@
+ def add(a, b):
+-    return a - b  # BUG: should add
++    return a + b  # Fixed to correctly add numbers
+ 
+ 
+ if __name__ == '__main__':
+This is a proposal only. ARTEMIS has not changed your file, and it never edits code itself.
+Hi again. Let's pick up where we left off. What's next?
+Where is the bug in this project? Show me the line.
+The README mentions that there is "A tiny demo project with a bug in add()". README.md:1
+Sources: README.md:1
+Hi again. Let's pick up where we left off. What's next?
+Fix the most obvious bug in t
+[16:29:01] files now: ['Documents', 'Images', 'budget 2026.xlsx', 'random.zip', 'tidy.png']
+[16:29:11] after undo:
+Undo last change
+Undo last change
+Undone. 14 steps reversed, and your files are back as they were.
+Approve
+Done: 2 folders created, 12 files moved.
+Suggest a tidy-up
+Would move 12 files and create 2 folders, leaving budget 2026.xlsx, random.zip where they are. Nothing is deleted.
+Hi again. Let's pick up where we left off. What's next?
+Fix the bug in app/main.py
+A proposed change to app/main.py:
+--- a/app/main.py
++++ b/app/main.py
+@@ -1,5 +1,5 @@
+ def add(a, b):
+-    return a - b  # BUG: should add
++    return a + b  # Fixed to correctly add numbers
+ 
+ 
+ if __name__ == '__main__':
+This is a proposal only. ARTEMIS has not changed your file, and it never edits code itself.
+Hi again. Let's pick up where we left off. What's next?
+Where is the bug in this project? Show me the line.
+The README mentions that there is "A tiny demo project with a bug in add()". README.md:1
+Sources: README.md:1
+Hi 
+[16:29:11] files now: ['Invoice_March.pdf', 'budget 2026.xlsx', 'holiday photo 1.jpg', 'holiday photo 2.jpg', 'invoice-april.pdf', 'meeting-notes-jan.txt', 'notes.txt', 'random.zip', 'readme.txt', 'resume_final_v3.docx', 'resume_final_v3_REAL.docx', 'screenshot (1).png', 'screenshot (2).png', 'tidy.png', 'todo.md']
+[16:29:13] knows:
+nows about 14 files in it.
+Work
+Folders
+What it knows
+Settings
+Work
+Folders
+What it knows
+Settings
+Everything ARTEMIS holds
+Forget never deletes. These buttons remove what ARTEMIS remembers; your files stay exactly where they are.
+Folder
+Show files
+Check for changes
+Forget this folder
+Invoice_March.pdf
+37 B
+budget 2026.xlsx
+36 B
+holiday photo 1.jpg
+39 B
+holiday photo 2.jpg
+39 B
+invoice-april.pdf
+37 B
+meeting-notes-jan.txt
+85 B
+notes.txt
+157 B
+random.zip
+30 B
+readme.txt
+30 B
+resume_final_v3.docx
+40 B
+resume_final_v3_REAL.docx
+45 B
+screenshot (1).png
+38 B
+screenshot (2).png
+38 B
+todo.md
+27 B
+One file
+Forget this file
+Erasing removes everything ARTEMIS remembers about your folders. The activity log is kept, so you can always check what ARTEMIS did.
+Erase everything ARTEMIS knows

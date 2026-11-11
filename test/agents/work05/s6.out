@@ -1,0 +1,38 @@
+[16:26:57] listbox: <input role="listbox" aria-controls="dropdown-options" autocomplete="off" aria-expanded="false" aria-label="In this folder" class="border-none svelte-1xfsv4t">
+[16:26:58] after click: ['✓\nstuff (3 files)']
+[16:26:59] ASK: Fix the bug in app/main.py
+[16:27:49] TAIL:
+Undo last change
+Fix the bug in app/main.py
+A proposed change to app/main.py:
+--- a/app/main.py
++++ b/app/main.py
+@@ -1,5 +1,5 @@
+ def add(a, b):
+-    return a - b  # BUG: should add
++    return a + b  # Fixed to correctly add numbers
+ 
+ 
+ if __name__ == '__main__':
+This is a proposal only. ARTEMIS has not changed your file, and it never edits code itself.
+Hi again. Let's pick up where we left off. What's next?
+Where is the bug in this project? Show me the line.
+The README mentions that there is "A tiny demo project with a bug in add()". README.md:1
+Sources: README.md:1
+Hi again. Let's pick up where we left off. What's next?
+Fix the most obvious bug in the code
+I need a specific file from that folder before I can suggest fixing anything with a diff. Which file should I look at?
+gemma4:e4b · on this computer
+Find every TODO or FIXME in this folder
+Please tell me which folder you want me to search through so I can find all those comments for you.
+gemma4:e4b · on this computer
+Where is the retry logic and is there anything in the code that looks like a bug?
+I still don't have any files open to check through for you right now. If you point me toward the folder or file containing your p
+[16:27:49] buttons: ['+ New chat', 'Delete this chat', 'Switch light / dark', 'Work', 'Folders', 'What it knows', 'Settings', 'Work', 'Folders', 'What it knows', 'Settings', 'Ask', 'Talk instead of typing\n▼', 'Suggest a tidy-up', 'What changed', 'Repeated tasks', 'Undo last change', 'Clear conversation', 'Approve', "Approve, don't ask again", 'No, leave it', 'Save note', 'Habits and choices ARTEMIS remembers\n▼']
+[16:27:49] file now: def add(a, b):
+    return a - b  # BUG: should add
+
+
+if __name__ == '__main__':
+    print(add(2, 3))
+

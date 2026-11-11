@@ -1,0 +1,26 @@
+[16:22:42] === README.md
+# Demo
+A tiny demo project with a bug in add().
+
+[16:22:42] === app/main.py
+def add(a, b):
+    return a - b  # BUG: should add
+
+
+if __name__ == '__main__':
+    print(add(2, 3))
+
+[16:22:42] === app/util.py
+def shout(s):
+    return s.upper() + '!'
+
+[16:22:56] selects: 0
+[16:22:56] ASK: Where is the retry logic and is there anything in the code that looks like a bug?
+[16:23:46] SCREEN:
+
+[16:23:46] ASK: Find every TODO or FIXME in this folder
+[16:24:37] SCREEN:
+
+[16:24:37] ASK: Fix the most obvious bug in the code
+[16:25:27] SCREEN:
+

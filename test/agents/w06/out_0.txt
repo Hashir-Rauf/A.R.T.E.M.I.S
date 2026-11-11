@@ -1,0 +1,55 @@
+16:16:50 opened page; reading it
+ARTEMIS
+Bounded desktop assistant
+Everything is stored on this computer. Nothing has been sent anywhere.
++ New chat
+Your chats (kept for 7 days)
+Delete this chat
+Switch light / dark
+0
+folders visible
+0
+files known
+0
+actions recorded
+19005 KB
+stored locally
+Work
+Folders
+What it knows
+Settings
+Work
+Folders
+What it knows
+Settings
+What would you like done?
+ARTEMIS plans the work and shows you every step. Nothing changes until you say yes.
+In this folder
+What would you like done
+Ask
+Talk instead of typing
+▼
+Voice starts on its own when ARTEMIS opens; untick the box to stop it. While it is on, just talk and pause when you are done. Your words appear in the box and are handled exactly like typed words, so anything that changes something still asks you first. The recording is deleted as soon as it has been turned into words.
+Voice is on (microphone allowed)
+Read answers aloud
+processing | 33.5s
+Microphone
+processing | 33.5s
+processing | 33.5s
+ARTEMIS speaking
+Suggest a tidy-up
+What changed
+Repeated tasks
+Undo last change
+processing | 33.5s
+Welcome. ARTEMIS cannot see any folder yet. Open the Folders tab and add one, then come back here to tidy it, ask about its files, or draft something from them.
+Clear conversation
+Approve
+Approve, don't ask again
+No, leave it
+Leave a note for next time
+Save note
+Habits and choices ARTEMIS remembers
+▼
+[' refresh', '+ New chat', 'Delete this chat', 'Switch light / dark', 'Work', 'Folders', 'What it knows', 'Settings', 'Work', 'Folders', 'What it knows', 'Settings', '', 'Ask', 'Talk instead of typing\n▼', ' start voice', ' nudge', 'Suggest a tidy-up', 'What changed', 'Repeated tasks', 'Undo last change', 'Clear conversation', 'Approve', "Approve, don't ask again", 'No, leave it', 'Save note', 'Habits and choices ARTEMIS remembers\n▼']
+['app', 'README.md']

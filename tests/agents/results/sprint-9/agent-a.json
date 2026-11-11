@@ -1,0 +1,20 @@
+{"sprint":"sprint-9","agent":"agent-a","verdict":"PASS WITH ISSUES",
+"items":[
+{"item":"User can pair a remote device with their host machine","status":"PASS"},
+{"item":"Relayed traffic is unreadable to the edge","status":"PARTIAL"},
+{"item":"Remote access never grants more than local access","status":"PASS"},
+{"item":"Revoke a device","status":"PASS"},
+{"item":"Stage gate: deleting the remote plane changes nothing locally","status":"NOT TESTED"}],
+"bugs":[
+{"id":"B1","severity":"medium","title":"Email/search proposed from the phone is never shown on the host, though the phone says it must be approved on the computer","repro":"Pair, tick folder, ask from phone 'search the web for cat videos' or 'send an email to sam@example.com ...'; look at host Work tab","evidence":"34-host-work.png, 32-phone-email1.png, 30-phone-web.png; reproduced 2 times"},
+{"id":"B2","severity":"low","title":"Phone approval card is a run-on block, says buttons are above (they are below), Approve greyed with no reason","repro":"Ask for an email from the phone","evidence":"32-phone-email1.png; 3 times"},
+{"id":"B3","severity":"low","title":"Voice from the phone ignores the selected folder and asks for a directory path","repro":"Tick docs, select docs on phone, Start talking, say 'tell me about my files'","evidence":"44-voice-after.png; 2 times"}],
+"undesired":[
+{"id":"U1","severity":"medium","title":"Host does not show a joined device until Check again is pressed; two Check again buttons in Settings; confusing 'Choose the device first.'","detail":"11-host-check-again.png"},
+{"id":"U2","severity":"medium","title":"Phone does not update when a folder is ticked; no-folder ask says 'That folder is not available remotely.'","detail":"16-phone-ask-nofolder.png"},
+{"id":"U3","severity":"low","title":"Folder tick prompt is far from the checkboxes; tiny 'Saved.' feedback","detail":"17-host-ticked.png"},
+{"id":"U4","severity":"low","title":"Start talking button says Stop talking even though host voice is switched off","detail":"42-voice-notick.png"},
+{"id":"U5","severity":"medium","title":"Removed phone keeps a normal-looking screen with no 'removed, pair again' message","detail":"47-phone-after-remove.png, 48-phone-reload-removed.png"},
+{"id":"U6","severity":"low","title":"Phone relay prefilled as http:// while host uses ws://; long case-sensitive code, no copy button","detail":"06-phone-initial.png"},
+{"id":"U7","severity":"low","title":"Half-drafted email swallows the next request; tidy request returned a file list","detail":"phone ask outputs"},
+{"id":"U8","severity":"low","title":"Host voice greets automatically; greeting and nudge appear in the phone voice log (known)","detail":"44-voice-after.png"}]}

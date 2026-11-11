@@ -1,0 +1,16 @@
+{"sprint":"extras","agent":"agent-a","verdict":"PASS WITH ISSUES",
+"items":[{"item":"Plain chat","status":"PASS"},{"item":"Conversation memory","status":"PASS"},{"item":"Streaming/progress feedback","status":"PARTIAL"},{"item":"New chat","status":"PASS"},{"item":"Switch saved chats","status":"PARTIAL"},{"item":"Delete this chat","status":"PARTIAL"},{"item":"Kept for 7 days","status":"NOT TESTED"},{"item":"Light/dark","status":"PARTIAL"},{"item":"Model names shown","status":"PASS"},{"item":"Settings wording","status":"PARTIAL"}],
+"bugs":[
+{"id":"B1","severity":"medium","title":"Fresh app shows Gemini 'Key saved' (real keyring shared)","repro":"Fresh app, open Settings","evidence":"12_dark_Settings.png"},
+{"id":"B2","severity":"low","title":"Delete this chat silent no-op with no selection","repro":"Reload, click Delete this chat","evidence":"15_deleted1.png, 16_deleted_all.png"},
+{"id":"B3","severity":"low","title":"Long chat title overflows sidebar","repro":"Send a 3000 character message","evidence":"18_delete_selected.png"}],
+"undesired":[
+{"id":"U1","severity":"high","title":"Reply below the fold, blank folder dropdown, Tidy placeholder","detail":"03_hash_progress.png"},
+{"id":"U2","severity":"medium","title":"All chats named 'Chat · today'","detail":"09_chat2_full.png"},
+{"id":"U3","severity":"medium","title":"New chat shows empty page, no confirmation","detail":"07_newchat_full.png"},
+{"id":"U4","severity":"medium","title":"First screen does not say you can just chat","detail":"01_first.png"},
+{"id":"U5","severity":"low","title":"'Type a message first.' stays as a turn; clipped mic text","detail":"09_chat2_full.png"},
+{"id":"U6","severity":"low","title":"Dark mode low contrast pills and disabled buttons","detail":"12_dark_Settings.png"},
+{"id":"U7","severity":"low","title":"Model placeholder mismatch and jargon in Settings","detail":"12_dark_Settings.png"},
+{"id":"U8","severity":"low","title":"'stored locally' jumps 7 MB to 118 MB unexplained","detail":"voice model files in home folder"},
+{"id":"U9","severity":"low","title":"Replies always end with a question","detail":"chat turns"}]}
