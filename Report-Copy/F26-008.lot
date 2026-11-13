@@ -1,0 +1,51 @@
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {2.1}{\ignorespaces Stakeholders and their concerns.}}{14}{table.2.1}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {3.1}{\ignorespaces Summary of the reviewed literature.}}{23}{table.3.1}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {4.1}{\ignorespaces Use case UC-1: grant a folder as a workspace.}}{35}{table.4.1}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces Use case UC-2: tidy a folder.}}{35}{table.4.2}%
+\contentsline {table}{\numberline {4.3}{\ignorespaces Use case UC-3: attempt to reach outside a workspace.}}{36}{table.4.3}%
+\contentsline {table}{\numberline {4.4}{\ignorespaces Use case UC-4: draft and send electronic mail.}}{37}{table.4.4}%
+\contentsline {table}{\numberline {4.5}{\ignorespaces Host hardware requirements.}}{38}{table.4.5}%
+\contentsline {table}{\numberline {4.6}{\ignorespaces Software requirements.}}{39}{table.4.6}%
+\contentsline {table}{\numberline {4.7}{\ignorespaces Data dictionary of the relational system of record.}}{47}{table.4.7}%
+\contentsline {table}{\numberline {4.8}{\ignorespaces Project risks.}}{48}{table.4.8}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {5.1}{\ignorespaces The four risk tiers.}}{51}{table.5.1}%
+\contentsline {table}{\numberline {5.2}{\ignorespaces The build sequence.}}{54}{table.5.2}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {6.1}{\ignorespaces Component inventory.}}{61}{table.6.1}%
+\contentsline {table}{\numberline {6.2}{\ignorespaces Capability services and risk tiers.}}{68}{table.6.2}%
+\contentsline {table}{\numberline {6.3}{\ignorespaces The degradation contract.}}{70}{table.6.3}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {7.1}{\ignorespaces Implementation status by stage.}}{80}{table.7.1}%
+\contentsline {table}{\numberline {7.2}{\ignorespaces Platform, libraries and services.}}{81}{table.7.2}%
+\contentsline {table}{\numberline {7.3}{\ignorespaces Test case TC-01: workspace boundary.}}{87}{table.7.3}%
+\contentsline {table}{\numberline {7.4}{\ignorespaces Test case TC-02: policy engine classification.}}{88}{table.7.4}%
+\contentsline {table}{\numberline {7.5}{\ignorespaces Test case TC-03: tool dispatcher.}}{89}{table.7.5}%
+\contentsline {table}{\numberline {7.6}{\ignorespaces Test case TC-04: undo of an approved plan.}}{90}{table.7.6}%
+\contentsline {table}{\numberline {7.7}{\ignorespaces Test case TC-05: approval broker.}}{91}{table.7.7}%
+\contentsline {table}{\numberline {7.8}{\ignorespaces Test case TC-06: grounding gate.}}{92}{table.7.8}%
+\contentsline {table}{\numberline {7.9}{\ignorespaces Test case TC-07: outward actions.}}{93}{table.7.9}%
+\contentsline {table}{\numberline {7.10}{\ignorespaces Test case TC-08: remote device limits.}}{94}{table.7.10}%
+\contentsline {table}{\numberline {7.11}{\ignorespaces Test case TC-09: speech and the approval gates.}}{95}{table.7.11}%
+\contentsline {table}{\numberline {7.12}{\ignorespaces Test metrics.}}{96}{table.7.12}%
+\contentsline {table}{\numberline {7.13}{\ignorespaces Requirements traceability.}}{97}{table.7.13}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {9.1}{\ignorespaces The experiments reported in this chapter.}}{100}{table.9.1}%
+\contentsline {table}{\numberline {9.2}{\ignorespaces Enforcement and retrieval cost.}}{101}{table.9.2}%
+\contentsline {table}{\numberline {9.3}{\ignorespaces Time to scan and to index a folder, by size.}}{101}{table.9.3}%
+\contentsline {table}{\numberline {9.4}{\ignorespaces Results of the two hands-on rounds.}}{102}{table.9.4}%
+\contentsline {table}{\numberline {9.5}{\ignorespaces Session verdicts by area and stage gate status.}}{103}{table.9.5}%
+\contentsline {table}{\numberline {9.6}{\ignorespaces Stated trust, 30 prospective users.}}{106}{table.9.6}%
+\contentsline {table}{\numberline {9.7}{\ignorespaces Persona simulation results.}}{107}{table.9.7}%
+\contentsline {table}{\numberline {9.8}{\ignorespaces Assessment of the central hypothesis.}}{108}{table.9.8}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {10.1}{\ignorespaces Status of the project objectives.}}{111}{table.10.1}%
+\contentsline {table}{\numberline {10.2}{\ignorespaces Plan of work for the second phase.}}{114}{table.10.2}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {A.1}{\ignorespaces Respondent role and work frequency.}}{120}{table.A.1}%
+\contentsline {table}{\numberline {A.2}{\ignorespaces Selected measures by respondent segment.}}{122}{table.A.2}%

@@ -46,91 +46,91 @@
 \contentsline {subsection}{\numberline {4.7.1}Hardware Requirements}{37}{subsection.4.7.1}%
 \contentsline {subsection}{\numberline {4.7.2}Software Requirements}{38}{subsection.4.7.2}%
 \contentsline {section}{\numberline {4.8}Graphical User Interface}{39}{section.4.8}%
-\contentsline {section}{\numberline {4.9}Database Design}{45}{section.4.9}%
-\contentsline {subsection}{\numberline {4.9.1}ER Diagram}{45}{subsection.4.9.1}%
+\contentsline {section}{\numberline {4.9}Database Design}{44}{section.4.9}%
+\contentsline {subsection}{\numberline {4.9.1}ER Diagram}{44}{subsection.4.9.1}%
 \contentsline {subsection}{\numberline {4.9.2}Data Dictionary}{46}{subsection.4.9.2}%
 \contentsline {section}{\numberline {4.10}Risk Analysis}{47}{section.4.10}%
-\contentsline {section}{\numberline {4.11}Conclusion}{49}{section.4.11}%
-\contentsline {chapter}{\numberline {5}Proposed Approach and Methodology}{50}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Overall Approach}{50}{section.5.1}%
-\contentsline {section}{\numberline {5.2}The Risk Classification Procedure}{51}{section.5.2}%
-\contentsline {section}{\numberline {5.3}The Recovery Procedure}{52}{section.5.3}%
-\contentsline {section}{\numberline {5.4}The Prompt Injection Defence}{53}{section.5.4}%
-\contentsline {section}{\numberline {5.5}Development Methods}{53}{section.5.5}%
-\contentsline {section}{\numberline {5.6}Evaluation Methodology}{55}{section.5.6}%
-\contentsline {section}{\numberline {5.7}Conclusion}{56}{section.5.7}%
-\contentsline {chapter}{\numberline {6}High-Level and Low-Level Design}{57}{chapter.6}%
-\contentsline {section}{\numberline {6.1}System Overview}{57}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Design Considerations}{58}{section.6.2}%
-\contentsline {subsection}{\numberline {6.2.1}Assumptions and Dependencies}{58}{subsection.6.2.1}%
-\contentsline {subsection}{\numberline {6.2.2}General Constraints}{59}{subsection.6.2.2}%
-\contentsline {subsection}{\numberline {6.2.3}Goals and Guidelines}{60}{subsection.6.2.3}%
-\contentsline {subsection}{\numberline {6.2.4}Development Methods}{60}{subsection.6.2.4}%
-\contentsline {section}{\numberline {6.3}System Architecture}{61}{section.6.3}%
-\contentsline {subsection}{\numberline {6.3.1}Subsystem Architecture: The Gateway}{63}{subsection.6.3.1}%
-\contentsline {subsection}{\numberline {6.3.2}Subsystem Architecture: Capability Services}{67}{subsection.6.3.2}%
-\contentsline {section}{\numberline {6.4}Architectural Strategies}{69}{section.6.4}%
-\contentsline {subsection}{\numberline {6.4.1}Local-First Operation with Optional Egress}{69}{subsection.6.4.1}%
+\contentsline {section}{\numberline {4.11}Conclusion}{48}{section.4.11}%
+\contentsline {chapter}{\numberline {5}Proposed Approach and Methodology}{49}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Overall Approach}{49}{section.5.1}%
+\contentsline {section}{\numberline {5.2}The Risk Classification Procedure}{50}{section.5.2}%
+\contentsline {section}{\numberline {5.3}The Recovery Procedure}{51}{section.5.3}%
+\contentsline {section}{\numberline {5.4}The Prompt Injection Defence}{52}{section.5.4}%
+\contentsline {section}{\numberline {5.5}Development Methods}{52}{section.5.5}%
+\contentsline {section}{\numberline {5.6}Evaluation Methodology}{54}{section.5.6}%
+\contentsline {section}{\numberline {5.7}Conclusion}{55}{section.5.7}%
+\contentsline {chapter}{\numberline {6}High-Level and Low-Level Design}{56}{chapter.6}%
+\contentsline {section}{\numberline {6.1}System Overview}{56}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Design Considerations}{56}{section.6.2}%
+\contentsline {subsection}{\numberline {6.2.1}Assumptions and Dependencies}{56}{subsection.6.2.1}%
+\contentsline {subsection}{\numberline {6.2.2}General Constraints}{57}{subsection.6.2.2}%
+\contentsline {subsection}{\numberline {6.2.3}Goals and Guidelines}{58}{subsection.6.2.3}%
+\contentsline {subsection}{\numberline {6.2.4}Development Methods}{58}{subsection.6.2.4}%
+\contentsline {section}{\numberline {6.3}System Architecture}{60}{section.6.3}%
+\contentsline {subsection}{\numberline {6.3.1}Subsystem Architecture: The Gateway}{62}{subsection.6.3.1}%
+\contentsline {subsection}{\numberline {6.3.2}Subsystem Architecture: Capability Services}{64}{subsection.6.3.2}%
+\contentsline {section}{\numberline {6.4}Architectural Strategies}{68}{section.6.4}%
+\contentsline {subsection}{\numberline {6.4.1}Local-First Operation with Optional Egress}{68}{subsection.6.4.1}%
 \contentsline {subsection}{\numberline {6.4.2}Separation of Memory from the File Index}{70}{subsection.6.4.2}%
-\contentsline {subsection}{\numberline {6.4.3}Disclosure as a Live Query}{71}{subsection.6.4.3}%
+\contentsline {subsection}{\numberline {6.4.3}Disclosure as a Live Query}{70}{subsection.6.4.3}%
 \contentsline {subsection}{\numberline {6.4.4}The Remote Plane as a Detachable Component}{72}{subsection.6.4.4}%
 \contentsline {subsection}{\numberline {6.4.5}Asynchrony with Bounded Queues}{73}{subsection.6.4.5}%
 \contentsline {section}{\numberline {6.5}Domain Model/Class Diagram}{74}{section.6.5}%
 \contentsline {section}{\numberline {6.6}Policies and Tactics}{75}{section.6.6}%
-\contentsline {subsection}{\numberline {6.6.1}Refusal as the Default Failure Mode}{76}{subsection.6.6.1}%
-\contentsline {subsection}{\numberline {6.6.2}Single Enforcement Points}{76}{subsection.6.6.2}%
-\contentsline {subsection}{\numberline {6.6.3}Ordering Constraints}{76}{subsection.6.6.3}%
-\contentsline {subsection}{\numberline {6.6.4}Testing Strategy}{76}{subsection.6.6.4}%
+\contentsline {subsection}{\numberline {6.6.1}Refusal as the Default Failure Mode}{75}{subsection.6.6.1}%
+\contentsline {subsection}{\numberline {6.6.2}Single Enforcement Points}{75}{subsection.6.6.2}%
+\contentsline {subsection}{\numberline {6.6.3}Ordering Constraints}{77}{subsection.6.6.3}%
+\contentsline {subsection}{\numberline {6.6.4}Testing Strategy}{77}{subsection.6.6.4}%
 \contentsline {subsection}{\numberline {6.6.5}Concurrency Handling}{77}{subsection.6.6.5}%
 \contentsline {subsection}{\numberline {6.6.6}Source Organisation}{77}{subsection.6.6.6}%
-\contentsline {section}{\numberline {6.7}Conclusion}{77}{section.6.7}%
-\contentsline {chapter}{\numberline {7}Implementation and Test Cases}{78}{chapter.7}%
-\contentsline {section}{\numberline {7.1}Implementation}{78}{section.7.1}%
-\contentsline {subsection}{\numberline {7.1.1}Scope and Status of the Prototype}{78}{subsection.7.1.1}%
-\contentsline {subsection}{\numberline {7.1.2}Platform and Interfaces}{79}{subsection.7.1.2}%
-\contentsline {subsection}{\numberline {7.1.3}Implementation of the Workspace Broker}{80}{subsection.7.1.3}%
-\contentsline {subsection}{\numberline {7.1.4}Implementation of the Policy Engine and Approval Broker}{81}{subsection.7.1.4}%
-\contentsline {subsection}{\numberline {7.1.5}Implementation of the Dispatcher and the Undo Journal}{81}{subsection.7.1.5}%
-\contentsline {subsection}{\numberline {7.1.6}Implementation of the Gateway}{82}{subsection.7.1.6}%
-\contentsline {subsection}{\numberline {7.1.7}Implementation of Indexing, Retrieval and Grounding}{82}{subsection.7.1.7}%
-\contentsline {subsection}{\numberline {7.1.8}Implementation of the Capability Services}{83}{subsection.7.1.8}%
-\contentsline {subsection}{\numberline {7.1.9}Implementation of Disclosure}{83}{subsection.7.1.9}%
-\contentsline {subsection}{\numberline {7.1.10}Implementation of Speech}{83}{subsection.7.1.10}%
-\contentsline {subsection}{\numberline {7.1.11}Implementation of the Remote Plane}{84}{subsection.7.1.11}%
-\contentsline {subsection}{\numberline {7.1.12}Implementation of the User Interface}{84}{subsection.7.1.12}%
-\contentsline {section}{\numberline {7.2}Test case Design and description}{84}{section.7.2}%
-\contentsline {subsection}{\numberline {7.2.1}Test Cases}{85}{subsection.7.2.1}%
-\contentsline {section}{\numberline {7.3}Test Metrics}{94}{section.7.3}%
-\contentsline {subsection}{\numberline {7.3.1}Traceability Matrix}{95}{subsection.7.3.1}%
-\contentsline {section}{\numberline {7.4}Conclusion}{96}{section.7.4}%
-\contentsline {chapter}{\numberline {8}User Manual}{97}{chapter.8}%
-\contentsline {section}{\numberline {8.1}Conclusion}{97}{section.8.1}%
-\contentsline {chapter}{\numberline {9}Experimental Results and Discussion}{98}{chapter.9}%
-\contentsline {section}{\numberline {9.1}E1: Automated Gate and Unit Tests}{98}{section.9.1}%
-\contentsline {section}{\numberline {9.2}E2: Performance Measurements}{99}{section.9.2}%
-\contentsline {section}{\numberline {9.3}E3: Hands-on Rounds Through the Interface}{100}{section.9.3}%
-\contentsline {section}{\numberline {9.4}E4: Exploratory Interface Campaign}{101}{section.9.4}%
-\contentsline {section}{\numberline {9.5}E5: Observations of Prospective Users}{103}{section.9.5}%
-\contentsline {section}{\numberline {9.6}E6: Exploratory Persona Simulation}{104}{section.9.6}%
-\contentsline {section}{\numberline {9.7}Discussion}{106}{section.9.7}%
-\contentsline {subsection}{\numberline {9.7.1}Findings against the Central Hypothesis}{106}{subsection.9.7.1}%
-\contentsline {subsection}{\numberline {9.7.2}Findings against the Research Question}{106}{subsection.9.7.2}%
-\contentsline {subsection}{\numberline {9.7.3}Threats to Validity}{107}{subsection.9.7.3}%
-\contentsline {subsection}{\numberline {9.7.4}Evaluation Not Yet Done}{107}{subsection.9.7.4}%
-\contentsline {section}{\numberline {9.8}Conclusion}{107}{section.9.8}%
-\contentsline {chapter}{\numberline {10}Conclusions}{108}{chapter.10}%
-\contentsline {section}{\numberline {10.1}Summary of the Work Done}{108}{section.10.1}%
-\contentsline {section}{\numberline {10.2}Findings and Results}{108}{section.10.2}%
-\contentsline {section}{\numberline {10.3}Coverage of the Scope and Objectives}{108}{section.10.3}%
-\contentsline {section}{\numberline {10.4}Challenges Faced}{109}{section.10.4}%
-\contentsline {section}{\numberline {10.5}What Has Been Left Out and Why}{110}{section.10.5}%
-\contentsline {section}{\numberline {10.6}Recommendations and Future Work}{110}{section.10.6}%
-\contentsline {section}{\numberline {10.7}Plan for FYP-II}{110}{section.10.7}%
-\contentsline {section}{\numberline {10.8}Conclusion of the Report}{112}{section.10.8}%
-\contentsline {chapter}{\numberline {A}Research Instruments and Response Distributions}{117}{appendix.A}%
-\contentsline {section}{\numberline {A.1}Research Method}{117}{section.A.1}%
-\contentsline {section}{\numberline {A.2}Respondent Profile}{117}{section.A.2}%
-\contentsline {section}{\numberline {A.3}Headline Findings}{118}{section.A.3}%
-\contentsline {section}{\numberline {A.4}Segment Analysis}{119}{section.A.4}%
-\contentsline {section}{\numberline {A.5}Interview Findings}{119}{section.A.5}%
-\contentsline {section}{\numberline {A.6}Additional Response Distributions}{120}{section.A.6}%
+\contentsline {section}{\numberline {6.7}Conclusion}{78}{section.6.7}%
+\contentsline {chapter}{\numberline {7}Implementation and Test Cases}{79}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Implementation}{79}{section.7.1}%
+\contentsline {subsection}{\numberline {7.1.1}Scope and Status of the Prototype}{79}{subsection.7.1.1}%
+\contentsline {subsection}{\numberline {7.1.2}Platform and Interfaces}{80}{subsection.7.1.2}%
+\contentsline {subsection}{\numberline {7.1.3}Implementation of the Workspace Broker}{81}{subsection.7.1.3}%
+\contentsline {subsection}{\numberline {7.1.4}Implementation of the Policy Engine and Approval Broker}{82}{subsection.7.1.4}%
+\contentsline {subsection}{\numberline {7.1.5}Implementation of the Dispatcher and the Undo Journal}{82}{subsection.7.1.5}%
+\contentsline {subsection}{\numberline {7.1.6}Implementation of the Gateway}{83}{subsection.7.1.6}%
+\contentsline {subsection}{\numberline {7.1.7}Implementation of Indexing, Retrieval and Grounding}{83}{subsection.7.1.7}%
+\contentsline {subsection}{\numberline {7.1.8}Implementation of the Capability Services}{84}{subsection.7.1.8}%
+\contentsline {subsection}{\numberline {7.1.9}Implementation of Disclosure}{84}{subsection.7.1.9}%
+\contentsline {subsection}{\numberline {7.1.10}Implementation of Speech}{84}{subsection.7.1.10}%
+\contentsline {subsection}{\numberline {7.1.11}Implementation of the Remote Plane}{85}{subsection.7.1.11}%
+\contentsline {subsection}{\numberline {7.1.12}Implementation of the User Interface}{85}{subsection.7.1.12}%
+\contentsline {section}{\numberline {7.2}Test case Design and description}{85}{section.7.2}%
+\contentsline {subsection}{\numberline {7.2.1}Test Cases}{86}{subsection.7.2.1}%
+\contentsline {section}{\numberline {7.3}Test Metrics}{95}{section.7.3}%
+\contentsline {subsection}{\numberline {7.3.1}Traceability Matrix}{96}{subsection.7.3.1}%
+\contentsline {section}{\numberline {7.4}Conclusion}{97}{section.7.4}%
+\contentsline {chapter}{\numberline {8}User Manual}{98}{chapter.8}%
+\contentsline {section}{\numberline {8.1}Conclusion}{98}{section.8.1}%
+\contentsline {chapter}{\numberline {9}Experimental Results and Discussion}{99}{chapter.9}%
+\contentsline {section}{\numberline {9.1}E1: Automated Gate and Unit Tests}{99}{section.9.1}%
+\contentsline {section}{\numberline {9.2}E2: Performance Measurements}{100}{section.9.2}%
+\contentsline {section}{\numberline {9.3}E3: Hands-on Rounds Through the Interface}{101}{section.9.3}%
+\contentsline {section}{\numberline {9.4}E4: Exploratory Interface Campaign}{102}{section.9.4}%
+\contentsline {section}{\numberline {9.5}E5: Observations of Prospective Users}{105}{section.9.5}%
+\contentsline {section}{\numberline {9.6}E6: Exploratory Persona Simulation}{106}{section.9.6}%
+\contentsline {section}{\numberline {9.7}Discussion}{107}{section.9.7}%
+\contentsline {subsection}{\numberline {9.7.1}Findings against the Central Hypothesis}{107}{subsection.9.7.1}%
+\contentsline {subsection}{\numberline {9.7.2}Findings against the Research Question}{108}{subsection.9.7.2}%
+\contentsline {subsection}{\numberline {9.7.3}Threats to Validity}{108}{subsection.9.7.3}%
+\contentsline {subsection}{\numberline {9.7.4}Evaluation Not Yet Done}{108}{subsection.9.7.4}%
+\contentsline {section}{\numberline {9.8}Conclusion}{108}{section.9.8}%
+\contentsline {chapter}{\numberline {10}Conclusions}{110}{chapter.10}%
+\contentsline {section}{\numberline {10.1}Summary of the Work Done}{110}{section.10.1}%
+\contentsline {section}{\numberline {10.2}Findings and Results}{110}{section.10.2}%
+\contentsline {section}{\numberline {10.3}Coverage of the Scope and Objectives}{110}{section.10.3}%
+\contentsline {section}{\numberline {10.4}Challenges Faced}{111}{section.10.4}%
+\contentsline {section}{\numberline {10.5}What Has Been Left Out and Why}{112}{section.10.5}%
+\contentsline {section}{\numberline {10.6}Recommendations and Future Work}{112}{section.10.6}%
+\contentsline {section}{\numberline {10.7}Plan for FYP-II}{112}{section.10.7}%
+\contentsline {section}{\numberline {10.8}Conclusion of the Report}{114}{section.10.8}%
+\contentsline {chapter}{\numberline {A}Research Instruments and Response Distributions}{119}{appendix.A}%
+\contentsline {section}{\numberline {A.1}Research Method}{119}{section.A.1}%
+\contentsline {section}{\numberline {A.2}Respondent Profile}{119}{section.A.2}%
+\contentsline {section}{\numberline {A.3}Headline Findings}{120}{section.A.3}%
+\contentsline {section}{\numberline {A.4}Segment Analysis}{121}{section.A.4}%
+\contentsline {section}{\numberline {A.5}Interview Findings}{121}{section.A.5}%
+\contentsline {section}{\numberline {A.6}Additional Response Distributions}{122}{section.A.6}%

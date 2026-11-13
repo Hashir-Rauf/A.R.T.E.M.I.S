@@ -13,43 +13,43 @@
 \contentsline {figure}{\numberline {4.2}{\ignorespaces Navigation flow of the control panel.}}{40}{figure.caption.9}%
 \contentsline {figure}{\numberline {4.3}{\ignorespaces Work screen: ask, tidy and voice.}}{40}{figure.caption.10}%
 \contentsline {figure}{\numberline {4.4}{\ignorespaces Folders screen: add and list folders.}}{41}{figure.caption.11}%
-\contentsline {figure}{\numberline {4.5}{\ignorespaces What it knows screen: see and erase.}}{42}{figure.caption.12}%
-\contentsline {figure}{\numberline {4.6}{\ignorespaces A tidy-up, its approval and its undo.}}{42}{figure.caption.13}%
-\contentsline {figure}{\numberline {4.7}{\ignorespaces Approval card for a tidy-up plan.}}{43}{figure.caption.14}%
+\contentsline {figure}{\numberline {4.5}{\ignorespaces What it knows screen: see and erase.}}{41}{figure.caption.12}%
+\contentsline {figure}{\numberline {4.6}{\ignorespaces Approval card for a tidy-up plan.}}{42}{figure.caption.13}%
+\contentsline {figure}{\numberline {4.7}{\ignorespaces A tidy-up, its approval and its undo.}}{42}{figure.caption.14}%
 \contentsline {figure}{\numberline {4.8}{\ignorespaces Settings screen: data location and cloud models.}}{43}{figure.caption.15}%
-\contentsline {figure}{\numberline {4.9}{\ignorespaces Remote access controls in Settings.}}{44}{figure.caption.16}%
+\contentsline {figure}{\numberline {4.9}{\ignorespaces Remote access controls in Settings.}}{43}{figure.caption.16}%
 \contentsline {figure}{\numberline {4.10}{\ignorespaces The Work screen in the dark theme.}}{44}{figure.caption.17}%
-\contentsline {figure}{\numberline {4.11}{\ignorespaces Entity relationship diagram.}}{46}{figure.caption.18}%
+\contentsline {figure}{\numberline {4.11}{\ignorespaces Entity relationship diagram.}}{45}{figure.caption.18}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {6.1}{\ignorespaces The layered architecture.}}{58}{figure.caption.19}%
-\contentsline {figure}{\numberline {6.2}{\ignorespaces The request lifecycle.}}{62}{figure.caption.20}%
-\contentsline {figure}{\numberline {6.3}{\ignorespaces Internal structure of the gateway.}}{63}{figure.caption.21}%
-\contentsline {figure}{\numberline {6.4}{\ignorespaces Tier selection and the egress gate.}}{64}{figure.caption.22}%
-\contentsline {figure}{\numberline {6.5}{\ignorespaces The four risk tiers.}}{65}{figure.caption.23}%
+\contentsline {figure}{\numberline {6.1}{\ignorespaces The layered architecture.}}{59}{figure.caption.19}%
+\contentsline {figure}{\numberline {6.2}{\ignorespaces The request lifecycle.}}{61}{figure.caption.20}%
+\contentsline {figure}{\numberline {6.3}{\ignorespaces Internal structure of the gateway.}}{62}{figure.caption.21}%
+\contentsline {figure}{\numberline {6.4}{\ignorespaces Tier selection and the egress gate.}}{63}{figure.caption.22}%
+\contentsline {figure}{\numberline {6.5}{\ignorespaces The four risk tiers.}}{64}{figure.caption.23}%
 \contentsline {figure}{\numberline {6.6}{\ignorespaces Context assembly.}}{65}{figure.caption.24}%
-\contentsline {figure}{\numberline {6.7}{\ignorespaces Policy evaluation order.}}{66}{figure.caption.25}%
+\contentsline {figure}{\numberline {6.7}{\ignorespaces Policy evaluation order.}}{65}{figure.caption.25}%
 \contentsline {figure}{\numberline {6.8}{\ignorespaces A worked classification for a folder tidy.}}{66}{figure.caption.26}%
 \contentsline {figure}{\numberline {6.9}{\ignorespaces Capability services and their access path.}}{67}{figure.caption.27}%
 \contentsline {figure}{\numberline {6.10}{\ignorespaces Path resolution and confinement.}}{69}{figure.caption.28}%
-\contentsline {figure}{\numberline {6.11}{\ignorespaces Five kinds of memory.}}{70}{figure.caption.29}%
+\contentsline {figure}{\numberline {6.11}{\ignorespaces Five kinds of memory.}}{71}{figure.caption.29}%
 \contentsline {figure}{\numberline {6.12}{\ignorespaces The file index compared with system memory.}}{71}{figure.caption.30}%
 \contentsline {figure}{\numberline {6.13}{\ignorespaces The remote access plane.}}{72}{figure.caption.31}%
 \contentsline {figure}{\numberline {6.14}{\ignorespaces The pairing handshake.}}{73}{figure.caption.32}%
 \contentsline {figure}{\numberline {6.15}{\ignorespaces Asynchrony and background progress.}}{74}{figure.caption.33}%
-\contentsline {figure}{\numberline {6.16}{\ignorespaces Class diagram.}}{75}{figure.caption.34}%
+\contentsline {figure}{\numberline {6.16}{\ignorespaces Class diagram.}}{76}{figure.caption.34}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {9.1}{\ignorespaces Defects by severity and session verdicts.}}{102}{figure.caption.35}%
-\contentsline {figure}{\numberline {9.2}{\ignorespaces Stated trust among 30 prospective users.}}{104}{figure.caption.36}%
+\contentsline {figure}{\numberline {9.1}{\ignorespaces Results of the interface campaign.}}{103}{figure.caption.35}%
+\contentsline {figure}{\numberline {9.2}{\ignorespaces Stated trust among 30 prospective users.}}{105}{figure.caption.36}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {A.1}{\ignorespaces Coded interview responses (13 interviews).}}{120}{figure.caption.38}%
-\contentsline {figure}{\numberline {A.2}{\ignorespaces Agreement that files become disorganised.}}{120}{figure.caption.39}%
-\contentsline {figure}{\numberline {A.3}{\ignorespaces Agreement on workspace-only trust.}}{121}{figure.caption.40}%
-\contentsline {figure}{\numberline {A.4}{\ignorespaces Local versus cloud preference.}}{121}{figure.caption.41}%
-\contentsline {figure}{\numberline {A.5}{\ignorespaces Response to a single wrong or unwanted suggestion.}}{121}{figure.caption.42}%
-\contentsline {figure}{\numberline {A.6}{\ignorespaces Likelihood of continued use after the novelty.}}{122}{figure.caption.43}%
-\contentsline {figure}{\numberline {A.7}{\ignorespaces Most likely reason for stopping after a week.}}{122}{figure.caption.44}%
-\contentsline {figure}{\numberline {A.8}{\ignorespaces Recurring themes in free-text responses.}}{122}{figure.caption.45}%
+\contentsline {figure}{\numberline {A.1}{\ignorespaces Coded interview responses (13 interviews).}}{122}{figure.caption.38}%
+\contentsline {figure}{\numberline {A.2}{\ignorespaces Agreement that files become disorganised.}}{122}{figure.caption.39}%
+\contentsline {figure}{\numberline {A.3}{\ignorespaces Agreement on workspace-only trust.}}{123}{figure.caption.40}%
+\contentsline {figure}{\numberline {A.4}{\ignorespaces Local versus cloud preference.}}{123}{figure.caption.41}%
+\contentsline {figure}{\numberline {A.5}{\ignorespaces Response to a single wrong or unwanted suggestion.}}{123}{figure.caption.42}%
+\contentsline {figure}{\numberline {A.6}{\ignorespaces Likelihood of continued use after the novelty.}}{124}{figure.caption.43}%
+\contentsline {figure}{\numberline {A.7}{\ignorespaces Most likely reason for stopping after a week.}}{124}{figure.caption.44}%
+\contentsline {figure}{\numberline {A.8}{\ignorespaces Recurring themes in free-text responses.}}{124}{figure.caption.45}%

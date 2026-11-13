@@ -15,11 +15,11 @@
 
 \makeatletter
     \begin{titlepage}
-        \includegraphics[width=0.2\linewidth,height=0.36\textheight,keepaspectratio]{Figures/nulogo.png}\hfill
-        \includegraphics[width=0.2\linewidth,height=0.36\textheight,keepaspectratio]{Figures/fast.png}\\
+        \includegraphics[width=0.2\linewidth]{Figures/nulogo.png}\hfill
+        \includegraphics[width=0.2\linewidth]{Figures/fast.png}\\
         \begin{center}
             {\large\bfseries \university}\\[7ex]
-            \includegraphics[width=0.4\linewidth,height=0.36\textheight,keepaspectratio]{Figures/fastlogo.png}\\[8ex]
+            \includegraphics[width=0.4\linewidth]{Figures/fastlogo.png}\\[8ex]
             {\huge \bfseries  \fyptitle }\\[10ex]
             {\Studentone}\\{\Studenttwo}\\{\Studentthree}\\[4ex]
             {Supervisor: \supervisor} \\ [10ex]
@@ -170,7 +170,7 @@ Our questionnaire confirms that this describes the target population accurately.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth,height=0.36\textheight,keepaspectratio]{Figures/fig_profile.pdf}
+    \includegraphics[width=\textwidth]{Figures/fig_profile.pdf}
     \caption{Respondent role and work frequency.}
     \label{fig:profile}
 \end{figure}
@@ -197,7 +197,7 @@ The second is accumulated file disorder. Organisation decays continuously and is
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.82\textwidth,height=0.36\textheight,keepaspectratio]{Figures/fig_return_struggle.pdf}
+    \includegraphics[width=0.82\textwidth]{Figures/fig_return_struggle.pdf}
     \caption{Difficulty resuming work after a break.}
     \label{fig:return}
 \end{figure}
@@ -206,7 +206,7 @@ The third is the cost of routine manual work, which is individually small and co
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.82\textwidth,height=0.36\textheight,keepaspectratio]{Figures/fig_time_lost.pdf}
+    \includegraphics[width=0.82\textwidth]{Figures/fig_time_lost.pdf}
     \caption{Estimated time lost per week.}
     \label{fig:time}
 \end{figure}
@@ -217,7 +217,7 @@ The fourth is that this work remains unautomated for reasons of trust and knowle
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.82\textwidth,height=0.36\textheight,keepaspectratio]{Figures/fig_why_not_automated.pdf}
+    \includegraphics[width=0.82\textwidth]{Figures/fig_why_not_automated.pdf}
     \caption{Reasons for not automating repeated manual tasks.}
     \label{fig:whynot}
 \end{figure}
@@ -370,7 +370,7 @@ Users are divided on how much they wish to be asked. The questionnaire presented
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.72\textwidth,height=0.36\textheight,keepaspectratio]{Figures/fig_assistant_pref.pdf}
+    \includegraphics[width=0.72\textwidth]{Figures/fig_assistant_pref.pdf}
     \caption{Approval-first versus act-then-undo.}
     \label{fig:pref}
 \end{figure}
@@ -578,7 +578,7 @@ The measured demand that determines this order is shown in Figure~\ref{fig:featu
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth,height=0.36\textheight,keepaspectratio]{Figures/fig_features.pdf}
+    \includegraphics[width=\textwidth]{Figures/fig_features.pdf}
     \caption{Feature demand (n = 374).}
     \label{fig:features}
 \end{figure}
@@ -954,41 +954,43 @@ The Work screen is where a request begins. The user chooses a folder, types or s
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.75\textwidth]{Figures/s_work.png}
+\includegraphics[width=0.64\textwidth]{Figures/s_work.png}
 \caption{Work screen: ask, tidy and voice.}
 \label{fig:gui}
 \end{figure}
 
 The Folders screen lets the user opt a folder in by typing its path or browsing to it. Each granted folder is listed with the number of files it holds, the permission it carries and whether cloud models are allowed for it. A folder that has not been added here cannot be seen by the assistant at all.
 
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.64\textwidth]{Figures/s_folders.png}
+\caption{Folders screen: add and list folders.}
+\label{fig:gui2}
+\end{figure}
 
 The What it knows screen implements the disclosure requirement. For the chosen folder it lists every file the assistant has indexed, offers a check for changes, and offers a button that forgets the folder. Forgetting removes what the assistant holds and never touches the user's own files.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.75\textwidth]{Figures/s_folders.png}
-\caption{Folders screen: add and list folders.}
-\label{fig:gui2}
+\includegraphics[width=0.64\textwidth]{Figures/s_knows.png}
+\caption{What it knows screen: see and erase.}
+\label{fig:gui3}
 \end{figure}
-
 
 When a request would change files, the assistant does not act. It shows a plan in plain words and three choices: Approve, Approve and do not ask again for this kind of change, or No, leave it. Nothing has happened until the user presses one of them.
 
-
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.64\textwidth]{Figures/s_approval.png}
+\caption{Approval card for a tidy-up plan.}
+\label{fig:gui4}
+\end{figure}
 
 After approval the assistant reports what it did, and the Undo last change button reverses the whole plan as one unit. Here a tidy-up that created two folders and moved twelve files is undone in a single step.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.75\textwidth]{Figures/s_knows.png}
-\caption{What it knows screen: see and erase.}
-\label{fig:gui3}
-\end{figure}
-
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.75\textwidth]{Figures/s_undo.png}
+\includegraphics[width=0.64\textwidth]{Figures/s_undo.png}
 \caption{A tidy-up, its approval and its undo.}
 \label{fig:gui5}
 \end{figure}
@@ -997,24 +999,16 @@ The Settings screen holds the choices that are not part of everyday use: where t
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.75\textwidth]{Figures/s_approval.png}
-\caption{Approval card for a tidy-up plan.}
-\label{fig:gui4}
+\includegraphics[width=0.64\textwidth]{Figures/s_settings.png}
+\caption{Settings screen: data location and cloud models.}
+\label{fig:gui6}
 \end{figure}
-
 
 Remote access is optional and off until the user connects to a relay. The screen states that messages are scrambled on the phone and only unscrambled on the computer, and it lists the folders a paired device may use, none by default.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.75\textwidth]{Figures/s_settings.png}
-\caption{Settings screen: data location and cloud models.}
-\label{fig:gui6}
-\end{figure}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.75\textwidth]{Figures/s_remote.png}
+\includegraphics[width=0.64\textwidth]{Figures/s_remote.png}
 \caption{Remote access controls in Settings.}
 \label{fig:gui7}
 \end{figure}
@@ -1023,12 +1017,10 @@ The interface can be switched between a light and a dark theme with one button, 
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.75\textwidth]{Figures/s_dark.png}
+\includegraphics[width=0.64\textwidth]{Figures/s_dark.png}
 \caption{The Work screen in the dark theme.}
 \label{fig:gui8}
 \end{figure}
-
-
 
 \section{Database Design}
 The system uses SQLite as its system of record together with a per-workspace vector index held on the filesystem. The relational store is small and highly normalised, and every table other than the workspace table is subordinate to a grant, which is what permits revocation to be expressed as a single cascading deletion.
@@ -1039,9 +1031,9 @@ The entity relationship structure is centred on the workspace entity. A workspac
 
 This arrangement expresses two requirements structurally. FR-5 becomes the cascade, so that revoking a grant necessarily removes everything derived from it rather than relying on a cleanup routine that might be incomplete. FR-18 becomes the absence of a cascade on the audit log, so that the record of what occurred cannot be removed by removing its subject. Figure~\ref{fig:er} shows the resulting structure.
 
-\begin{figure}[H]
+\begin{figure}[p]
 \centering
-\includegraphics[height=0.5\textheight,keepaspectratio]{Figures/fig_er.pdf}
+\includegraphics[width=\textwidth]{Figures/fig_er.pdf}
 \caption{Entity relationship diagram.}
 \label{fig:er}
 \end{figure}
@@ -1289,12 +1281,6 @@ Layers one to five form the local execution path, the two planes cross every lay
 
 Security and performance are represented as planes rather than layers, and this is a deliberate representational choice. A layer is a stage a request passes through, and drawing security as a layer would imply that a request could be past security, which is precisely the reasoning error that produces confused-deputy defects. They are drawn as planes to indicate that every arrow in the architecture crosses both.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.92\textwidth]{Figures/fig_layers.pdf}
-    \caption{The layered architecture.}
-    \label{fig:layers}
-\end{figure}
 
 \section{Design Considerations}
 \subsection{Assumptions and Dependencies}
@@ -1327,6 +1313,13 @@ Four principles dominate the design, and the reason for each is stated because n
 
 A property must be structural rather than promised. Where a guarantee can be expressed as the absence of a code path rather than as a check, it is so expressed. This is why destructive operations have no approval dialogue: a check can be defeated by a defect or an unanticipated path, whereas an absent capability cannot.
 
+\begin{figure}[tbp]
+    \centering
+    \includegraphics[width=\textwidth]{Figures/fig_layers.pdf}
+    \caption{The layered architecture.}
+    \label{fig:layers}
+\end{figure}
+
 Each guarantee has exactly one enforcement point. Resolution occurs in the broker and nowhere else; execution occurs in the dispatcher and nowhere else. The reason is verification: a guarantee with two enforcement points has two opportunities to drift apart, and no single place at which it can be audited.
 
 Legibility is a component of trust. Background work reports visible, cancellable progress, the disclosure panel is a live query rather than a written summary, and the audit log records refusals as well as actions. The reason is that a system whose behaviour cannot be observed cannot be trusted regardless of its actual correctness.
@@ -1340,7 +1333,7 @@ The design was produced by deriving structure from the research findings and the
 The system's responsibilities are partitioned so that each guarantee is held by exactly one component. Table~\ref{tab:components} presents the component inventory, stating for each component its layer, its responsibility and the single thing it must never do. The final column is the operative one: it states the invariant whose violation would constitute a defect in the architecture rather than in the implementation.
 
 {\small
-\Needspace*{7\baselineskip}
+\Needspace*{12\baselineskip}
 \begin{longtable}{|p{0.6cm}|p{2.8cm}|p{0.9cm}|p{4.0cm}|p{4.2cm}|}
 \caption{Component inventory.}\label{tab:components}\\*
 \hline
@@ -1396,7 +1389,7 @@ The collaboration between these components is expressed by the request lifecycle
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.86\textwidth,height=0.36\textheight,keepaspectratio]{Figures/fig_lifecycle.pdf}
+    \includegraphics[width=\textwidth]{Figures/fig_lifecycle.pdf}
     \caption{The request lifecycle.}
     \label{fig:lifecycle}
 \end{figure}
@@ -1410,9 +1403,9 @@ The decomposition was chosen over two alternatives. A single orchestrating compo
 \subsection{Subsystem Architecture: The Gateway}
 The gateway is decomposed into four components with a single shared execution point, as shown in Figure~\ref{fig:gateway}. The planner produces a plan and cannot execute it; the dispatcher executes and cannot plan; the policy engine renders a verdict on each proposed call; and the router determines which model tier may be used and whether data may leave the machine.
 
-\begin{figure}[H]
+\begin{figure}[tbp]
     \centering
-    \includegraphics[width=0.68\textwidth,height=0.36\textheight,keepaspectratio]{Figures/fig_gateway.pdf}
+    \includegraphics[width=\textwidth]{Figures/fig_gateway.pdf}
     \caption{Internal structure of the gateway.}
     \label{fig:gateway}
 \end{figure}
@@ -1421,9 +1414,9 @@ The planner produces a plan but never executes it, and every call converges on t
 
 The model router owns tier selection and egress enforcement. Egress is enforced here, rather than in the tool layer or in the prompt, because the router is the component that knows a given workspace's cloud policy. Tier zero is the local model and is the default. Higher tiers are reachable only where the workspace permits, and any compatible endpoint may be registered as an additional tier without modification to the code, since providers are treated as configuration rather than as branches. Failover is bounded at one retry per tier before advancing, so a workspace with cloud disabled possesses exactly one tier and its failure produces a clean degradation message rather than an indefinite wait. Figure~\ref{fig:router} shows the selection and the egress gate.
 
-\begin{figure}[H]
+\begin{figure}[tbp]
     \centering
-    \includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{Figures/fig_router.pdf}
+    \includegraphics[width=\textwidth]{Figures/fig_router.pdf}
     \caption{Tier selection and the egress gate.}
     \label{fig:router}
 \end{figure}
@@ -1442,16 +1435,16 @@ The policy engine classifies each proposed call according to the procedure state
 
 Only the reversible tier is user-configurable; outward actions are always gated and destructive actions are structurally unavailable.
 
-\begin{figure}[H]
+\begin{figure}[tbp]
     \centering
-    \includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{Figures/fig_tiers.pdf}
+    \includegraphics[width=\textwidth]{Figures/fig_tiers.pdf}
     \caption{The four risk tiers.}
     \label{fig:tiers}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[tbp]
     \centering
-    \includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{Figures/fig_context.pdf}
+    \includegraphics[width=\textwidth]{Figures/fig_context.pdf}
     \caption{Context assembly.}
     \label{fig:context}
 \end{figure}
@@ -1462,16 +1455,16 @@ Denials are evaluated before gates and gates before permissions, so that the fir
 
 Figure~\ref{fig:approval} shows a worked classification for a folder tidy, in which the read steps execute automatically and the two state-changing steps are gated, producing a preview that states what will occur and, equally importantly, what will not.
 
-\begin{figure}[H]
+\begin{figure}[tbp]
     \centering
-    \includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{Figures/fig_policy_order.pdf}
+    \includegraphics[width=\textwidth]{Figures/fig_policy_order.pdf}
     \caption{Policy evaluation order.}
     \label{fig:policyorder}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[tbp]
     \centering
-    \includegraphics[width=0.62\textwidth,height=0.36\textheight,keepaspectratio]{Figures/fig_approval.pdf}
+    \includegraphics[width=\textwidth]{Figures/fig_approval.pdf}
     \caption{A worked classification for a folder tidy.}
     \label{fig:approval}
 \end{figure}
@@ -1483,9 +1476,9 @@ The agent planner produces plans using LangGraph and never executes them. Its re
 \subsection{Subsystem Architecture: Capability Services}
 The features are implemented as services behind a uniform tool contract. None touches the filesystem, the network or the database directly; each reaches them through the shared substrate of the broker, the journal, the approval broker and the data plane, as shown in Figure~\ref{fig:services}.
 
-\begin{figure}[H]
+\begin{figure}[tbp]
     \centering
-    \includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{Figures/fig_services.pdf}
+    \includegraphics[width=\textwidth]{Figures/fig_services.pdf}
     \caption{Capability services and their access path.}
     \label{fig:services}
 \end{figure}
@@ -1494,7 +1487,7 @@ Capability services are reachable only through the tool dispatcher and reach the
 
 Table~\ref{tab:services} states the highest tier each service may request. The table is a design constraint rather than a description: a service cannot request a tier above its stated maximum, which is what confines the consequences of a defect within any one feature.
 
-{\Needspace*{7\baselineskip}
+{\Needspace*{14\baselineskip}
 \begin{longtable}{|p{0.9cm}|p{3.4cm}|p{1.6cm}|p{6.4cm}|}
 \caption{Capability services and risk tiers.}\label{tab:services}\\*
 \hline
@@ -1535,12 +1528,6 @@ The workspace broker is the component that turns a logical reference into a real
 
 Canonicalisation occurs before the containment test, which is what distinguishes a boundary from a suggestion.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{Figures/fig_broker.pdf}
-    \caption{Path resolution and confinement.}
-    \label{fig:broker}
-\end{figure}
 
 \section{Architectural Strategies}
 This section states the strategies that shaped the architecture, the reasoning behind each, and the alternatives considered and rejected.
@@ -1550,10 +1537,17 @@ The system defaults to a local model and treats cloud access as a per-workspace 
 
 The alternative of cloud-first operation with a local fallback was rejected because it inverts the guarantee. Under that arrangement the default behaviour transmits user data and the user must act to prevent it, whereas the chosen arrangement requires action to permit it. The trade-off accepted is capability: a small local model performs less well than a large hosted one, which is mitigated by bounded failover where the workspace permits and by honest degradation where it does not.
 
+\begin{figure}[tbp]
+    \centering
+    \includegraphics[width=\textwidth]{Figures/fig_broker.pdf}
+    \caption{Path resolution and confinement.}
+    \label{fig:broker}
+\end{figure}
+
 The degradation contract in Table~\ref{tab:degradation} states the required behaviour as each external capability is withdrawn. Each row is a testable acceptance criterion rather than an aspiration, and together they define the system's correctness under adverse conditions.
 
 {\small
-\Needspace*{7\baselineskip}
+\Needspace*{12\baselineskip}
 \begin{longtable}{|p{4.6cm}|p{8.6cm}|}
 \caption{The degradation contract.}\label{tab:degradation}\\*
 \hline
@@ -1584,18 +1578,18 @@ Workspace grant & The system cannot see the folder. Not declines to touch it: th
 \subsection{Separation of Memory from the File Index}
 The system maintains two distinct kinds of knowledge, and conflating them is the error that converts a bounded assistant into a surveillance instrument. Figure~\ref{fig:memory} shows the five kinds of memory and Figure~\ref{fig:memoryindex} the distinction that matters.
 
-\begin{figure}[H]
+\begin{figure}[tbp]
     \centering
-    \includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{Figures/fig_memory.pdf}
+    \includegraphics[width=\textwidth]{Figures/fig_memory.pdf}
     \caption{Five kinds of memory.}
     \label{fig:memory}
 \end{figure}
 
 The kinds are distinguished by lifetime and by store, and all feed a single context engine that merges, budgets and asserts bounds.
 
-\begin{figure}[H]
+\begin{figure}[tbp]
     \centering
-    \includegraphics[width=\linewidth]{Figures/fig_memory_vs_index.pdf}
+    \includegraphics[width=\textwidth]{Figures/fig_memory_vs_index.pdf}
     \caption{The file index compared with system memory.}
     \label{fig:memoryindex}
 \end{figure}
@@ -1612,7 +1606,7 @@ The alternative of a periodically generated report was rejected because it would
 \subsection{The Remote Plane as a Detachable Component}
 The remote access plane is drawn outside the core stack, and the test of whether that separation is genuine is that removing the entire plane leaves a fully functional single-machine system. Figure~\ref{fig:remote} shows its structure and Figure~\ref{fig:pairing} the pairing handshake.
 
-\begin{figure}[H]
+\begin{figure}[tbp]
     \centering
     \includegraphics[width=0.92\textwidth]{Figures/fig_remote.pdf}
     \caption{The remote access plane.}
@@ -1624,9 +1618,9 @@ The durable object records which authenticated device is connected to which host
 
 Host-side confirmation is deliberate, so that possession of the pairing code alone is never sufficient to pair a device.
 
-\begin{figure}[H]
+\begin{figure}[tbp]
     \centering
-    \includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{Figures/fig_pairing.pdf}
+    \includegraphics[width=\textwidth]{Figures/fig_pairing.pdf}
     \caption{The pairing handshake.}
     \label{fig:pairing}
 \end{figure}
@@ -1639,9 +1633,9 @@ The interactive path remains thin and everything expensive is asynchronous, as s
 
 The interactive path never blocks on background work, and background progress is reported visibly and remains cancellable.
 
-\begin{figure}[H]
+\begin{figure}[tbp]
     \centering
-    \includegraphics[width=0.66\textwidth,height=0.36\textheight,keepaspectratio]{Figures/fig_performance.pdf}
+    \includegraphics[width=\textwidth]{Figures/fig_performance.pdf}
     \caption{Asynchrony and background progress.}
     \label{fig:performance}
 \end{figure}
@@ -1664,9 +1658,9 @@ The services are the WorkspaceBroker, which resolves references or refuses; the 
 
 Two relationships in this model carry the architecture's guarantees. The dispatcher depends upon the approval broker rather than accepting an approval flag from its caller, so that a service cannot assert its own permission. The dispatcher also resolves paths through the broker a second time, despite the policy engine having already done so, because the dispatcher must not depend upon an earlier component having performed its function correctly; that assumption is the substance of confused-deputy defects.
 
-\begin{figure}[H]
+\begin{figure}[p]
 \centering
-\includegraphics[height=0.45\textheight,keepaspectratio]{Figures/fig_class.pdf}
+\includegraphics[width=\textwidth]{Figures/fig_class.pdf}
 \caption{Class diagram.}
 \label{fig:class}
 \end{figure}
@@ -2452,12 +2446,12 @@ Conversation and everyday use & Issues & Issues & Issues & -- \\
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.92\textwidth,height=0.36\textheight,keepaspectratio]{Figures/fig_campaign.pdf}
-    \caption{Defects by severity and session verdicts.}
+    \includegraphics[width=\textwidth]{Figures/fig_campaign.pdf}
+    \caption{Results of the interface campaign.}
     \label{fig:campaign}
 \end{figure}
 
-\textbf{Results.} No session found a clean pass. Twenty-three sessions ended with the verdict pass with issues and four with fail. Of the 39 backlog stories and stage gates, 13 passed, 20 passed in part, 5 failed and one could not be tested. The sessions found 71 distinct defects, being 1 critical, 18 high, 37 medium and 15 low (Figure~\ref{fig:campaign}), together with 63 behaviours that work but that a user would not want.
+\textbf{Results.} Figure~\ref{fig:campaign} summarises the campaign. No session found a clean pass: none of the 27 sessions ended with the verdict pass, 23 ended with pass with issues and 4 with fail (panel b). Of the 39 backlog stories and stage gates, 13 passed, 20 passed in part, 5 failed and one could not be tested (panel c). The sessions reported 113 defects, which merged into 71 distinct defects, being 1 critical, 18 high, 37 medium and 15 low (panel a), together with 63 behaviours that work but that a user would not want. The reports were spread across all nine areas (panel d), with document and code understanding drawing the most (18) and speech input and output the fewest (9).
 
 \textbf{What held.} Across many phrasings the system never deleted anything and refused any attempt to reach outside the chosen folder in plain words. Nothing left the computer, by web search or mail, without an approval card, and double clicks and stale clicks did not run a plan twice. Code questions produced only a difference and never an edit. Voice could not approve, delete or send. A phone could not approve emails or searches, saw only the folders ticked for it, and could be removed instantly. Tidy previewed every step, undo worked in ordinary use, and the rule that automation is offered only after three repetitions was exact.
 
@@ -2799,7 +2793,7 @@ Figure~\ref{fig:interview} presents the coded interview responses. Ten of the th
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth,height=0.36\textheight,keepaspectratio]{Figures/fig_interview.pdf}
+    \includegraphics[width=\textwidth]{Figures/fig_interview.pdf}
     \caption{Coded interview responses (13 interviews).}
     \label{fig:interview}
 \end{figure}
@@ -2811,14 +2805,14 @@ Figures~\ref{fig:messy}, \ref{fig:wstrust}, \ref{fig:localcloud}, \ref{fig:mista
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.82\textwidth,height=0.36\textheight,keepaspectratio]{Figures/fig_messy_agree.pdf}
+    \includegraphics[width=0.82\textwidth]{Figures/fig_messy_agree.pdf}
     \caption{Agreement that files become disorganised.}
     \label{fig:messy}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.82\textwidth,height=0.36\textheight,keepaspectratio]{Figures/fig_workspace_trust.pdf}
+    \includegraphics[width=0.82\textwidth]{Figures/fig_workspace_trust.pdf}
     \caption{Agreement on workspace-only trust.}
     \label{fig:wstrust}
 \end{figure}
@@ -2832,28 +2826,28 @@ Figures~\ref{fig:messy}, \ref{fig:wstrust}, \ref{fig:localcloud}, \ref{fig:mista
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth,height=0.36\textheight,keepaspectratio]{Figures/fig_wrong_suggestion.pdf}
+    \includegraphics[width=\textwidth]{Figures/fig_wrong_suggestion.pdf}
     \caption{Response to a single wrong or unwanted suggestion.}
     \label{fig:mistake}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.82\textwidth,height=0.36\textheight,keepaspectratio]{Figures/fig_likely_use.pdf}
+    \includegraphics[width=0.82\textwidth]{Figures/fig_likely_use.pdf}
     \caption{Likelihood of continued use after the novelty.}
     \label{fig:likely}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth,height=0.36\textheight,keepaspectratio]{Figures/fig_stop_reason.pdf}
+    \includegraphics[width=\textwidth]{Figures/fig_stop_reason.pdf}
     \caption{Most likely reason for stopping after a week.}
     \label{fig:churn}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth,height=0.36\textheight,keepaspectratio]{Figures/fig_open_feedback_themes.pdf}
+    \includegraphics[width=\textwidth]{Figures/fig_open_feedback_themes.pdf}
     \caption{Recurring themes in free-text responses.}
     \label{fig:themes}
 \end{figure}
