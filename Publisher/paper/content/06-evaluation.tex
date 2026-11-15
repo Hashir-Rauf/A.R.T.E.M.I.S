@@ -11,20 +11,20 @@ A script timed the enforcement path and retrieval on one Windows 10 machine with
 
 \begin{table}[t]
   \centering
-  \small
-  \caption{Enforcement and retrieval cost in milliseconds; medians of 300 to 2,000 repetitions on one machine.}
+  \footnotesize
+  \caption{Enforcement and retrieval cost in milliseconds; medians of 300 to 2,000 repetitions on one machine. Refusals include the audit-log write.}
   \label{tab:perf}
   \begin{tabular}{@{}lrrr@{}}
     \toprule
     Operation & Median & 95th pct. & Max \\
     \midrule
-    Broker resolves a valid reference & 0.32 & 0.37 & 1.22 \\
-    Broker refuses a traversal, with audit write & 1.14 & 2.76 & 27.1 \\
-    Policy classifies a read & 0.34 & 0.40 & 0.56 \\
-    Policy refuses a delete, with audit write & 0.96 & 2.86 & 9.40 \\
-    Search over 100 files & 2.16 & 2.30 & 2.63 \\
-    Search over 400 files & 2.16 & 2.26 & 3.12 \\
-    Search over 1,600 files & 2.17 & 2.25 & 5.47 \\
+    Broker: resolve valid path & 0.32 & 0.37 & 1.22 \\
+    Broker: refuse traversal & 1.14 & 2.76 & 27.1 \\
+    Policy: classify read & 0.34 & 0.40 & 0.56 \\
+    Policy: refuse delete & 0.96 & 2.86 & 9.40 \\
+    Search, 100 files & 2.16 & 2.30 & 2.63 \\
+    Search, 400 files & 2.16 & 2.26 & 3.12 \\
+    Search, 1,600 files & 2.17 & 2.25 & 5.47 \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -47,4 +47,4 @@ Members of the team spoke with 30 prospective users, students, developers, human
 
 % CUT-FOR-SHORT: this subsection is the first to drop for a 4-page version.
 \subsection{Persona simulation as a stress test}
-To expose objections that friendly conversation might not, 15 language-model-based simulated personas, including deliberately sceptical non-adopters, were each given a neutral description and a private copy of the prototype and wrote a structured report. These are synthetic, not human-subject, results, played by one underlying model, and are reported only as a check on the reasoning. No persona disagreed that bounding scope would raise trust (6 agree, 9 partly), but only 1 of 15 said it would clearly make them more willing to use the system (14 might try, 1 would not use), 13 described a failed, wrong or partial answer, and perceived value averaged 2.8 of 5. The simulation is more reserved than the human conversations, which is its use: under a strict reading the adoption part of the hypothesis would not be supported, and that is a reason to weight the controlled study most.
+To expose objections that friendly conversation might not, 15 simulated personas driven by a language model, including deliberately sceptical non-adopters, were each given a neutral description and a private copy of the prototype and wrote a structured report. These are synthetic, not human-subject, results, played by one underlying model, and are reported only as a check on the reasoning. No persona disagreed that bounding scope would raise trust (6 agree, 9 partly), but only 1 of 15 said it would clearly make them more willing to use the system (14 might try, 1 would not use), 13 described a failed, wrong or partial answer, and perceived value averaged 2.8 of 5. The simulation is more reserved than the human conversations, which is its use: under a strict reading the adoption part of the hypothesis would not be supported, and that is a reason to weight the controlled study most.

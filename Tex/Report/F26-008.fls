@@ -1,4 +1,4 @@
-PWD E:\Education\FAST-NUCES\Final Year Project\A.R.T.E.M.I.S\Report-Copy
+PWD E:\Education\FAST-NUCES\Final Year Project\A.R.T.E.M.I.S\Tex\Report
 INPUT C:\Users\Hashir Rauf\AppData\Local\MiKTeX\miktex\data\le\pdftex\pdflatex.fmt
 INPUT F26-008.tex
 OUTPUT F26-008.log
@@ -223,6 +223,27 @@ INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\p
 INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmr7t.tfm
 INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmb7t.tfm
 INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmb7t.tfm
+INPUT .\Figures\sig_hashir.png
+INPUT .\Figures\sig_hashir.png
+INPUT .\Figures\sig_hashir.png
+INPUT .\Figures\sig_hashir.png
+INPUT .\Figures\sig_hashir.png
+INPUT .\Figures\sig_hashir.png
+INPUT .\Figures\sig_hashir.png
+INPUT .\Figures\sig_hira.png
+INPUT .\Figures\sig_hira.png
+INPUT .\Figures\sig_hira.png
+INPUT .\Figures\sig_hira.png
+INPUT .\Figures\sig_hira.png
+INPUT .\Figures\sig_hira.png
+INPUT .\Figures\sig_hira.png
+INPUT .\Figures\sig_doureesha.png
+INPUT .\Figures\sig_doureesha.png
+INPUT .\Figures\sig_doureesha.png
+INPUT .\Figures\sig_doureesha.png
+INPUT .\Figures\sig_doureesha.png
+INPUT .\Figures\sig_doureesha.png
+INPUT .\Figures\sig_doureesha.png
 INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\vf\adobe\times\ptmb7t.vf
 INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmb8r.tfm
 INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\vf\adobe\times\ptmb7t.vf
@@ -311,12 +332,6 @@ INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\tex\latex\psnfss\ts1ptm
 INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\tex\latex\psnfss\ts1ptm.fd
 INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmr8c.tfm
 INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\vf\adobe\times\ptmr8c.vf
-INPUT .\Figures\Picture1.png
-INPUT .\Figures\Picture1.png
-INPUT .\Figures\Picture1.png
-INPUT .\Figures\Picture1.png
-INPUT .\Figures\Picture1.png
-INPUT .\Figures\Picture1.png
 INPUT .\Figures\fig_sdg_selected.pdf
 INPUT .\Figures\fig_sdg_selected.pdf
 INPUT .\Figures\fig_sdg_selected.pdf

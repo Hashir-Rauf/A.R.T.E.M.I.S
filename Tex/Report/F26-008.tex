@@ -46,15 +46,15 @@ Date: November 9, 2026
 \begin{flushright}
 Name: Hashir Rauf
 \\[3ex]
-Signature: ..........................
+Signature: \makebox[4.2cm][l]{\dotfill}\kern-4.2cm\makebox[4.2cm][c]{\raisebox{-0.05cm}[0pt][0pt]{\includegraphics[height=1.0cm]{Figures/sig_hashir.png}}}
 \\[6ex]
 Name: Hira Khalid
 \\[3ex]
-Signature: ..........................
+Signature: \makebox[4.2cm][l]{\dotfill}\kern-4.2cm\makebox[4.2cm][c]{\raisebox{-0.05cm}[0pt][0pt]{\includegraphics[height=0.95cm]{Figures/sig_hira.png}}}
 \\[6ex]
 Name: Syeda Doureesha Batool
 \\[3ex]
-Signature: ..........................
+Signature: \makebox[4.2cm][l]{\dotfill}\kern-4.2cm\makebox[4.2cm][c]{\raisebox{-0.05cm}[0pt][0pt]{\includegraphics[height=1.0cm]{Figures/sig_doureesha.png}}}
 
 \end{flushright}
 
@@ -85,12 +85,14 @@ The report then moves on to the problem and the vocabulary to the project vision
 \pagestyle{fancy}
 \tableofcontents
 
-\pagebreak
-\listoffigures
+\clearpage
+\phantomsection
 \addcontentsline{toc}{chapter}{List of Figures}
-\pagebreak
-\listoftables
+\listoffigures
+\clearpage
+\phantomsection
 \addcontentsline{toc}{chapter}{List of Tables}
+\listoftables
 
 \mainmatter
 
@@ -98,23 +100,27 @@ The report then moves on to the problem and the vocabulary to the project vision
 \chapter{Introduction}
 Knowledge work is not often continuous. Someone writing a thesis, someone developing a bug and someone writing a report all switch between numerous files and all of them are interrupted. Upon coming back, the material is still on disk but the context is not: which files were important, what was already done and what the next step should have been is all to be re-created by hand. Even routine work, such as sorting folders, picking up stuff scattered around in the papers, and writing letters, falls on the same population, and it costs them nothing to accomplish anything.
 
-Artificial intelligence assistants vow to take this burden and to some extent they do. The challenge is on what conditions they do it. One such family of tools puts the responsibility of coordinating each step on the user which puts the burden of coordination right where it was. The other family, which is getting more and more capable, demands extensive access to the machine of the user, and in return provides real multi-step automation. It is that interaction that causes lots of people to refuse to use them altogether. Wide access causes actual exposure and a user who cannot see what an assistant has, cannot guess what it will do and cannot undo what it has done has no practical method of limiting that exposure. A.R.T.E.M.I.S. An adaptive reasoning, task execution and multi-agent intelligence system, ARTEMIS is a desktop assistant, based on the argument that these two properties should not be opposed to each other. The system can only operate in folders that a user has given the user express permission to access, it has nothing in other folders, deletes nothing, and modifies nothing, and sends all actions altering a file or leaving the machine through a preview and approval step under the control of the user. A report called What ARTEMIS Knows reports all that the system has at the moment, and each record in it may be erased. The hypothesis of the project is that this limitation is not an evil, but a benefit, and that the assistant who is limited to the area the user has imposed will be more trusted, and consequently employed, than one that is not.
+Artificial intelligence assistants vow to take this burden and to some extent they do. The challenge is on what conditions they do it. One such family of tools puts the responsibility of coordinating each step on the user which puts the burden of coordination right where it was. The other family, which is getting more and more capable, demands extensive access to the machine of the user, and in return provides real multi-step automation. It is that interaction that causes lots of people to refuse to use them altogether. Wide access causes actual exposure and a user who cannot see what an assistant has, cannot guess what it will do and cannot undo what it has done has no practical method of limiting that exposure.
 
-Artificial intelligence assistants vow to take this burden and to some extent they do. The challenge is on what conditions they do it. One such family of tools puts the responsibility of coordinating each step on the user which puts the burden of coordination right where it was. The other family, which is getting more and more capable, demands extensive access to the machine of the user, and in return provides real multi-step automation. It is that interaction that causes lots of people to refuse to use them altogether. Wide access causes actual exposure and a user who cannot see what an assistant has, cannot guess what it will do and cannot undo what it has done has no practical method of limiting that exposure. A.R.T.E.M.I.S. An adaptive reasoning, task execution and multi-agent intelligence system, ARTEMIS is a desktop assistant, based on the argument that these two properties should not be opposed to each other. The system can only operate in folders that a user has given the user express permission to access, it has nothing in other folders, deletes nothing, and modifies nothing, and sends all actions altering a file or leaving the machine through a preview and approval step under the control of the user. A report called What ARTEMIS Knows reports all that the system has at the moment, and each record in it may be erased. The hypothesis of the project is that this limitation is not an evil, but a benefit, and that the assistant who is limited to the area the user has imposed will be more trusted, and consequently employed, than one that is not.
+A.R.T.E.M.I.S. An adaptive reasoning, task execution and multi-agent intelligence system, ARTEMIS is a desktop assistant, based on the argument that these two properties should not be opposed to each other. The system can only operate in folders that a user has given the user express permission to access, it has nothing in other folders, deletes nothing, and modifies nothing, and sends all actions altering a file or leaving the machine through a preview and approval step under the control of the user.
+
+A report called What ARTEMIS Knows reports all that the system has at the moment, and each record in it may be erased. The hypothesis of the project is that this limitation is not an evil, but a benefit, and that the assistant who is limited to the area the user has imposed will be more trusted, and consequently employed, than one that is not.
+
 
 The purpose of the document and the target audience are mentioned in this chapter, and the terms and abbreviations that will be used throughout the report are also defined.
 
 \section{Purpose of this Document}
-Purpose of this Document This document is intended to outline the issue, the research supporting it, the needs and the architecture of A.R.T.E.M.I.S., a limited and optional desktop artificial intelligence assistant that assists users to manage their daily work within folders they specifically give it access to. The document captures the progress made in the initial stages of the project such as the specification, the designed prototype and the outcomes achieved to date and outlines the steps to be followed in the second phase.
+This document is intended to outline the issue, the research supporting it, the needs and the architecture of A.R.T.E.M.I.S., a limited and optional desktop artificial intelligence assistant that assists users to manage their daily work within folders they specifically give it access to. The document captures the progress made in the initial stages of the project such as the specification, the designed prototype and the outcomes achieved to date and outlines the steps to be followed in the second phase.
 
 The project will answer one research question, namely: can an assistant with a limited scope of work, provided by explicitly granted workspaces, provide useful multi-step task automation and significantly enhance user trust, without significantly decreasing usefulness? The hypothesis being tested is that this restriction has a positive impact on trust and adoption at a reasonable cost-capability.
 
-The goals derived out of this question are to develop a desktop assistant that will only execute within the workspaces granted, to save time and effort spent by the user on resumption and regular file work, to ensure that the user is in control of all the resulting actions by preview, approval and undo, and to measure up the resulting system on the basis of task completion time, cognitive workload, usability and trust. The research techniques involved in this stage were a questionnaire consisting of 374 participants and 13 coded face-to-face interviews, a systematic search of 26 studies under seven themes, and an architectural design offered by both. The document is framed in two aspects which ought to be expressed in a straightforward manner. It reports the checks that might be performed without recruited participants and not the controlled evaluation of Chapter 5, as the evaluation will be part of the second phase of the project. It also presupposes the one user desktop scenario all the way, thus it does not cover multi-user or enterprise deployment.
+The goals derived out of this question are to develop a desktop assistant that will only execute within the workspaces granted, to save time and effort spent by the user on resumption and regular file work, to ensure that the user is in control of all the resulting actions by preview, approval and undo, and to measure up the resulting system on the basis of task completion time, cognitive workload, usability and trust.
 
-The goals derived out of this question are to develop a desktop assistant that will only execute within the workspaces granted, to save time and effort spent by the user on resumption and regular file work, to ensure that the user is in control of all the resulting actions by preview, approval and undo, and to measure up the resulting system on the basis of task completion time, cognitive workload, usability and trust. The research techniques involved in this stage were a questionnaire consisting of 374 participants and 13 coded face-to-face interviews, a systematic search of 26 studies under seven themes, and an architectural design offered by both. The document is framed in two aspects which ought to be expressed in a straightforward manner. It reports the checks that might be performed without recruited participants and not the controlled evaluation of Chapter 5, as the evaluation will be part of the second phase of the project. It also presupposes the one user desktop scenario all the way, thus it does not cover multi-user or enterprise deployment.
+The research techniques involved in this stage were a questionnaire consisting of 374 participants and 13 coded face-to-face interviews, a systematic search of 26 studies under seven themes, and an architectural design offered by both. The document is framed in two aspects which ought to be expressed in a straightforward manner. It reports the checks that might be performed without recruited participants and not the controlled evaluation of Chapter 5, as the evaluation will be part of the second phase of the project. It also presupposes the one user desktop scenario all the way, thus it does not cover multi-user or enterprise deployment.
+
 
 \section{Intended Audience}
-Intended Audience The present document is addressed mainly to the project evaluation panel (who will be conducting the final year project evaluation) and the project supervisor, who will be judging the realness of the problem, the relevance of the research presented in the solution, and whether the design is viable and can be accomplished in the given remaining time. To this audience the document focuses on justification and every important design choice is tracked to the discovery that gave rise to it.
+The present document is addressed mainly to the project evaluation panel (who will be conducting the final year project evaluation) and the project supervisor, who will be judging the realness of the problem, the relevance of the research presented in the solution, and whether the design is viable and can be accomplished in the given remaining time. To this audience the document focuses on justification and every important design choice is tracked to the discovery that gave rise to it.
 
 The second audience is the project team. Chapter 4 and Chapter 6 specification and design serve as the reference points where the implementation is developed against, and the requirements are documented in a manner that a completed feature can be verified against it instead of being evaluated informally. Any other developer who subsequently extends the system is a third audience. To this reader the architecture chapter defines the invariants that one wants to remain after change, specifically that path resolution is in a single component and execution in a single other.
 
@@ -157,16 +163,18 @@ The following terms are used throughout this report.
 \textbf{DO}: Durable Object, a stateful coordination primitive used in the optional remote access plane
 
 \section{Conclusion}
-This chapter has presented the issue of interrupted knowledge work and the unacceptable trade-off that existing assistants present to users who want to solve it, and has established the purpose, audience and vocabulary of the report. The rest of the document continues in the following way. Chapter 2 declares the project vision, its goals, scope, constraints, sustainable development goal alignment and stakeholders. Chapter 3 is a literature review and application of the work in seven themes and where this project has a gap and where it inherits a limitation. Chapter 4 defines the software requirements, including features, functional and non-functional requirements, use cases and risks. Chapter 5 describes the proposed approach and the development methodology. Chapter 6 introduces the high-level and low-level design, which consists of the architecture, the domain model and the policies that control implementation. Chapter 7 explains the prototype implemented and gives the test cases and test metrics. The user manual will be included in the second phase in chapter 8. Chapter 9 reports the experiments conducted in the first phase and discusses what they show about the central hypothesis. The conclusions are given in chapter 10, the scope covered and the work omitted, and the plan of work in the second phase.
+This chapter has presented the issue of interrupted knowledge work and the unacceptable trade-off that existing assistants present to users who want to solve it, and has established the purpose, audience and vocabulary of the report. The rest of the document continues in the following way. Chapter 2 declares the project vision, its goals, scope, constraints, sustainable development goal alignment and stakeholders. Chapter 3 is a literature review and application of the work in seven themes and where this project has a gap and where it inherits a limitation. Chapter 4 defines the software requirements, including features, functional and non-functional requirements, use cases and risks.
+
+Chapter 5 describes the proposed approach and the development methodology. Chapter 6 introduces the high-level and low-level design, which consists of the architecture, the domain model and the policies that control implementation. Chapter 7 explains the prototype implemented and gives the test cases and test metrics. The user manual will be included in the second phase in chapter 8. Chapter 9 reports the experiments conducted in the first phase and discusses what they show about the central hypothesis. The conclusions are given in chapter 10, the scope covered and the work omitted, and the plan of work in the second phase.
 
 
 \chapter{Project Vision}
 Chapter 2 Project Vision This chapter explains the purpose of the project. It outlines the problem area, defines the problem and its sub-problems, outlines the goals and objectives, delimits the scope, identifies the sustainable development goal that the project aims to achieve, documents the constraints within which it will operate, identifies the business opportunity, and outlines the stakeholders and their attributes. The evidence mentioned above is based on the foundational research of the project, a questionnaire of 374 respondents and 13 coded interviews, which is described in more detail in Chapter 3.
 
 \section{Problem Domain Overview}
-Problem Domain Overview The field is personal knowledge work done on a desktop computer by an individual working on numerous files. The population is made up of students, developers, freelancers and employed knowledge workers and the distinguishing feature of their work is that it is distributed across artefacts and discontinuous in time. One piece of work will usually cover documents, source files, notes, messages and web material, and will be picked up and put down many times over days or weeks.
+The field is personal knowledge work done on a desktop computer by an individual working on numerous files. The population is made up of students, developers, freelancers and employed knowledge workers and the distinguishing feature of their work is that it is distributed across artefacts and discontinuous in time. One piece of work will usually cover documents, source files, notes, messages and web material, and will be picked up and put down many times over days or weeks.
 
-Our questionnaire affirms that this is the description of the target population. Of 374 respondents, 82 percent do multi-file project work daily or a few times a week, and none do it less often than a few times a month. Figure~\ref{fig:profile} shows the composition of the sample and the frequency of this work.
+Our questionnaire affirms that this is the description of the target population. Of 374 respondents, 82 percent do multi-file project work daily or a few times a week, and none do it less often than a few times a month. Figure~\ref{fig:profile} shows the composition of the sample and the frequency of this work. The sample is skewed towards students, which fits the target early-adopter profile, and multi-file work is common in all groups.
 
 \begin{figure}[H]
     \centering
@@ -175,7 +183,6 @@ Our questionnaire affirms that this is the description of the target population.
     \label{fig:profile}
 \end{figure}
 
-The sample is skewed towards students, which fits the target early-adopter profile, and multi-file work is common in all groups.
 
 ARTEMIS is a desktop assistant within this domain, which works on explicitly granted folders. It reinstates context following an interruption by reporting on what was last active and what was to be done next. It organises files by proposing a set of moves the user previews and approves. It collects content of multiple documents into a synthesis where each assertion is accompanied by a reference to its source. It monitors repetitive manual steps and provides, on the third repetition, to automate them. It reads source code to describe errors and suggests fixes as a difference the user reviews. It browses the web on request, prepares electronic mail to be approved and drafts documents as new files. All these can be accessed both through voice and typing.
 
@@ -202,7 +209,7 @@ The second is file disorder accumulation. Organisation decays constantly and is 
     \label{fig:return}
 \end{figure}
 
-The third is the cost of routine manual work, which is individually small and collectively significant. Respondents estimated the total weekly time lost to reorientation, tidying, repeated manual tasks and searching scattered notes, and 42 percent placed it above an hour a week with 14 percent above three hours. Figure~\ref{fig:time} shows the distribution, whose mode falls between thirty and sixty minutes. This is steady friction rather than crisis, which is the correct way to understand what the system is relieving.
+The third is the cost of routine manual work, which is individually small and collectively significant. Respondents estimated the total weekly time lost to reorientation, tidying, repeated manual tasks and searching scattered notes, and 42 percent placed it above an hour a week with 14 percent above three hours. Figure~\ref{fig:time} shows the distribution, whose mode falls between thirty and sixty minutes. This is steady friction rather than crisis, which is the correct way to understand what the system is relieving. The estimate covers reorienting after breaks, tidying files, repeating manual tasks and searching scattered notes.
 
 \begin{figure}[H]
     \centering
@@ -211,9 +218,8 @@ The third is the cost of routine manual work, which is individually small and co
     \label{fig:time}
 \end{figure}
 
-The estimate covers reorienting after breaks, tidying files, repeating manual tasks and searching scattered notes.
 
-The fourth is that this work remains unautomated for reasons of trust and knowledge rather than absence of need. When asked why they had not already automated these tasks, 36 percent of respondents cited not trusting automation to do it correctly and 28 percent cited not knowing how, as shown in Figure~\ref{fig:whynot}. The tasks exist and are recognised; what is missing is an instrument the user is willing to point at them.
+The fourth is that this work remains unautomated for reasons of trust and knowledge rather than absence of need. When asked why they had not already automated these tasks, 36 percent of respondents cited not trusting automation to do it correctly and 28 percent cited not knowing how, as shown in Figure~\ref{fig:whynot}. The tasks exist and are recognised; what is missing is an instrument the user is willing to point at them. Distrust of automation and lack of know-how dominate.
 
 \begin{figure}[H]
     \centering
@@ -222,7 +228,6 @@ The fourth is that this work remains unautomated for reasons of trust and knowle
     \label{fig:whynot}
 \end{figure}
 
-Distrust of automation and lack of know-how dominate.
 
 The fifth is the access bargain that existing assistants impose, which is the sub-problem that distinguishes this project. A capable assistant is generally granted wide access to the machine, and the user is then unable to determine what it holds, what it may do, or how to reverse what it has done. Our questionnaire tested the alternative directly and found that 65 percent of respondents rate an assistant confined to explicitly added files as meaningfully more trustworthy than one with full access, with a mean of 3.8 on a five-point scale.
 
@@ -283,22 +288,15 @@ The project scope does not include the following:
 \end{itemize}
 
 \section{Sustainable Development Goal (SDG)}
-The project is aimed at Sustainable Development Goal 9, Industry, Innovation and Infrastructure, and specifically at 9.5, which is related to the improvement of scientific research and the modernization of technological capacities~\cite{ref:sdg}. The complete list of goals is shown in Figure~\ref{fig:sdg}.
+The project is aimed at Sustainable Development Goal 9, Industry, Innovation and Infrastructure, and specifically at 9.5, which is related to the improvement of scientific research and the modernization of technological capacities~\cite{ref:sdg}.
 
-The local-first design of the project is its contribution to this goal. The default configuration of the system does its job with a model that runs on the personal machine of the user, so the functionality it offers is not contingent on constant connectivity to a data centre, on a subscription, or on whether the user is willing to send personal documents to a third party. This is important to the population that the project is aimed at. Independent practitioners and students, especially in areas with patchy or expensive connectivity, are exactly the users where a cloud-dependent assistant is least available, and a local-first assistant brings an existing technological feature to them at a cost they can afford. Our data confirms the choice: local-first operation was the most popular deployment option among respondents at 40 percent, compared to 22 percent who actively favored cloud.
+The local-first design of the project is its contribution to this goal. The default configuration of the system does its job with a model that runs on the personal machine of the user, so the functionality it offers is not contingent on constant connectivity to a data centre, on a subscription, or on whether the user is willing to send personal documents to a third party.
+
+This is important to the population that the project is aimed at. Independent practitioners and students, especially in areas with patchy or expensive connectivity, are exactly the users where a cloud-dependent assistant is least available, and a local-first assistant brings an existing technological feature to them at a cost they can afford. Our data confirms the choice: local-first operation was the most popular deployment option among respondents at 40 percent, compared to 22 percent who actively favored cloud.
 
 The project also supports Goal 8, Decent Work and Economic Growth, target 8.2 on productivity through technological upgrading, as the aim of the system is to eliminate repetitive friction in knowledge work and reallocate that time to productive work.
 
-\begin{figure} [!h]
-    \centering
-\includegraphics[width=0.8\textwidth]{Figures/Picture1}
-    \caption{The seventeen UN Sustainable Development Goals.}
-    \label{fig:sdg}
-\end{figure}
-
-The goals are represented in the figure as numbered coloured tiles, each consisting of the goal number, its short title and a representative icon. The project is aimed at Goal 9, Industry, Innovation and Infrastructure, and secondarily Goal 8, Decent Work and Economic Growth.
-
-The objectives that this project will respond to are presented clearly in Figure~\ref{fig:sdgsel}: SDG 9, Industry, Innovation an.d Infrastructure (target 9.5) as the primary goal, and SDG 8, Decent Work and Economic Growth
+The goals that this project addresses are shown in Figure~\ref{fig:sdgsel}: SDG 9, Industry, Innovation and Infrastructure (target 9.5) as the primary goal, and SDG 8, Decent Work and Economic Growth (target 8.2) as the secondary goal.
 
 \begin{figure}[H]
 \centering
@@ -331,7 +329,7 @@ The risk that corresponds is differentiation, and our data reveals it clearly. O
 The users of this system are those who do knowledge work on their own machines, along with the roles of evaluating and maintaining the project..
 
 \subsection{Stakeholders Summary}
-Table~\ref{tab:stakeholders} identifies each stakeholder, their role with respect to the system, and their principal concern. Table 2.1: Stakeholders and their concerns.
+Table~\ref{tab:stakeholders} identifies each stakeholder, their role with respect to the system, and their principal concern.
 
 {\Needspace*{7\baselineskip}
 \begin{longtable}{|p{3.2cm}|p{5.0cm}|p{5.6cm}|}
@@ -366,7 +364,11 @@ Future maintainer & Extends the system after the project concludes. & Locating t
 \subsection{Key High-Level Goals and Problems of Stakeholders}
 The primary users share a single high-level goal, which is to spend less time on the mechanics of their work and more on its substance, and they share a single high-level problem, which is that the tools capable of granting this require a degree of access they are not prepared to give. Our research refines this general statement in four respects that bear directly on the design.
 
-Users are divided on how much they wish to be asked. The questionnaire presented a choice between an assistant that seeks approval before every file change or outward action and one that acts on reasonable requests and permits review and undo afterwards. The split was 192 to 182, shown in Figure~\ref{fig:pref}. No single interaction model satisfies this population, and approval granularity is therefore specified as a user-configurable setting in Chapter 4 rather than fixed in the design.
+Users are divided on how much they wish to be asked. The questionnaire presented a choice between an assistant that seeks approval before every file change or outward action and one that acts on reasonable requests and permits review and undo afterwards. The split was 192 to 182, shown in Figure~\ref{fig:pref}. No single interaction model satisfies this population, and approval granularity is therefore specified as a user-configurable setting in Chapter 4 rather than fixed in the design. The population is close to evenly divided.
+
+
+
+Users will tolerate a mistake if they can reverse it. Asked what a single wrong or unwanted suggestion would make to their usage, 65 percent would still use the system, some more cautiously, and only 10 percent would give up. This observation confirms that a visible and reliable undo is more useful than an unattainable perfection, and it is why the undo journal is defined as a necessity and not a luxury.
 
 \begin{figure}[H]
     \centering
@@ -374,10 +376,6 @@ Users are divided on how much they wish to be asked. The questionnaire presented
     \caption{Approval-first versus act-then-undo.}
     \label{fig:pref}
 \end{figure}
-
-The population is close to evenly divided.
-
-Users will tolerate a mistake if they can reverse it. Asked what a single wrong or unwanted suggestion would make to their usage, 65 percent would still use the system, some more cautiously, and only 10 percent would give up. This observation confirms that a visible and reliable undo is more useful than an unattainable perfection, and it is why the undo journal is defined as a necessity and not a luxury.
 
 Users will stop for reasons of fit rather than friction. The most common reasons that were predicted to abandon the system after a week were that it did not fit existing habits, at 27 percent, and that it made a mistake that the user could not trust it to avoid in the future, at 24 percent. Approval fatigue was the smallest named risk at 10 percent. This moderates an instinct of natural design: minimizing the number of prompts would be the least frequent worry, and would undermine the trust that the approval model offers.
 
@@ -417,14 +415,20 @@ The connection to the proposed work is not an extension but a deliberate diverge
 \subsection{Bounded Artificial Intelligence Agents and Trust}
 Another body of literature poses the question of how the autonomy of an agent can be limited to boundaries that a person can rely on. One is developer-facing. A trace-based assurance system records all actions of an agent as a structured trace with machine-checkable contracts attached to each step, such that a failure can be traced to a precise point and re-executed deterministically, mediating each action as allow, rewrite or block based on per-agent capability constraints~\cite{ref:paduraru2026}.
 
-A recent security survey looks at the same space through the lens of systems that require human sign- off~\cite{ref:kim2026}. It examines privilege separation as an architectural defence, and compares it to the separation that an operating system provides between a trusted kernel and untrusted programs, and extends this to the isolation of a planning component against untrusted external data. It then looks at the constraints of human-inthe-loop approval itself, and its conclusion is not favourable: frequent approval prompts cause decision fatigue that negates the safety benefit they are designed to offer, and most users do not have the background to evaluate what they are being asked to approve, so they either approve risky actions without actually evaluating them, or they reject harmless ones. This is an open problem that the survey does not provide a solution to.
+A recent security survey looks at the same space through the lens of systems that require human sign- off~\cite{ref:kim2026}. It examines privilege separation as an architectural defence, and compares it to the separation that an operating system provides between a trusted kernel and untrusted programs, and extends this to the isolation of a planning component against untrusted external data.
+
+It then looks at the constraints of human-inthe-loop approval itself, and its conclusion is not favourable: frequent approval prompts cause decision fatigue that negates the safety benefit they are designed to offer, and most users do not have the background to evaluate what they are being asked to approve, so they either approve risky actions without actually evaluating them, or they reject harmless ones. This is an open problem that the survey does not provide a solution to.
 
 The advantage of this body of work is that the machinery to bound an agent is already in place and is well known. Its drawback, as it currently stands, is that it is designed to support organisations that have security personnel and infrastructure as opposed to an individual operating an assistant on their own computer. Another interesting feature of the assurance framework is that it lacks a way to reverse an action after it has been executed.
 
-The connection to the proposed work is two-way. The workspace model of this project is a plain- language implementation of the same concepts: a folder that the user chooses instead of a sandbox that an administrator describes, and a readable preview instead of a machine-checked contract. Opposite the assurance framework the project contributes exactly what the assurance framework lacks, which is reversal after the fact, and this is one of the most direct correspondences in the review. Against the security survey the project must yield a point instead of asserting one. It does not address approval fatigue. It is based on the same mechanism that the survey finds unresolved, and there is nothing in the current design that differentiates between a routine approval and a risky one or minimizes prompts as trust is built. This is a limitation that is inherited by adopting this method in the first place, and the analysis should test it explicitly, not suppose that the constrained workspace will eliminate it.
+The connection to the proposed work is two-way. The workspace model of this project is a plain- language implementation of the same concepts: a folder that the user chooses instead of a sandbox that an administrator describes, and a readable preview instead of a machine-checked contract. Opposite the assurance framework the project contributes exactly what the assurance framework lacks, which is reversal after the fact, and this is one of the most direct correspondences in the review.
+
+Against the security survey the project must yield a point instead of asserting one. It does not address approval fatigue. It is based on the same mechanism that the survey finds unresolved, and there is nothing in the current design that differentiates between a routine approval and a risky one or minimizes prompts as trust is built. This is a limitation that is inherited by adopting this method in the first place, and the analysis should test it explicitly, not suppose that the constrained workspace will eliminate it.
 
 \subsection{Agentic Reasoning, Planning and Undo}
-A large literature has shifted language models out of text generation and into goal-oriented reasoning, step planning and action. Reflexion enables an agent to assess its own past efforts, compose verbal reflections and store them as episodic memory to enhance subsequent efforts without retraining, enhance performance on decision-making, reasoning and coding tasks~\cite{ref:shinn2023}. Toolformer is more focused, training a model to invoke an external tool like a calculator or a search engine in a more or less self- supervised way when and how~\cite{ref:schick2023}. Generative Agents builds upon the memory-and-reflection concept by showing that a population of agents can act in a coherent way across simulated days by storing, retrieving and reflecting on experience, as well as reporting failures such as false retrieval and falsified memory detail~\cite{ref:park2023}. ReAct combines reasoning, acting and observing in one loop and demonstrates that the combination is more effective in performance and interpretability, and is susceptible to repetitive loops of action and ineffective recovery in case an action yields an unhelpful result~\cite{ref:yao2023react}. Tree of Thoughts allows a model to explore many lines of reasoning and retrace unpromising ones, generating large payoffs on puzzle-like problems at a real computational cost~\cite{ref:yao2023tot}.
+A large literature has shifted language models out of text generation and into goal-oriented reasoning, step planning and action. Reflexion enables an agent to assess its own past efforts, compose verbal reflections and store them as episodic memory to enhance subsequent efforts without retraining, enhance performance on decision-making, reasoning and coding tasks~\cite{ref:shinn2023}. Toolformer is more focused, training a model to invoke an external tool like a calculator or a search engine in a more or less self- supervised way when and how~\cite{ref:schick2023}.
+
+Generative Agents builds upon the memory-and-reflection concept by showing that a population of agents can act in a coherent way across simulated days by storing, retrieving and reflecting on experience, as well as reporting failures such as false retrieval and falsified memory detail~\cite{ref:park2023}. ReAct combines reasoning, acting and observing in one loop and demonstrates that the combination is more effective in performance and interpretability, and is susceptible to repetitive loops of action and ineffective recovery in case an action yields an unhelpful result~\cite{ref:yao2023react}. Tree of Thoughts allows a model to explore many lines of reasoning and retrace unpromising ones, generating large payoffs on puzzle-like problems at a real computational cost~\cite{ref:yao2023tot}.
 
 The strength of this literature is that it establishes reasoning, tool use and reflective memory as a workable substrate for agent behaviour. The common weakness of all of them is the environment in which each system is tested: Reflexion on its own history of attempts, Toolformer on single tool calls it cannot easily compose, Generative Agents in a sandbox world, and ReAct and Tree of Thoughts on benchmark tasks. None of them has a confined workspace of a real user in the context of normal interrupted work, and none of them needs the sort of approval that would make consequential actions reversible.
 
@@ -440,11 +444,15 @@ The advantage of this literature is that it provides usable thresholds and desig
 The connection to the proposed work is two-fold. In design, the waiting-indicator and filler results dictate the behavior of the voice mode during the production of a plan, which should be a spoken explanatory indicator, not silence or a generic tone. To assess, the fact that the literature agrees that voice as a full interaction mode compared to practical multi-step tasks is under-researched is the contribution: this project will compare voice to typing in terms of ease of use, task time, cognitive workload and trust. The speech-analysis method is a non-design feature that is an optional addition to that assessment.
 
 \subsection{Code Assistance with Human Review}
-There are five studies that discuss the circumstances in which language model assistance with code is helpful. HULA illustrates a plan, generate and human-approve loop in a real deployment, reporting an 82 percent plan approval rate and discovering that the quality of output is strongly dependent on the quality of the input context~\cite{ref:takerngsaksiri2025}. HiLDe is more granular, driving generation token by token, and reports two warnings: regeneration may silently overwrite previous user edits, and showing too many options overwhelms users~\cite{ref:gonzalez2025}. An analysis of suggestion timing looks at when an inline assistant ought to show a suggestion and cautions against maximising the acceptance rate at the cost of usefulness~\cite{ref:mozannar2024}. A taxonomy of expert steering strategies recognizes the actions through which an individual redirects a model, such as pointing out a particular error, explaining a requirement and re-orienting the strategy, and observing that certain strategies assume expert knowledge~\cite{ref:chidambaram2024}. Lastly, a review of language models as code reviewers identifies systematic overcorrection, where models generate requirements and label correct code as incorrect, and that longer explanations are worse than shorter ones~\cite{ref:jin2026}.
+There are five studies that discuss the circumstances in which language model assistance with code is helpful. HULA illustrates a plan, generate and human-approve loop in a real deployment, reporting an 82 percent plan approval rate and discovering that the quality of output is strongly dependent on the quality of the input context~\cite{ref:takerngsaksiri2025}. HiLDe is more granular, driving generation token by token, and reports two warnings: regeneration may silently overwrite previous user edits, and showing too many options overwhelms users~\cite{ref:gonzalez2025}.
+
+An analysis of suggestion timing looks at when an inline assistant ought to show a suggestion and cautions against maximising the acceptance rate at the cost of usefulness~\cite{ref:mozannar2024}. A taxonomy of expert steering strategies recognizes the actions through which an individual redirects a model, such as pointing out a particular error, explaining a requirement and re-orienting the strategy, and observing that certain strategies assume expert knowledge~\cite{ref:chidambaram2024}. Lastly, a review of language models as code reviewers identifies systematic overcorrection, where models generate requirements and label correct code as incorrect, and that longer explanations are worse than shorter ones~\cite{ref:jin2026}.
 
 The advantage of this literature is that it confirms the human-approval loop as a successful interaction model and not a fallback. Its general infirmity, which the overcorrection study says is most acute, is that model judgement concerning code is helpful but not reliable in itself, and that explanations do not render it more reliable.
 
-The relationship to the proposed work is direct. The code assistant mentioned in this report takes the form of HULA but is scaled down: it displays the source of the workspace, answers questions, describes errors and suggests a fix as a difference that the user can accept, and does not open pull requests or operate within a repository. The warnings of HiLDe are converted into two design principles, namely to introduce a single proposed change at a time and never to change code that the user has not accepted. Since the assistant is not invoked continuously but instead provides suggestions on demand, the suggestion-timing issue does not occur, which is a conscious benefit of the on-demand model. The overcorrection result is the immediate reason why a change should never be applied automatically, and the mitigation is the difference-plus-approval design, which alleviates but does not eliminate the underlying limitation.
+The relationship to the proposed work is direct. The code assistant mentioned in this report takes the form of HULA but is scaled down: it displays the source of the workspace, answers questions, describes errors and suggests a fix as a difference that the user can accept, and does not open pull requests or operate within a repository. The warnings of HiLDe are converted into two design principles, namely to introduce a single proposed change at a time and never to change code that the user has not accepted.
+
+Since the assistant is not invoked continuously but instead provides suggestions on demand, the issue of suggestion timing does not occur, which is a conscious benefit of the on-demand model. The overcorrection result is the immediate reason why a change should never be applied automatically, and the mitigation is the difference-plus-approval design, which alleviates but does not eliminate the underlying limitation.
 
 \subsection{Hallucination in Artificial Intelligence Summarisation}
 Four studies follow this issue up to diagnosis to meta-evaluation. The former proved that the content of hallucinations was present in all abstractive summarisation systems that were tested, and entailment between source and output was the correct check~\cite{ref:maynez2020}. FactCC was then succeeded by a lightweight, trainable consistency checker, the nearest thing in the literature to a component that might be directly adopted~\cite{ref:kryscinski2020}. FRANK then benchmarked the available factuality metrics and discovered that none of the metrics identifies all types of errors~\cite{ref:pagnoni2021}. SummEdits generalized the question to frontier models and discovered that even the most robust models rate faithfulness poorly~\cite{ref:laban2023}.
@@ -469,7 +477,7 @@ Our own study shows that this landscape is not just a question of technical comp
 Table~\ref{tab:lr} summarises the reviewed studies, identifying the theme each addresses, the contribution it makes, its relevance to this project and its limitations.
 
 {\small
-\Needspace*{3\baselineskip}
+\Needspace*{9\baselineskip}
 \begin{longtable}{|p{2.6cm}|p{2.0cm}|p{3.6cm}|p{4.6cm}|}
 \caption{Summary of the reviewed literature.}\label{tab:lr}\\*
 \hline
@@ -574,7 +582,7 @@ The system offers the following features, in the sequence in which they are cons
     \item The disclosure panel, which reports everything the system currently holds and permits deletion of any part of it
 \end{itemize}
 
-The measured demand that determines this order is shown in Figure~\ref{fig:features}. Session resume, notes synthesis and folder tidy are the three most requested features, and speech is last by a wide margin, which is why it is built last.
+The measured demand that determines this order is shown in Figure~\ref{fig:features}. Session resume, notes synthesis and folder tidy are the three most requested features, and speech is last by a wide margin, which is why it is built last. Demand is concentrated on session resume, notes synthesis and folder tidy.
 
 \begin{figure}[H]
     \centering
@@ -583,93 +591,237 @@ The measured demand that determines this order is shown in Figure~\ref{fig:featu
     \label{fig:features}
 \end{figure}
 
-Demand is concentrated on session resume, notes synthesis and folder tidy.
 
 \section{Functional Requirements}
 The functional requirements describe the external behaviour of the system. Each is stated with the user who exercises it.
 
 \subsection{Workspace Management}
-\begin{itemize}
-    \item \textbf{FR-1} The system will enable the user to make a folder a workspace, which will record its name, canonical root path, permission level and cloud policy. User: all primary users.
-    \item \textbf{FR-2} The system will not resolve any path the canonical form of which is not in the root of an active grant. User: all primary users, indirectly.
-    \item \textbf{FR-3} The system will canonicalise a path, including symbolic links and relative segments, and then test whether it is contained in a grant. User: all primary users, indirectly.
-    \item \textbf{FR-4} The system will not resolve paths that match a denylist of credential and system locations, even when the path is in a granted folder. User: all primary users, indirectly.
-    \item \textbf{FR-5} The system will enable the user to cancel a workspace, which will remove the index entries, embeddings, sessions, memory and rules, but not the files of the user. User: all primary users.
-    \item \textbf{FR-6} The system will have an index of the files in each granted workspace, which will be updated incrementally as files change. User: all primary users, indirectly.
-\end{itemize}
+Table~\ref{tab:fr1} lists the requirements for managing workspaces, with the users who exercise each one.
+
+{\small
+\Needspace*{5\baselineskip}
+\begin{longtable}{|p{1.3cm}|p{9.8cm}|p{3.0cm}|}
+\caption{Functional requirements: workspace management.}\label{tab:fr1}\\*
+\hline
+\textbf{ID} & \textbf{Requirement} & \textbf{User} \\*
+\hline
+\endfirsthead
+\caption[]{continued from previous page}\\*
+\hline
+\textbf{ID} & \textbf{Requirement} & \textbf{User} \\*
+\hline
+\endhead
+FR-1 & The system will enable the user to make a folder a workspace, which will record its name, canonical root path, permission level and cloud policy. & all primary users \\
+\hline
+FR-2 & The system will not resolve any path the canonical form of which is not in the root of an active grant. & all primary users, indirectly \\
+\hline
+FR-3 & The system will canonicalise a path, including symbolic links and relative segments, and then test whether it is contained in a grant. & all primary users, indirectly \\
+\hline
+FR-4 & The system will not resolve paths that match a denylist of credential and system locations, even when the path is in a granted folder. & all primary users, indirectly \\
+\hline
+FR-5 & The system will enable the user to cancel a workspace, which will remove the index entries, embeddings, sessions, memory and rules, but not the files of the user. & all primary users \\
+\hline
+FR-6 & The system will have an index of the files in each granted workspace, which will be updated incrementally as files change. & all primary users, indirectly \\
+\hline
+\end{longtable}
+}
 
 \subsection{Action Gating and Recovery}
-\begin{itemize}
-    \item \textbf{FR-7} The system will categorize all the proposed actions into precisely one of four risk levels, which are read, reversible, outward and destructive. User: all primary users, indirectly.
-    \item \textbf{FR-8} The system will perform read operations in a granted workspace without authorization. User: all primary users.
-    \item \textbf{FR-9} The system will store all reversible actions pending approval, unless the user has already decided to allow that operation in that workspace without prompting. User: all primary users.
-    \item \textbf{FR-10} The system will retain all outward actions pending approval in any situation, and will not allow this to be set off. User: all primary users.
-    \item \textbf{FR-11} The system will reject all destructive actions, and it will not give any approval route through which it can be done. User: all primary users.
-    \item \textbf{FR-12} The system will display, prior to any gated action, a preview of the workspace being impacted, the operations being proposed, the risk level, whether anything is leaving the machine, and whether anything is being deleted. User: all primary users.
-    \item \textbf{FR-13} The system will enable the user to approve, approve and remember, edit or reject a pending plan. User: all primary users.
-    \item \textbf{FR-14} The system will scope a remembered approval to a single operation in a single workspace, and will never remember an outward or destructive operation. User: all primary users.
-    \item \textbf{FR-15} The system will document the reversal of each change prior to the change. User: all primary users, indirectly.
-    \item \textbf{FR-16} The system will enable the user to undo an approved plan as a unit, and the steps will be restored in the reverse order. User: all primary users.
-    \item \textbf{FR-17} The system will not automatically accept a pending action, by default or under load, by default or by load. User: all primary users, indirectly.
-    \item \textbf{FR-18} The system will maintain a record of all proposals, refusals, approvals, rejections and executions in an append-only, hash-chained audit log. User: all primary users; auditor.
-\end{itemize}
+Table~\ref{tab:fr2} lists the requirements for gating actions and recovering from them, with the users who exercise each one.
+
+{\small
+\Needspace*{5\baselineskip}
+\begin{longtable}{|p{1.3cm}|p{9.8cm}|p{3.0cm}|}
+\caption{Functional requirements: action gating and recovery.}\label{tab:fr2}\\*
+\hline
+\textbf{ID} & \textbf{Requirement} & \textbf{User} \\*
+\hline
+\endfirsthead
+\caption[]{continued from previous page}\\*
+\hline
+\textbf{ID} & \textbf{Requirement} & \textbf{User} \\*
+\hline
+\endhead
+FR-7 & The system will categorize all the proposed actions into precisely one of four risk levels, which are read, reversible, outward and destructive. & all primary users, indirectly \\
+\hline
+FR-8 & The system will perform read operations in a granted workspace without authorization. & all primary users \\
+\hline
+FR-9 & The system will store all reversible actions pending approval, unless the user has already decided to allow that operation in that workspace without prompting. & all primary users \\
+\hline
+FR-10 & The system will retain all outward actions pending approval in any situation, and will not allow this to be set off. & all primary users \\
+\hline
+FR-11 & The system will reject all destructive actions, and it will not give any approval route through which it can be done. & all primary users \\
+\hline
+FR-12 & The system will display, prior to any gated action, a preview of the workspace being impacted, the operations being proposed, the risk level, whether anything is leaving the machine, and whether anything is being deleted. & all primary users \\
+\hline
+FR-13 & The system will enable the user to approve, approve and remember, edit or reject a pending plan. & all primary users \\
+\hline
+FR-14 & The system will scope a remembered approval to a single operation in a single workspace, and will never remember an outward or destructive operation. & all primary users \\
+\hline
+FR-15 & The system will document the reversal of each change prior to the change. & all primary users, indirectly \\
+\hline
+FR-16 & The system will enable the user to undo an approved plan as a unit, and the steps will be restored in the reverse order. & all primary users \\
+\hline
+FR-17 & The system will not automatically accept a pending action, by default or under load, by default or by load. & all primary users, indirectly \\
+\hline
+FR-18 & The system will maintain a record of all proposals, refusals, approvals, rejections and executions in an append-only, hash-chained audit log. & all primary users; auditor \\
+\hline
+\end{longtable}
+}
 
 \subsection{Capability Features}
-\begin{itemize}
-    \item \textbf{FR-19} The system will provide, on demand, the files that have been recently used in a workspace and the last action that the user took, to allow the work to be restarted. User: all primary users.
-    \item \textbf{FR-20} The system will suggest a sorting of files in a folder, and all the moves will be previewed before any is executed. User: all primary users.
-    \item \textbf{FR-21} The system will identify a manual sequence that is repeated three or more times and will suggest to automate it, and will not install an automation without the user consent. User: all primary users.
-    \item \textbf{FR-22} The system will synthesise content across documents in a workspace, and each claim will be attached with a citation of its source file and location. User: all primary users.
-    \item \textbf{FR-23} The system will make unsupported any claim in a synthesis which cannot be traced to a source. User: all primary users.
-    \item \textbf{FR-24} The system will respond to questions regarding source code in a workspace and will display any proposed change as a difference, and will never write or execute code independently. User: developer.
-    \item \textbf{FR-25} The system will not search the web automatically, but only when an explicit user request is made, and will not search in the background. User: all primary users.
-    \item \textbf{FR-26} The system will prepare electronic mail in the form of a draft and will not be sent until the user has approved the draft. User: all primary users.
-    \item \textbf{FR-27} The system will create a written document as a new file and will never overwrite an existing one. User: all primary users.
-    \item \textbf{FR-28} The system will be able to receive spoken input and give spoken output, with the same approval gates as typed interaction. User: all primary users.
-    \item \textbf{FR-29} The system will only record audio when a voice session has been armed by the user. User: all primary users.
-\end{itemize}
+Table~\ref{tab:fr3} lists the requirements for the capability features, with the users who exercise each one.
+
+{\small
+\Needspace*{5\baselineskip}
+\begin{longtable}{|p{1.3cm}|p{9.8cm}|p{3.0cm}|}
+\caption{Functional requirements: capability features.}\label{tab:fr3}\\*
+\hline
+\textbf{ID} & \textbf{Requirement} & \textbf{User} \\*
+\hline
+\endfirsthead
+\caption[]{continued from previous page}\\*
+\hline
+\textbf{ID} & \textbf{Requirement} & \textbf{User} \\*
+\hline
+\endhead
+FR-19 & The system will provide, on demand, the files that have been recently used in a workspace and the last action that the user took, to allow the work to be restarted. & all primary users \\
+\hline
+FR-20 & The system will suggest a sorting of files in a folder, and all the moves will be previewed before any is executed. & all primary users \\
+\hline
+FR-21 & The system will identify a manual sequence that is repeated three or more times and will suggest to automate it, and will not install an automation without the user consent. & all primary users \\
+\hline
+FR-22 & The system will synthesise content across documents in a workspace, and each claim will be attached with a citation of its source file and location. & all primary users \\
+\hline
+FR-23 & The system will make unsupported any claim in a synthesis which cannot be traced to a source. & all primary users \\
+\hline
+FR-24 & The system will respond to questions regarding source code in a workspace and will display any proposed change as a difference, and will never write or execute code independently. & developer \\
+\hline
+FR-25 & The system will not search the web automatically, but only when an explicit user request is made, and will not search in the background. & all primary users \\
+\hline
+FR-26 & The system will prepare electronic mail in the form of a draft and will not be sent until the user has approved the draft. & all primary users \\
+\hline
+FR-27 & The system will create a written document as a new file and will never overwrite an existing one. & all primary users \\
+\hline
+FR-28 & The system will be able to receive spoken input and give spoken output, with the same approval gates as typed interaction. & all primary users \\
+\hline
+FR-29 & The system will only record audio when a voice session has been armed by the user. & all primary users \\
+\hline
+\end{longtable}
+}
 
 \subsection{Disclosure and Model Access}
-\begin{itemize}
-    \item \textbf{FR-30} The system will provide a panel that reports all workspaces granted, files indexed, chunks embedded, facts remembered, sessions retained, automation rule, policy exception, action taken and item of data sent outside the machine. User: all primary users.
-    \item \textbf{FR-31} The system will enable the user to remove any item displayed in that panel except the audit log. User: all primary users.
-    \item \textbf{FR-32} The default configuration of the system will direct model requests to a local model. User: all primary users, indirectly.
-    \item \textbf{FR-33} The system will not send workspace content to a model tier that has been disabled by the cloud policy of the workspace. User: all primary users, indirectly.
-    \item \textbf{FR-34} The system will not retrieve any material not within the active grant, and will document each such exclusion. User: all primary users, indirectly.
-    \item \textbf{FR-35} The system will generate an inspectable plan without executing it, and will only allow execution by the dispatcher and only where a corresponding policy verdict exists. User: all primary users, indirectly.
-\end{itemize}
+Table~\ref{tab:fr4} lists the requirements for disclosure and model access, with the users who exercise each one.
+
+{\small
+\Needspace*{5\baselineskip}
+\begin{longtable}{|p{1.3cm}|p{9.8cm}|p{3.0cm}|}
+\caption{Functional requirements: disclosure and model access.}\label{tab:fr4}\\*
+\hline
+\textbf{ID} & \textbf{Requirement} & \textbf{User} \\*
+\hline
+\endfirsthead
+\caption[]{continued from previous page}\\*
+\hline
+\textbf{ID} & \textbf{Requirement} & \textbf{User} \\*
+\hline
+\endhead
+FR-30 & The system will provide a panel that reports all workspaces granted, files indexed, chunks embedded, facts remembered, sessions retained, automation rule, policy exception, action taken and item of data sent outside the machine. & all primary users \\
+\hline
+FR-31 & The system will enable the user to remove any item displayed in that panel except the audit log. & all primary users \\
+\hline
+FR-32 & The default configuration of the system will direct model requests to a local model. & all primary users, indirectly \\
+\hline
+FR-33 & The system will not send workspace content to a model tier that has been disabled by the cloud policy of the workspace. & all primary users, indirectly \\
+\hline
+FR-34 & The system will not retrieve any material not within the active grant, and will document each such exclusion. & all primary users, indirectly \\
+\hline
+FR-35 & The system will generate an inspectable plan without executing it, and will only allow execution by the dispatcher and only where a corresponding policy verdict exists. & all primary users, indirectly \\
+\hline
+\end{longtable}
+}
 
 \section{Quality Attributes}
-The quality attributes below declare the properties that the system should possess, along with the method of measuring each of them.
+The quality attributes below declare the properties that the system should possess, along with the method of measuring each of them. They are listed in Table~\ref{tab:qa}.
 
-\begin{itemize}
-    \item \textbf{QA-1 Confinement.} Any operation that solves a path not within an active grant is an error. Evaluated by tests that seek traversal with relative segments, symbolic links to external the grant, absolute paths, and sibling directories with a common prefix in their name, all of which should be denied and recorded.
-    \item \textbf{QA-2 Non-destructiveness.} There is no execution path that removes or overwrites user data without a snapshot. Evaluated by examining the operations registered by the dispatcher and by tests that destructive operations are denied instead of gated.
-    \item \textbf{QA-3 Recoverability.} Any approved reversible plan is reversible. Evaluated by tests that run a plan, run it in reverse, and compare the state of the filesystem after running the plan to the state before running the plan.
-    \item \textbf{QA-4 Transparency.} All the system contains is reportable and, except the audit log, deletable. Evaluated by comparing the counts reported by the panel with direct queries of each store..
-    \item \textbf{QA-5 Auditability.} The history of activities cannot be changed without being noticed. Evaluated by re-computing the hash chain and ensuring that any alteration or deletion of an entry destroys it.
-    \item \textbf{QA-6 Responsiveness.} The interactive path does not block on background work. Assessed by measuring time to first token while an initial workspace ingestion is in progress.
-    \item \textbf{QA-7 Degradability.} The loss of any external capability results in a declared constraint and not a failure. Compared to the degradation contract in Chapter 6.
-    \item \textbf{QA-8 Modality parity.} Voice interaction uses the same gates as typed interaction. Evaluated by ensuring that the voice mode introduction did not need any extra approval gate.
-\end{itemize}
+{\small
+\Needspace*{6\baselineskip}
+\begin{longtable}{|p{1.1cm}|p{2.5cm}|p{5.0cm}|p{5.0cm}|}
+\caption{Quality attributes.}\label{tab:qa}\\*
+\hline
+\textbf{ID} & \textbf{Attribute} & \textbf{Requirement} & \textbf{How it is evaluated} \\*
+\hline
+\endfirsthead
+\caption[]{continued from previous page}\\*
+\hline
+\textbf{ID} & \textbf{Attribute} & \textbf{Requirement} & \textbf{How it is evaluated} \\*
+\hline
+\endhead
+QA-1 & Confinement & Any operation that solves a path not within an active grant is an error. & Evaluated by tests that seek traversal with relative segments, symbolic links to external the grant, absolute paths, and sibling directories with a common prefix in their name, all of which should be denied and recorded. \\
+\hline
+QA-2 & Non-destructiveness & There is no execution path that removes or overwrites user data without a snapshot. & Evaluated by examining the operations registered by the dispatcher and by tests that destructive operations are denied instead of gated. \\
+\hline
+QA-3 & Recoverability & Any approved reversible plan is reversible. & Evaluated by tests that run a plan, run it in reverse, and compare the state of the filesystem after running the plan to the state before running the plan. \\
+\hline
+QA-4 & Transparency & All the system contains is reportable and, except the audit log, deletable. & Evaluated by comparing the counts reported by the panel with direct queries of each store. \\
+\hline
+QA-5 & Auditability & The history of activities cannot be changed without being noticed. & Evaluated by re-computing the hash chain and ensuring that any alteration or deletion of an entry destroys it. \\
+\hline
+QA-6 & Responsiveness & The interactive path does not block on background work. & Assessed by measuring time to first token while an initial workspace ingestion is in progress. \\
+\hline
+QA-7 & Degradability & The loss of any external capability results in a declared constraint and not a failure. & Compared to the degradation contract in Chapter 6. \\
+\hline
+QA-8 & Modality parity & Voice interaction uses the same gates as typed interaction. & Evaluated by ensuring that the voice mode introduction did not need any extra approval gate. \\
+\hline
+\end{longtable}
+}
 
 \section{Non-Functional Requirements}
-\begin{itemize}
-    \item \textbf{NFR-1 Performance.} The interactive path will generate a first token in less than one second with a local model and in less than two seconds with a cloud model, on the reference hardware defined in Section 4.7.
-    \item \textbf{NFR-2 Performance.} Incremental index updates will be debounced and will not block interactive requests. Modifying a single line of a file will result in the re-embedding of only the modified chunk.
-    \item \textbf{NFR-3 Capacity.} The system will run under adjustable limits on memory, index size and processor share, and will be usable on a consumer laptop during indexing.
-    \item \textbf{NFR-4 Concurrency.} The system has a single interactive user per host instance. Background work will be implemented using a bounded priority queue that will drop the lowest-priority work when full instead of expanding indefinitely.
-    \item \textbf{NFR-5 Availability.} The basic functionality will be maintained without the internet. Actions that need the network will fail as explicit, retriable actions instead of being silently dropped.
-    \item \textbf{NFR-6 Privacy.} User documents, embeddings, session history, memory, credentials and audit logs will not be sent to any server operated by the project.
-    \item \textbf{NFR-7 Security.} The credentials will be stored in the operating system keyring and will never be written to the system own storage tree. At rest, data will be encrypted.
-    \item \textbf{NFR-8 Security.} The system will not open an inbound listening port except on the loopback interface.
-    \item \textbf{NFR-9 Usability.} The granularity of approval will be user-configurable, allowing approval of all actions, approval by category, or session-based trust following initial approvals.
-    \item \textbf{NFR-10 Usability.} Background work will report visible, cancellable progress instead of an indeterminate indicator.
-    \item \textbf{NFR-11 Reusability.} Capability features will be provided as a uniform tool contract, with a new feature being added without changing the gateway.
-    \item \textbf{NFR-12 Extensibility.} Model providers will be configuration, not code branches, such that any compatible endpoint can be registered without changing the router.
-    \item \textbf{NFR-13 Portability.} The system will be based on Windows, macOS and Linux, and will not rely on any platform-specific filesystem behaviour to provide its confinement guarantee.
-    \item \textbf{NFR-14 Maintainability.} Path resolution will be in one component and execution in one other, such that every guarantee has a single enforcement point.
-\end{itemize}
+The non-functional requirements are listed in Table~\ref{tab:nfr} with the attribute each one belongs to.
+
+{\small
+\Needspace*{6\baselineskip}
+\begin{longtable}{|p{1.5cm}|p{2.5cm}|p{10.0cm}|}
+\caption{Non-functional requirements.}\label{tab:nfr}\\*
+\hline
+\textbf{ID} & \textbf{Attribute} & \textbf{Requirement} \\*
+\hline
+\endfirsthead
+\caption[]{continued from previous page}\\*
+\hline
+\textbf{ID} & \textbf{Attribute} & \textbf{Requirement} \\*
+\hline
+\endhead
+NFR-1 & Performance & The interactive path will generate a first token in less than one second with a local model and in less than two seconds with a cloud model, on the reference hardware defined in Section 4.7. \\
+\hline
+NFR-2 & Performance & Incremental index updates will be debounced and will not block interactive requests. Modifying a single line of a file will result in the re-embedding of only the modified chunk. \\
+\hline
+NFR-3 & Capacity & The system will run under adjustable limits on memory, index size and processor share, and will be usable on a consumer laptop during indexing. \\
+\hline
+NFR-4 & Concurrency & The system has a single interactive user per host instance. Background work will be implemented using a bounded priority queue that will drop the lowest-priority work when full instead of expanding indefinitely. \\
+\hline
+NFR-5 & Availability & The basic functionality will be maintained without the internet. Actions that need the network will fail as explicit, retriable actions instead of being silently dropped. \\
+\hline
+NFR-6 & Privacy & User documents, embeddings, session history, memory, credentials and audit logs will not be sent to any server operated by the project. \\
+\hline
+NFR-7 & Security & The credentials will be stored in the operating system keyring and will never be written to the system own storage tree. At rest, data will be encrypted. \\
+\hline
+NFR-8 & Security & The system will not open an inbound listening port except on the loopback interface. \\
+\hline
+NFR-9 & Usability & The granularity of approval will be user-configurable, allowing approval of all actions, approval by category, or session-based trust following initial approvals. \\
+\hline
+NFR-10 & Usability & Background work will report visible, cancellable progress instead of an indeterminate indicator. \\
+\hline
+NFR-11 & Reusability & Capability features will be provided as a uniform tool contract, with a new feature being added without changing the gateway. \\
+\hline
+NFR-12 & Extensibility & Model providers will be configuration, not code branches, such that any compatible endpoint can be registered without changing the router. \\
+\hline
+NFR-13 & Portability & The system will be based on Windows, macOS and Linux, and will not rely on any platform-specific filesystem behaviour to provide its confinement guarantee. \\
+\hline
+NFR-14 & Maintainability & Path resolution will be in one component and execution in one other, such that every guarantee has a single enforcement point. \\
+\hline
+\end{longtable}
+}
 
 \section{Assumptions}
 The specification rests on the following assumptions.
@@ -685,7 +837,7 @@ The specification rests on the following assumptions.
 \end{itemize}
 
 \section{Use Cases}
-This section presents the use cases that exercise the central functionality of the system or that illustrate a delicate point of the architecture. Four are given: granting a workspace, which establishes the boundary; tidying a folder, which exercises the gating and recovery path end to end; attempting to reach outside a workspace, which demonstrates the confinement guarantee; and sending mail, which demonstrates that an outward action cannot be configured past its gate.
+This section presents the use cases that exercise the central functionality of the system or that illustrate a delicate point of the architecture. Four are given: granting a workspace, which establishes the boundary; tidying a folder, which exercises the gating and recovery path end to end; attempting to reach outside a workspace, which demonstrates the confinement guarantee; and sending mail, which demonstrates that an outward action cannot be configured past its gate. The four use cases are given in Tables~\ref{tab:uc1} to \ref{tab:uc4}.
 
 {\Needspace*{3\baselineskip}
 \begin{longtable}{|lllll|}
@@ -862,6 +1014,8 @@ This section presents the use cases that exercise the central functionality of t
 Nothing is sent and the rejection is recorded. draft. The four use cases together exercise the principal architectural elements. UC-1 establishes the boundary and the index. UC-2 traverses classification, preview, approval, snapshot, execution, audit and reversal, which is the full length of the request lifecycle. UC-3 demonstrates the confinement guarantee against the three forms of escape a bounded system must resist. UC-4 demonstrates that the outward gate is a property of the architecture rather than a configurable preference.
 
 \section{Hardware and Software Requirements}
+This section states the hardware and software the host machine needs in order to run the prototype. The hardware is given as a minimum and a recommended configuration, and the software as the components and versions the system depends on.
+
 \subsection{Hardware Requirements}
 Table~\ref{tab:hardware} states the minimum and recommended hardware for the host machine. The minimum configuration is intended to run the system with a small local model, and the recommended configuration is the reference against which the performance requirements in Section 4.4 are measured.
 
@@ -959,7 +1113,7 @@ The Work screen is where a request begins. The user chooses a folder, types or s
 \label{fig:gui}
 \end{figure}
 
-The Folders screen lets the user opt a folder in by typing its path or browsing to it. Each granted folder is listed with the number of files it holds, the permission it carries and whether cloud models are allowed for it. A folder that has not been added here cannot be seen by the assistant at all.
+The Folders screen lets the user opt a folder in by typing its path or browsing to it. Each granted folder is listed with the number of files it holds, the permission it carries and whether cloud models are allowed for it. A folder that has not been added here cannot be seen by the assistant at all. It is shown in Figure~\ref{fig:gui2}.
 
 \begin{figure}[H]
 \centering
@@ -968,7 +1122,7 @@ The Folders screen lets the user opt a folder in by typing its path or browsing 
 \label{fig:gui2}
 \end{figure}
 
-The What it knows screen implements the disclosure requirement. For the chosen folder it lists every file the assistant has indexed, offers a check for changes, and offers a button that forgets the folder. Forgetting removes what the assistant holds and never touches the user's own files.
+The What it knows screen implements the disclosure requirement. For the chosen folder it lists every file the assistant has indexed, offers a check for changes, and offers a button that forgets the folder. Forgetting removes what the assistant holds and never touches the user's own files. It is shown in Figure~\ref{fig:gui3}.
 
 \begin{figure}[H]
 \centering
@@ -977,7 +1131,7 @@ The What it knows screen implements the disclosure requirement. For the chosen f
 \label{fig:gui3}
 \end{figure}
 
-When a request would change files, the assistant does not act. It shows a plan in plain words and three choices: Approve, Approve and do not ask again for this kind of change, or No, leave it. Nothing has happened until the user presses one of them.
+When a request would change files, the assistant does not act. It shows a plan in plain words and three choices: Approve, Approve and do not ask again for this kind of change, or No, leave it. Nothing has happened until the user presses one of them. It is shown in Figure~\ref{fig:gui4}.
 
 \begin{figure}[H]
 \centering
@@ -986,7 +1140,7 @@ When a request would change files, the assistant does not act. It shows a plan i
 \label{fig:gui4}
 \end{figure}
 
-After approval the assistant reports what it did, and the Undo last change button reverses the whole plan as one unit. Here a tidy-up that created two folders and moved twelve files is undone in a single step.
+After approval the assistant reports what it did, and the Undo last change button reverses the whole plan as one unit. Here a tidy-up that created two folders and moved twelve files is undone in a single step. It is shown in Figure~\ref{fig:gui5}.
 
 \begin{figure}[H]
 \centering
@@ -995,7 +1149,7 @@ After approval the assistant reports what it did, and the Undo last change butto
 \label{fig:gui5}
 \end{figure}
 
-The Settings screen holds the choices that are not part of everyday use: where the assistant keeps what it knows, which models it may use, the mail account, and the remote access controls.
+The Settings screen holds the choices that are not part of everyday use: where the assistant keeps what it knows, which models it may use, the mail account, and the remote access controls. It is shown in Figure~\ref{fig:gui6}.
 
 \begin{figure}[H]
 \centering
@@ -1004,7 +1158,7 @@ The Settings screen holds the choices that are not part of everyday use: where t
 \label{fig:gui6}
 \end{figure}
 
-Remote access is optional and off until the user connects to a relay. The screen states that messages are scrambled on the phone and only unscrambled on the computer, and it lists the folders a paired device may use, none by default.
+Remote access is optional and off until the user connects to a relay. The screen states that messages are scrambled on the phone and only unscrambled on the computer, and it lists the folders a paired device may use, none by default. It is shown in Figure~\ref{fig:gui7}.
 
 \begin{figure}[H]
 \centering
@@ -1215,7 +1369,8 @@ The decision to use an incremental approach is based on the risk profile of the 
 
 There were two other approaches. A waterfall approach was dismissed since the specification relies on discoveries that can only be made during construction, including whether a local model of workable size can plan sufficiently. An entirely feature-based model, constructing the visible capabilities and then adding protection later, was dismissed on the more compelling ground: the boundary and the gates are the very elements that cannot be added afterwards, since all the features constructed before them would have to be rewritten to traverse them.
 
-The build sequence is shown in Table~\ref{tab:build}. Its ordering is a single principle, that a property must exist before anything can be demanded to possess it.. The boundary must exist before anything the workspace broker, the file can be bounded. watcher and the disclosure panel.
+The build sequence is shown in Table~\ref{tab:build}. Its ordering is a single principle, that a property must exist before anything can be demanded to possess it..
+
 
 {\Needspace*{7\baselineskip}
 \begin{longtable}{|p{1.2cm}|p{5.6cm}|p{6.4cm}|}
@@ -1283,6 +1438,8 @@ Security and performance are represented as planes rather than layers, and this 
 
 
 \section{Design Considerations}
+This section sets out what the design assumes and depends on, the constraints that shaped it, the principles it follows and the method used to derive it. These considerations had to be settled before the architecture could be drawn.
+
 \subsection{Assumptions and Dependencies}
 The design depends on the following, each of which would require reconsideration were it to change.
 
@@ -1296,17 +1453,39 @@ The design depends on the following, each of which would require reconsideration
 \end{itemize}
 
 \subsection{General Constraints}
-The design was influenced by the following constraints and the effect of each is mentioned.
+The following constraints influenced the design, and the effect of each is stated in the table.
 
-\begin{itemize}
-    \item \textbf{Resource envelope.} The system should be usable on a consumer laptop, which entails the expensive work is asynchronous and all the queues are limited. The execution plane in Section 6.4 is the result of impact.
-    \item \textbf{Offline operation.} Connectivity should never be part of core functionality, which demands that a local model should be the default tier, and that networked capabilities degrade explicitly. The impact is the degradation contract in Table~\ref{tab:degradation}
-    \item \textbf{Data residency.} The data of the users should not be sent to a server operated by the project, so the egress is enforced in the router, where workspace policy is known, but not in the tool layer.
-    \item \textbf{No inbound port.} The remote aircraft needs to make an outward dialing hence a topology in Section.
-    \item \textbf{Credential handling.} The secrets should be stored in the operating system keyring, which is not part of the system storage tree itself and not backing up of the system.
-    \item \textbf{Verification.} All the guarantees should be testable and this demands that they have a single point of enforcement. This is why there is resolution in one aspect and execution in the other.
-    \item \textbf{Team and timeline.} The architecturally detachable plane is necessitated by the need to have the optional components separable by three members in two semesters.
-\end{itemize}
+The constraints are summarised in Table~\ref{tab:constraints} together with their effect on the design.
+
+{\small
+\Needspace*{6\baselineskip}
+\begin{longtable}{|p{2.9cm}|p{11.0cm}|}
+\caption{Design constraints.}\label{tab:constraints}\\*
+\hline
+\textbf{Constraint} & \textbf{Requirement and impact on the design} \\*
+\hline
+\endfirsthead
+\caption[]{continued from previous page}\\*
+\hline
+\textbf{Constraint} & \textbf{Requirement and impact on the design} \\*
+\hline
+\endhead
+Resource envelope & The system should be usable on a consumer laptop, which entails the expensive work is asynchronous and all the queues are limited. The execution plane in Section 6.4 is the result of impact. \\
+\hline
+Offline operation & Connectivity should never be part of core functionality, which demands that a local model should be the default tier, and that networked capabilities degrade explicitly. The impact is the degradation contract in Table~\ref{tab:degradation} \\
+\hline
+Data residency & The data of the users should not be sent to a server operated by the project, so the egress is enforced in the router, where workspace policy is known, but not in the tool layer. \\
+\hline
+No inbound port & The remote aircraft needs to make an outward dialing hence a topology in Section 6.4 and eliminates the need to configure firewalls or cross network address translation. \\
+\hline
+Credential handling & The secrets should be stored in the operating system keyring, which is not part of the system storage tree itself and not backing up of the system. \\
+\hline
+Verification & All the guarantees should be testable and this demands that they have a single point of enforcement. This is why there is resolution in one aspect and execution in the other. \\
+\hline
+Team and timeline & The architecturally detachable plane is necessitated by the need to have the optional components separable by three members in two semesters. \\
+\hline
+\end{longtable}
+}
 
 \subsection{Goals and Guidelines}
 The design is dominated by four principles and the purpose behind them is mentioned since none of them is self-explanatory.
@@ -1387,16 +1566,18 @@ The system's responsibilities are partitioned so that each guarantee is held by 
 
 The collaboration between these components is expressed by the request lifecycle shown in Figure~\ref{fig:lifecycle}, which is the single most important path in the system. Every request, whether spoken or typed and whether local or remote, traverses exactly this sequence, and no shortcut exists.
 
+
+The turn normaliser erases modality, policy engine is consulted by the dispatcher, the snapshot comes before the mutation, and audit entry is written regardless of whether action is taken or rejected.
+
+
+This path has five invariants that are imposed and collectively they make up the guarantees of the architecture. The dispatcher consults the policy engine but never after. The undo journal captures the snapshot of the undo journal prior to the mutation, but never afterwards. Even in the case of action being rejected, the audit entry will be written and therefore the log will capture what was proposed and not just what happened. A call without a corresponding policy verdict is refused by the dispatcher. Voice and text turns are no different than the planner on and that is what makes voice parity structural and not a second implementation.
+
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{Figures/fig_lifecycle.pdf}
     \caption{The request lifecycle.}
     \label{fig:lifecycle}
 \end{figure}
-
-The turn normaliser erases modality, policy engine is consulted by the dispatcher, the snapshot comes before the mutation, and audit entry is written regardless of whether action is taken or rejected.
-
-This path has five invariants that are imposed and collectively they make up the guarantees of the architecture. The dispatcher consults the policy engine but never after. The undo journal captures the snapshot of the undo journal prior to the mutation, but never afterwards. Even in the case of action being rejected, the audit entry will be written and therefore the log will capture what was proposed and not just what happened. A call without a corresponding policy verdict is refused by the dispatcher. Voice and text turns are no different than the planner on and that is what makes voice parity structural and not a second implementation.
 
 The decomposition was chosen over two alternatives. One orchestrating component was abandoned due to the impossibility of isolating any single guarantee to be tested, and the fact that a flaw in one component would invalidate all the guarantees at the same time. An arrangement, where each capability had its own gating logic, was not accepted as it would create as many points of enforcement as features, none of which could be centrally audited, and none of which could drift.
 
@@ -1417,14 +1598,15 @@ The model router is the owner of tier selection and egress enforcement. The reas
 
 Higher levels are only accessible in the cases where the cloud policy of the workspace allows and all egress is logged.
 
+
+The context engine assembles the working context of the model, and imposes limited scope on the read side, just as the broker does on the write side. Each retrieved chunk is identified by the identifier of the workspace where it was retrieved and any chunk which does not match the active grant is discarded and the discard is recorded. The token budgeter is recency-relevant and never truncates a citation source in silence. Each chunk is stored back to the file and line, in the form of a citation map, and it is this map that makes the synthesis feature verifiable, as a claim that can not be traced by the map is reported as unsupported and not as established. This assembly is depicted in Figure~\ref{fig:context}..
+
 \begin{figure}[tbp]
     \centering
-    \includegraphics[width=\textwidth]{Figures/fig_router.pdf}
+    \includegraphics[width=0.88\textwidth]{Figures/fig_router.pdf}
     \caption{Tier selection and the egress gate.}
     \label{fig:router}
 \end{figure}
-
-The context engine assembles the working context of the model, and imposes limited scope on the read side, just as the broker does on the write side. Each retrieved chunk is identified by the identifier of the workspace where it was retrieved and any chunk which does not match the active grant is discarded and the discard is recorded. The token budgeter is recency-relevant and never truncates a citation source in silence. Each chunk is stored back to the file and line, in the form of a citation map, and it is this map that makes the synthesis feature verifiable, as a claim that can not be traced by the map is reported as unsupported and not as established. This assembly is depicted in Figure~\ref{fig:context}..
 
 
 The retrieved chunks all bear a workspace identifier, any chunk not within the active grant is deleted and the discard recorded, and the citation map is taken with to the answer.
@@ -1476,6 +1658,7 @@ The agent planner generates plans based on LangGraph and never performs them. It
 
 \subsection{Subsystem Architecture: Capability Services}
 The features are implemented as services behind a uniform tool contract. None accesses the filesystem, the network or the database itself, but rather accesses them via the common ground of the broker, the. ( journal, the approval broker and the data plane as illustrated in Figure~\ref{fig:services}.
+
 
 \begin{figure}[tbp]
     \centering
@@ -1538,14 +1721,15 @@ The system is configured to use a local model, and cloud access is an opt-in per
 
 The other option of cloud-first functioning and a local backup was discarded as it reverses the guarantee. According to that arrangement the default behaviour is transmitting user data and the user has to take some action to avoid it, but according to the chosen arrangement the user has to take some action in order to allow it. The accepted trade-off is capability: a small local model is not as well as a large hosted model, which is alleviated through limited failover. where the workspace permits and by honest degradation where it does not.
 
+
+The degradation contract in Table~\ref{tab:degradation} states the required behaviour as each external capability is withdrawn. Each row is a testable acceptance criterion rather than an aspiration, and together they define the system's correctness under adverse conditions.
+
 \begin{figure}[tbp]
     \centering
     \includegraphics[width=\textwidth]{Figures/fig_broker.pdf}
     \caption{Path resolution and confinement.}
     \label{fig:broker}
 \end{figure}
-
-The degradation contract in Table~\ref{tab:degradation} states the required behaviour as each external capability is withdrawn. Each row is a testable acceptance criterion rather than an aspiration, and together they define the system's correctness under adverse conditions.
 
 {\small
 \Needspace*{12\baselineskip}
@@ -1620,14 +1804,15 @@ The durable object records which authenticated device is connected to which host
 
 Host-side confirmation is deliberate, so that possession of the pairing code alone is never sufficient to pair a device.
 
+
+The plane is a control surface rather than a privilege escalation. Remote sessions run at equal or lower privilege than local ones and never higher. A workspace may be marked local-only, rendering it invisible to remote sessions. The outward actions can be set to need local approval irrespective of the location where the action is requested and this is the default. Sessions are time-based and on a host sleep, they are revoked by the host automatically and immediately, and all actions initiated by a remote user are recorded in the audit trail with their device. The relay does not possess plaintext of any type and thus the privacy assertion does not lose out on the edge compromise.
+
 \begin{figure}[tbp]
     \centering
-    \includegraphics[width=\textwidth]{Figures/fig_pairing.pdf}
+    \includegraphics[width=0.85\textwidth]{Figures/fig_pairing.pdf}
     \caption{The pairing handshake.}
     \label{fig:pairing}
 \end{figure}
-
-The plane is a control surface rather than a privilege escalation. Remote sessions run at equal or lower privilege than local ones and never higher. A workspace may be marked local-only, rendering it invisible to remote sessions. The outward actions can be set to need local approval irrespective of the location where the action is requested and this is the default. Sessions are time-based and on a host sleep, they are revoked by the host automatically and immediately, and all actions initiated by a remote user are recorded in the audit trail with their device. The relay does not possess plaintext of any type and thus the privacy assertion does not lose out on the edge compromise.
 
 \subsection{Asynchrony with Bounded Queues}
 Figure~\ref{fig:performance} illustrates that the interactive path is thin and all that is expensive is asynchronous. The indexing is done in a dynamic fashion, with only those chunks whose content hash is different re- embedded, thus a single line edit re-embeds only a single chunk instead of a file. The two-stage retrieval is two-pass retrieval, where the inexpensive vector recall is followed by a reranking pass that keeps the index small and yet does not compromise on quality. The local model is detained with idle timer such that the initial token is not charged a cold load.
@@ -1646,7 +1831,7 @@ Each queue is limited and a full queue releases the lowest-priority work and cla
 
 \section{Domain Model/Class Diagram}
 
-The domain model will focus on four value objects that are immutable and five services that act on them. The value objects are not mutable in nature and hence a verdict cannot be attached to a call and the call manipulated before execution.
+The domain model will focus on four value objects that are immutable and five services that act on them. The value objects are not mutable in nature and hence a verdict cannot be attached to a call and the call manipulated before execution. Figure~\ref{fig:class} shows the classes and their relationships.
 
 One of the proposed actions is called a ToolCall and contains an operation name, a workspace identifier, a list of paths relative to the workspace, arguments and a unique identifier. Its paths are relative, not absolute, such that an absolute path cannot be sneaked over the boundary by the loving care of its construction. It gives a description of previews and logs, and a fingerprint of the shape of the call regardless of what paths it crosses, which is the extent to which remembered approvals are used.
 
@@ -1672,6 +1857,7 @@ This section specifies the policies and strategies that regulate implementation.
 
 \subsection{Refusal as the Default Failure Mode}
 All the vague states culminate in denial. An unknown operation is rejected but not as a read. A dead end is not attempted, but is rejected. A call with a verdict that is missing or mismatched is rejected. The execution can never be done by an expired approval and, that is why, the expiry is a unique result and not a type of rejection or silent rejection.
+
 
 The other, explicit denial lists with permissive defaults, was discarded due to the fact that a denial list needs to know about all the dangerous operations whereas a permission list only needs to list the safe ones, and the result of an omission is of a different nature with the two.
 
@@ -1704,12 +1890,14 @@ This chapter has introduced the system design: the layers and their components, 
 This chapter explains the prototype that was constructed throughout the initial phase of the project and the tests that exercise this prototype. Since the first deliverable is possible in the template, the implementation section will be a description of the prototype and not of a complete product. It gives the platform and interfaces used, the algorithms behind the components that are not apparent from the design, and the state of each stage of the build sequence. In the second part the design of the test cases is established and a representative set is given in the specified layout, each follow-up to the requirements of Chapter 4. The third section presents the test measurements and requirements traceability to tests. The chapter does not copy the source code, but documents the processes that the code executes..
 
 \section{Implementation}
+This section describes the prototype that was built in the first phase. It gives the status of each stage, the platform it runs on and the main algorithms of each component, one component at a time.
+
 \subsection{Scope and Status of the Prototype}
 The prototype is a working desktop assistant written in Python 3.13. It comprises 56 modules and about 14,250 lines of source, organised by architectural role into five packages as Chapter 6 describes: the core enforcement layer (26 modules, about 5,400 lines), the local data plane (4 modules, about 850 lines), the capability services (10 modules, about 2,100 lines), the presentation surfaces (5 modules, about 4,450 lines) and the optional remote plane (10 modules, about 1,450 lines). A further relay program in JavaScript and a phone page complete the remote plane. It is accompanied by an automated suite of 554 tests.
 
 All eight stages of the build sequence of Table~\ref{tab:build} have been implemented, each ending in the gate test that Chapter 5 requires. Table~\ref{tab:status} records the state of each stage. A stage counts as having its gate passing when the automated suite passes. It counts as validated through the interface only where the user-interface campaign of Chapter 9 supports it, and that campaign found a number of defects that the automated gates did not, so the two columns are reported separately.
 
-{\Needspace*{7\baselineskip}
+{\Needspace*{3\baselineskip}
 \begin{longtable}{|p{0.9cm}|p{4.6cm}|p{3.4cm}|p{4.5cm}|}
 \caption{Implementation status by stage.}\label{tab:status}\\*
 \hline
@@ -1790,6 +1978,7 @@ Cloudflare Worker with a Durable Object & The deployed relay of the remote plane
 
 \subsection{Implementation of the Workspace Broker}
 A path is only created when the only component that transforms a reference into a path is the broker. It implements five claims in a given order: the reference is resolved against the root grant; it is canonicalised, the symbolic links and parent-directory elements are substituted by the actual location; the canonical path is checked to be contained within the grant root; it is checked against a denylist; and the requested operation is checked against the permission of the grant. The canonicalisation comes before the containment test in that a symbolic link in the grant which has its target out of the grant appears contained until it is resolved. Credential and system files and locations, including .ssh, .aws, .env and key files, are always included in the denylist, and the store of the application itself is always included, so that a grant on a parent folder does not reveal the audit log. An effective solution provides a value that documents the workstation, the relative path and the operation. Only this value can be used by services and not a bare path, so an uncontrolled path cannot accidentally reach the file system. Each refusal is documented to the audit log prior to the refusal being raised.
+
 
 \subsection{Implementation of the Policy Engine and Approval Broker}
 A proposed call is all the policy engine reads. It does not even look at the text of the model, so whatever is written in the inner part of any document cannot be able to defend itself to a new decision. The evaluation is executed in a fixed order, i.e. the grant check, the destructive check, the egress check, the mutation check and lastly allow, the first rule that matches is the deciding one. The call is made in only one tier. No approval of reads. Changes made are reversible except when the user has selected to permit that operation without question in that workspace. Actions towards the outside are never kept and cannot ever be recalled. Unrecognised destructive operations are denied a permission course and an unrecognised operation is denied also, such that nothing omitted can ever broaden the permission. The top level of the steps of a plan is the top level. Classification never makes any mistake: a call that is not classifiable is a refusal.
@@ -2234,7 +2423,9 @@ Test case effectiveness & 0\% against interface defects & Defects detected by th
 \end{longtable}
 }
 
-The first three figures describe a suite that passes completely, and the fourth shows why that is not sufficient. The defects that the later interface campaigns found were not detected by the automated tests, because those tests checked each component in isolation and the defects were in the way components are joined to the interface. In the first hands-on round, 359 unit tests were passing while only one of nine features worked end to end. The effectiveness metric is therefore reported as it is. It is computed over the interface defects only, because the defects that the unit tests caught during development were not logged separately. The lesson drawn from the figure is a practice that continues into the second phase: every defect found at the interface is to be given a regression test before it is closed. Table 7.13 traces each group of requirements of Chapter 4 to the test files that verify it, and to the result of the interface campaign. Each group of requirements from FR-1 to FR-35 has automated tests.
+The first three figures describe a suite that passes completely, and the fourth shows why that is not sufficient. The defects that the later interface campaigns found were not detected by the automated tests, because those tests checked each component in isolation and the defects were in the way components are joined to the interface. In the first hands-on round, 359 unit tests were passing while only one of nine features worked end to end. The effectiveness metric is therefore reported as it is. It is computed over the interface defects only, because the defects that the unit tests caught during development were not logged separately. The lesson drawn from the figure is a practice that continues into the second phase: every defect found at the interface is to be given a regression test before it is closed.
+
+Table 7.13 traces each group of requirements of Chapter 4 to the test files that verify it, and to the result of the interface campaign. Each group of requirements from FR-1 to FR-35 has automated tests.
 
 \subsection{Traceability Matrix}
 The audit requirement FR-18 has no file of its own because it is asserted inside the tests of the broker, the policy engine, the approval broker, the dispatcher and the undo journal, each of which checks that its refusals or actions reach the log. The remote plane, which carries no numbered functional requirement, is verified by 31 tests. Table~\ref{tab:trace} traces each group of requirements of Chapter 4 to the test files that verify it, and to the result of the interface campaign.
@@ -2318,10 +2509,24 @@ E6 & Exploratory persona simulation, 15 personas & Does the idea hold under scep
 }
 
 \section{E1: Automated Gate and Unit Tests}
-\textbf{Method.} On 9 November 2026 the development machine was used to execute the entire suite. Result. All tests passed in 42 seconds (554). The approval broker, policy engine, dispatcher and undo journal account, have 50 tests each, the speech tests have 14 tests and the remote plane has 31 and the rest of the tests are distributed among the other components as shown in Table~\ref{tab:trace}. The claims made are that traversal, symbolic link, absolute and sibling-prefix escapes are denied and reported (TC-01); that 102 the destructive tier has no approval path and unrecognised operations are denied (TC-02); that nothing executes without a verdict and an approval (TC-03); that an approved plan reverses as an entity (TC- 04); that a claim without a real source is labelled (TC-06); that voice creates no approval path (TC-09); and that a paired device cannot approve an email (TC-08). Limit. The suite demonstrates that every guarantee is true where it is used, and not that it is used everywhere. The difference is indicated in section 9.4.. Section~\ref{sec:campaign} shows the difference.
+E1 asks whether the guarantees hold under adversarial tests, using the full automated test suite.
+
+\subsection{Method}
+On 9 November 2026 the development machine was used to execute the entire suite.
+
+\subsection{Results}
+All tests passed in 42 seconds (554). The approval broker, policy engine, dispatcher and undo journal account, have 50 tests each, the speech tests have 14 tests and the remote plane has 31 and the rest of the tests are distributed among the other components as shown in Table~\ref{tab:trace}. The claims made are that traversal, symbolic link, absolute and sibling-prefix escapes are denied and reported (TC-01); that the destructive tier has no approval path and unrecognised operations are denied (TC-02); that nothing executes without a verdict and an approval (TC-03); that an approved plan reverses as an entity (TC- 04); that a claim without a real source is labelled (TC-06); that voice creates no approval path (TC-09); and that a paired device cannot approve an email (TC-08).
+
+\subsection{Limits}
+The suite demonstrates that every guarantee is true where it is used, and not that it is used everywhere. The difference is indicated in Section~\ref{sec:campaign}.
+
 
 \section{E2: Performance Measurements}
-\textbf{Method.} A script measured the enforcement path and retrieval on one Windows 10 machine, using a throwaway store, folders of 100, 400 and 1,600 small text files, and the deterministic embedder. Timings for the enforcement path are medians of 300 to 2,000 repetitions. The numbers therefore describe the cost of ARTEMIS's own machinery, excluding the language model and the real embedding model, which were not part of this measurement.
+E2 measures what the enforcement and retrieval machinery costs, so that we can say whether the guarantees slow the system down.
+
+\subsection{Method}
+A script measured the enforcement path and retrieval on one Windows 10 machine, using a throwaway store, folders of 100, 400 and 1,600 small text files, and the deterministic embedder. Timings for the enforcement path are medians of 300 to 2,000 repetitions. The numbers therefore describe the cost of ARTEMIS's own machinery, excluding the language model and the real embedding model, which were not part of this measurement. The results are given in Table~\ref{tab:perf} and Table~\ref{tab:perf2}.
+
 
 {\Needspace*{7\baselineskip}
 \begin{longtable}{|p{6.0cm}|r|r|r|}
@@ -2377,10 +2582,19 @@ Verify the audit chain of 2,306 rows & 10.9 & -- & -- \\
 \end{longtable}
 }
 
-7.64 Discussion. The boundary and the policy engine add well under a millisecond to an ordinary call, and a refusal that must also write to the hash-chained log costs about a millisecond at the median, so the 103 guarantees are not a measurable burden. Search latency stayed at about 2 milliseconds from 100 to 1,600 files, which is consistent with a single matrix product over a few thousand vectors and supports the requirement that retrieval stay fast as a folder grows, within that range. Scanning and indexing grew roughly in proportion to the number of files, at about 5 milliseconds per file for each step. Limit. Real embedding is slower than the stand-in used here, and an embedding model was not installed on the machine used for the interface campaign, so end-to-end indexing time on real hardware remains to be measured. The latency of the local language model was also not measured under controlled conditions in this phase, and it is the dominant delay a user will perceive.
+\subsection{Discussion}
+The boundary and the policy engine add well under a millisecond to an ordinary call, and a refusal that must also write to the hash-chained log costs about a millisecond at the median, so the guarantees are not a measurable burden. Search latency stayed at about 2 milliseconds from 100 to 1,600 files, which is consistent with a single matrix product over a few thousand vectors and supports the requirement that retrieval stay fast as a folder grows, within that range. Scanning and indexing grew roughly in proportion to the number of files, at about 5 milliseconds per file for each step.
+
+\subsection{Limits}
+Real embedding is slower than the stand-in used here, and an embedding model was not installed on the machine used for the interface campaign, so end-to-end indexing time on real hardware remains to be measured. The latency of the local language model was also not measured under controlled conditions in this phase, and it is the dominant delay a user will perceive.
+
 
 \section{E3: Hands-on Rounds Through the Interface}
-\textbf{Method.} On 8 November 2026 the whole system was driven through the real web interface in a headless browser, as a user would, and the result of each action was checked on disk. The first round used the build that had 359 unit tests passing, and a second round repeated every test after the defects had been fixed.
+E3 checks whether the whole system works for a user, by driving the real interface in two rounds, before and after the defects were fixed.
+
+\subsection{Method}
+On 8 November 2026 the whole system was driven through the real web interface in a headless browser, as a user would, and the result of each action was checked on disk. The first round used the build that had 359 unit tests passing, and a second round repeated every test after the defects had been fixed. Table~\ref{tab:rounds} gives the results of the two rounds.
+
 
 {\Needspace*{7\baselineskip}
 \begin{longtable}{|p{5.3cm}|p{3.7cm}|p{3.7cm}|}
@@ -2406,11 +2620,20 @@ Defects recorded & 15 (one blocker, several major) & All 15 retested and fixed \
 \end{longtable}
 }
 
-\textbf{Discussion.} The first round found that approval buttons were hidden after a typed request, so a user could never approve anything, and that code questions, cited answers, web search, mail and drafting were unreachable from the interface even though their services passed their unit tests. The safety core nevertheless held from the start: deletion was refused, reads outside the folder were refused, and tidying and undo restored files exactly. All fifteen defects were fixed and retested on the interface, and every one of the 36 tests passed in the second round. The retest also exposed seven further problems that the fixes had introduced or revealed, among them a defect in the interface framework that froze tab clicks whenever a page-load event was used and a local model that spent its whole token budget reasoning and returned an empty answer. All seven were corrected, which is a reason the retest was run on the real interface and not only in unit tests. Limit. These rounds were scripted and run by one 104 tester, so they show that known paths work and say less about unanticipated use, which is what the next experiment addresses.
+\subsection{Discussion}
+The first round found that approval buttons were hidden after a typed request, so a user could never approve anything, and that code questions, cited answers, web search, mail and drafting were unreachable from the interface even though their services passed their unit tests. The safety core nevertheless held from the start: deletion was refused, reads outside the folder were refused, and tidying and undo restored files exactly. All fifteen defects were fixed and retested on the interface, and every one of the 36 tests passed in the second round. The retest also exposed seven further problems that the fixes had introduced or revealed, among them a defect in the interface framework that froze tab clicks whenever a page-load event was used and a local model that spent its whole token budget reasoning and returned an empty answer. All seven were corrected, which is a reason the retest was run on the real interface and not only in unit tests.
+
+\subsection{Limits}
+These rounds were scripted and run by one tester, so they show that known paths work and say less about unanticipated use, which is what the next experiment addresses.
+
 
 \section{E4: Exploratory Interface Campaign}
 \label{sec:campaign}
-\textbf{Method.} Each of the nine areas of the prototype was tested by three automated testing agents, each driving the real web interface through a browser with a different disposition: a newcomer who follows the obvious path and makes ordinary mistakes, an impatient power user who double-clicks, refreshes and switches tabs, and an adversarial tester who supplies hostile, empty, very long and contradictory input and tries to make the system do what it promises never to do. This gave 27 sessions. Each used a private copy of the application and a private data folder, acted only through the interface, and verified outcomes on disk and in the server log. Each reported bugs and, separately, behaviour that works but that a user would not want. A consolidating step merged duplicates and compared the findings with the backlog.
+E4 looks for what breaks when the system is used the way a person, or an adversary, would use it, through 27 sessions on the real interface.
+
+\subsection{Method}
+Each of the nine areas of the prototype was tested by three automated testing agents, each driving the real web interface through a browser with a different disposition: a newcomer who follows the obvious path and makes ordinary mistakes, an impatient power user who double-clicks, refreshes and switches tabs, and an adversarial tester who supplies hostile, empty, very long and contradictory input and tries to make the system do what it promises never to do. This gave 27 sessions. Each used a private copy of the application and a private data folder, acted only through the interface, and verified outcomes on disk and in the server log. Each reported bugs and, separately, behaviour that works but that a user would not want. A consolidating step merged duplicates and compared the findings with the backlog.
+
 
 {\Needspace*{7\baselineskip}
 \begin{longtable}{|p{4.6cm}|p{1.8cm}|p{1.8cm}|p{1.8cm}|p{2.4cm}|}
@@ -2448,28 +2671,60 @@ Conversation and everyday use & Issues & Issues & Issues & -- \\
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{Figures/fig_campaign.pdf}
+    \includegraphics[width=0.8\textwidth]{Figures/fig_campaign.pdf}
     \caption{Results of the interface campaign.}
     \label{fig:campaign}
 \end{figure}
 
-\textbf{Results.} Figure~\ref{fig:campaign} summarises the campaign. No session found a clean pass: none of the 27 sessions ended with the verdict pass, 23 ended with pass with issues and 4 with fail (panel b). Of the 39 backlog stories and stage gates, 13 passed, 20 passed in part, 5 failed and one could not be tested (panel c). The sessions reported 113 defects, which merged into 71 distinct defects, being 1 critical, 18 high, 37 medium and 15 low (panel a), together with 63 behaviours that work but that a user would not want. The reports were spread across all nine areas (panel d), with document and code understanding drawing the most (18) and speech input and output the fewest (9).
+\subsection{Results}
+Figure~\ref{fig:campaign} summarises the campaign. No session found a clean pass: none of the 27 sessions ended with the verdict pass, 23 ended with pass with issues and 4 with fail (panel b). Of the 39 backlog stories and stage gates, 13 passed, 20 passed in part, 5 failed and one could not be tested (panel c). The sessions reported 113 defects, which merged into 71 distinct defects, being 1 critical, 18 high, 37 medium and 15 low (panel a), together with 63 behaviours that work but that a user would not want. The reports were spread across all nine areas (panel d), with document and code understanding drawing the most (18) and speech input and output the fewest (9). Table~\ref{tab:campaign} gives the verdict for each area.
 
-\textbf{What held.} Across many phrasings the system never deleted anything and refused any attempt to reach outside the chosen folder in plain words. Nothing left the computer, by web search or mail, without an approval card, and double clicks and stale clicks did not run a plan twice. Code questions produced only a difference and never an edit. Voice could not approve, delete or send. A phone could not approve emails or searches, saw only the folders ticked for it, and could be removed instantly. Tidy previewed every step, undo worked in ordinary use, and the rule that automation is offered only after three repetitions was exact.
 
-\textbf{What failed.} The principal defects, with their severity, were the following.
-\begin{itemize}
-    \item \textbf{Critical.} When a tidy encounters two files with the same destination name, undo will lose one of them, claiming to restore the files as they were. This is the opposite of what it promised that nothing will be lost, although there is no deletion operation, and is the first error that needs to be fixed.
-    \item \textbf{High, visibility.} The history of what ARTEMIS did is on disk but not on screen, the page on which changes are reported can tell you that nothing changed when files were transferred, and a banner may remain telling that nothing had been sent since a search.
-    \item \textbf{High, boundary.} The microphone might remain live with voice switched off; a plan that a phone had left waiting still executed after its folder was un-shared; a conversation might copy the contents of one folder to another; and any drive, including the system drive, could be added as a folder.
-    \item \textbf{High, trustworthy answers.} Some answers provided by the system included no source, said nothing was found when it was in the files, referenced to the incorrect file, or included an email that stated it attached an attachment that was not there. Not all the gates that label unsupported claims fired.
-    \item \textbf{Medium and low.} The voice panel would clutter the page, messages would be sent with the system being busy or messages sent before a reload would disappear and new files were not displayed until the user requested the system to look at the changes..
-\end{itemize}
+\subsection{What Held}
+Across many phrasings the system never deleted anything and refused any attempt to reach outside the chosen folder in plain words. Nothing left the computer, by web search or mail, without an approval card, and double clicks and stale clicks did not run a plan twice. Code questions produced only a difference and never an edit. Voice could not approve, delete or send. A phone could not approve emails or searches, saw only the folders ticked for it, and could be removed instantly. Tidy previewed every step, undo worked in ordinary use, and the rule that automation is offered only after three repetitions was exact.
 
-\textbf{Discussion.} The trend is educative. The mechanisms that are meant to support the hypothesis, consisting of the single resolution point, the tiers, the dispatcher and the undo journal, withstood adversarial use, and the majority of the severe defects are in how an interface control is wired to a gate, what a screen reports, and in cases the unit tests did not model, such as a name collision or a shared folder with a plan awaiting an allocation. This lends significance to the architectural decision to construct the enforcement first, as well as demonstrates that correctness in isolation of enforcement is not enough to provide the trust that the hypothesis predicts, as many of these defects would ruin trust in practice. Limits. The testers were not individuals but automated agents hence their reports reflect what breaks and not how an individual feels of the same. They were unable to listen to audio, could not confirm the presence of a model of cloud answer or a real email leave, did not test the side of the relay, the seven days of retaining chats or the deleting of the remote plane, and ran on a machine not embedding the model, which likely exaggerates the retrieval failures. Some of the most atrocious results are the results of a single session and these should be noted as such in the consolidated report, therefore they should be re-checked after correction. The work of the second phase is all carried over as 71 defects.
+
+\subsection{What Failed}
+The principal defects, with their severity, were the following (Table~\ref{tab:defects}).
+{\small
+\Needspace*{6\baselineskip}
+\begin{longtable}{|p{2.9cm}|p{11.0cm}|}
+\caption{Principal defects found by the interface campaign.}\label{tab:defects}\\*
+\hline
+\textbf{Severity and area} & \textbf{Defect} \\*
+\hline
+\endfirsthead
+\caption[]{continued from previous page}\\*
+\hline
+\textbf{Severity and area} & \textbf{Defect} \\*
+\hline
+\endhead
+Critical & When a tidy encounters two files with the same destination name, undo will lose one of them, claiming to restore the files as they were. This is the opposite of what it promised that nothing will be lost, although there is no deletion operation, and is the first error that needs to be fixed. \\
+\hline
+High, visibility & The history of what ARTEMIS did is on disk but not on screen, the page on which changes are reported can tell you that nothing changed when files were transferred, and a banner may remain telling that nothing had been sent since a search. \\
+\hline
+High, boundary & The microphone might remain live with voice switched off; a plan that a phone had left waiting still executed after its folder was un-shared; a conversation might copy the contents of one folder to another; and any drive, including the system drive, could be added as a folder. \\
+\hline
+High, trustworthy answers & Some answers provided by the system included no source, said nothing was found when it was in the files, referenced to the incorrect file, or included an email that stated it attached an attachment that was not there. Not all the gates that label unsupported claims fired. \\
+\hline
+Medium and low & The voice panel would clutter the page, messages would be sent with the system being busy or messages sent before a reload would disappear and new files were not displayed until the user requested the system to look at the changes.. \\
+\hline
+\end{longtable}
+}
+
+\subsection{Discussion}
+The trend is educative. The mechanisms that are meant to support the hypothesis, consisting of the single resolution point, the tiers, the dispatcher and the undo journal, withstood adversarial use, and the majority of the severe defects are in how an interface control is wired to a gate, what a screen reports, and in cases the unit tests did not model, such as a name collision or a shared folder with a plan awaiting an allocation. This lends significance to the architectural decision to construct the enforcement first, as well as demonstrates that correctness in isolation of enforcement is not enough to provide the trust that the hypothesis predicts, as many of these defects would ruin trust in practice.
+
+\subsection{Limits}
+The testers were not individuals but automated agents hence their reports reflect what breaks and not how an individual feels of the same. They were unable to listen to audio, could not confirm the presence of a model of cloud answer or a real email leave, did not test the side of the relay, the seven days of retaining chats or the deleting of the remote plane, and ran on a machine not embedding the model, which likely exaggerates the retrieval failures. Some of the most atrocious results are the results of a single session and these should be noted as such in the consolidated report, therefore they should be re-checked after correction. The work of the second phase is all carried over as 71 defects.
+
 
 \section{E5: Observations of Prospective Users}
-\textbf{Method.} The team members had contact with 30 potential users who were students, developers, human resources employees and non-technical users. The project pitch was used to explain the idea and the participants were able to try the current prototype. They were questioned whether they could trust an assistant that works as ARTEMIS explains and they were at liberty to say what they thought about the idea and the prototype. The responses below are those reported by the team from these conversations.
+E5 reports what 30 prospective users said about the idea and about the prototype after it was explained and demonstrated to them.
+
+\subsection{Method}
+The team members had contact with 30 potential users who were students, developers, human resources employees and non-technical users. The project pitch was used to explain the idea and the participants were able to try the current prototype. They were questioned whether they could trust an assistant that works as ARTEMIS explains and they were at liberty to say what they thought about the idea and the prototype. The responses below are those reported by the team from these conversations.
+
 
 {\Needspace*{7\baselineskip}
 \begin{longtable}{|p{6.4cm}|r|r|}
@@ -2497,17 +2752,28 @@ Did not express trust & 4 & 13\% \\
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.92\textwidth]{Figures/fig_obs_trust.pdf}
+    \includegraphics[width=0.7\textwidth]{Figures/fig_obs_trust.pdf}
     \caption{Stated trust among 30 prospective users.}
     \label{fig:obs}
 \end{figure}
 
-\textbf{Results.} In general, the general concept was quite acceptable in all the four backgrounds. Twenty-six of 30 indicated trust, 10 of them entirely and the partial assent was always conditional: participants were ready to trust the assistant on the condition that it does what it claims. The participants who tested the application stated that it was a prototype of the application as it was. They dissociated this judgement and the concept and they claimed that they would be happy to embrace the end product as stipulated in the pitch.
+\subsection{Results}
+In general, the general concept was quite acceptable in all the four backgrounds. Twenty-six of 30 indicated trust, 10 of them entirely and the partial assent was always conditional: participants were ready to trust the assistant on the condition that it does what it claims. The participants who tested the application stated that it was a prototype of the application as it was. They dissociated this judgement and the concept and they claimed that they would be happy to embrace the end product as stipulated in the pitch. Table~\ref{tab:obs} and Figure~\ref{fig:obs} show the stated trust.
 
-\textbf{Discussion.} The status of participants which is bound to their trust is the status of the architecture being constructed to fulfil, as the trustworthiness of the assistant is supposed to be based on the boundary and on the steps in approval acting as it is promised and not on its good motives. It is also 108 the circumstance that the faults of the last part endanger, or, in other words, that the promise made is accompanied by the good effect, as well as by the labour that is left. The finding is similar to the underlying questionnaire where 65 percent of 374 participants found an assistant based on a workspace as more trustworthy than one based on full access, but the two questions are different, and the numbers should not be summed. Limits. The participants consist of 30 individuals who were contacted via the personal connections of the team and are not representative sample. The team collected responses in a conversation and summarised them, thus there is no data on individual responses or recordings. The answers were not counted by background and thus no figure is claimed to any of the groups. The reasons of the four participants who did not express trust were not recorded. The measures of the stated attitudes are post-pitch and short trial responses and not sustained use. They should be interpreted as pointing evidence..
+
+\subsection{Discussion}
+The status of participants which is bound to their trust is the status of the architecture being constructed to fulfil, as the trustworthiness of the assistant is supposed to be based on the boundary and on the steps in approval acting as it is promised and not on its good motives. It is also the circumstance that the faults of the last part endanger, or, in other words, that the promise made is accompanied by the good effect, as well as by the labour that is left. The finding is similar to the underlying questionnaire where 65 percent of 374 participants found an assistant based on a workspace as more trustworthy than one based on full access, but the two questions are different, and the numbers should not be summed.
+
+\subsection{Limits}
+The participants consist of 30 individuals who were contacted via the personal connections of the team and are not representative sample. The team collected responses in a conversation and summarised them, thus there is no data on individual responses or recordings. The answers were not counted by background and thus no figure is claimed to any of the groups. The reasons of the four participants who did not express trust were not recorded. The measures of the stated attitudes are post-pitch and short trial responses and not sustained use. They should be interpreted as pointing evidence..
+
 
 \section{E6: Exploratory Persona Simulation}
-\textbf{Method.} To test the idea under sceptical review and to expose objections that friendly conversation might not, 15 simulated personas, including students, developers, a freelancer, employees and deliberately sceptical non-adopters, were given a neutral description of the idea and a private copy of the prototype, and each reported its first impressions, what it did, its ratings and its objections in a structured report. Each worked independently and the agents did not see each other's reports. The study uses language-model-based simulated user agents to explore potential user perceptions and behavioural patterns. The participants are simulated personas and not recruited human subjects, so the results are exploratory synthetic evidence and must not be presented as empirical human-subject findings or as statistically representative of any population. They are reported here only as a stress test of the argument.
+E6 tests the idea under sceptical review with 15 simulated personas, and it is reported only as a stress test of the argument.
+
+\subsection{Method}
+To test the idea under sceptical review and to expose objections that friendly conversation might not, 15 simulated personas, including students, developers, a freelancer, employees and deliberately sceptical non-adopters, were given a neutral description of the idea and a private copy of the prototype, and each reported its first impressions, what it did, its ratings and its objections in a structured report. Each worked independently and the agents did not see each other's reports. The study uses language-model-based simulated user agents to explore potential user perceptions and behavioural patterns. The participants are simulated personas and not recruited human subjects, so the results are exploratory synthetic evidence and must not be presented as empirical human-subject findings or as statistically representative of any population. They are reported here only as a stress test of the argument. The results are given in Table~\ref{tab:sim}.
+
 
 {\Needspace*{3\baselineskip}
 \begin{longtable}{|p{8.0cm}|p{5.2cm}|}
@@ -2543,9 +2809,16 @@ Adoption & 14 might try, 1 would not use, 0 would use or recommend \\
 \end{longtable}
 }
 
-\textbf{Discussion.} The simulation is more reserved than the observations of real people, and that is its use. No persona disagreed that bounding scope would raise trust, which agrees in direction with E5, but only 1 of 15 would be clearly more willing to use it, and most attached conditions. Concerns were raised by all 15: 13 described failed, wrong or partial answers, and 12 noticed that a cloud key appeared as already saved in a clean copy, which could not be resolved as a defect or as an artefact of the shared test machine. Approval fatigue and long-term retention cannot be observed in a single session and were not. Limits. The personas are played by one underlying model, so their views are not independent, and such agents can be agreeable. The sample is small, no statistical test is used, and defects of the prototype, notably the failures of the folder box, probably coloured the personas' reactions. The results are therefore a check on the reasoning and are not evidence of adoption.
+\subsection{Discussion}
+The simulation is more reserved than the observations of real people, and that is its use. No persona disagreed that bounding scope would raise trust, which agrees in direction with E5, but only 1 of 15 would be clearly more willing to use it, and most attached conditions. Concerns were raised by all 15: 13 described failed, wrong or partial answers, and 12 noticed that a cloud key appeared as already saved in a clean copy, which could not be resolved as a defect or as an artefact of the shared test machine. Approval fatigue and long-term retention cannot be observed in a single session and were not.
+
+\subsection{Limits}
+The personas are played by one underlying model, so their views are not independent, and such agents can be agreeable. The sample is small, no statistical test is used, and defects of the prototype, notably the failures of the folder box, probably coloured the personas' reactions. The results are therefore a check on the reasoning and are not evidence of adoption.
+
 
 \section{Discussion}
+This section brings the evidence of the six experiments together. It sets the evidence against the central hypothesis and the research question, states the threats to validity and lists the parts of the evaluation that are still to be done.
+
 \subsection{Findings against the Central Hypothesis}
 Table~\ref{tab:hyp} sets the evidence against the three parts of the central hypothesis. The classification is a description of the weight of the first-phase evidence and not a statistical test.
 
@@ -2571,7 +2844,7 @@ Without meaningfully reducing usefulness & E4 and E6 show the limits were not wh
 \end{longtable}
 }
 
-Not yet tested meaningfully users objected to; no task measure exists yet reducing usefulness On this evidence the first part is supported in direction and the second is partly supported, and the third cannot be determined until usefulness is determined on the tasks. The entire hypothesis is hence promoted by the initial stage and is not confirmed yet. With the stricter interpretation of the simulation, where the only agreement that matters is the clear one, the adoption part would not support the study, and this is one of the reasons why the second phase with the controlled study should be the most weighty.
+On this evidence the first part is supported in direction and the second is partly supported, and the third cannot be determined until usefulness is determined on the tasks. The entire hypothesis is hence promoted by the initial stage and is not confirmed yet. With the stricter interpretation of the simulation, where the only agreement that matters is the clear one, the adoption part would not support the study, and this is one of the reasons why the second phase with the controlled study should be the most weighty.
 
 \subsection{Findings against the Research Question}
 The research question is: Does an assistant confined to given workspaces manage to provide viable multi-step task automation and enhance trust without diminishing usefulness? The prototype demonstrates that the restriction can be constructed as structure rather than policy, and can be constructed inexpensively, introducing less than a millisecond to a call. It demonstrates that, multi step plans, tidying, cited answers, mail, search, drafting, voice and remote control can be executed on the same three points of enforcement. It does not yet demonstrate that the automation is user-friendly, since that requires the task study, and the flaws of E4 indicate that reliability, and not the limitation, is what is presently limiting the experience.
@@ -2580,7 +2853,7 @@ The research question is: Does an assistant confined to given workspaces manage 
 There are four types of evidence with their respective weaknesses. The deterministic tests are unable to work out a real model. The interface campaign employed automated agents that are not able to hear or feel and one of the machines had no embedding model. The team collected the observations of 30 people, constructed the system and introduced it, which may favourably respond, and was not recorded in the individual scores. The simulation is synthetic. All these weaknesses are in different directions hence the four are reported separately and not brought together and none of them is presented as the controlled study that the second phase will offer.
 
 \subsection{Evaluation Not Yet Done}
-111 The subsequent components of the evaluation process of Chapter 5 have not been conducted and are scheduled to be implemented during the second phase: task-based measurements with the system and without it, the subjective workload measure, the usability and trust questionnaires, approval fatigue with repeated sessions, measuring the synthesis faithfulness and citation accuracy with an actual model, and the voice measure with the four-second latency target.
+The subsequent components of the evaluation process of Chapter 5 have not been conducted and are scheduled to be implemented during the second phase: task-based measurements with the system and without it, the subjective workload measure, the usability and trust questionnaires, approval fatigue with repeated sessions, measuring the synthesis faithfulness and citation accuracy with an actual model, and the voice measure with the four-second latency target.
 
 \section{Conclusion}
 The initial stage demonstrates that the enforcement the hypothesis is based on is constructable, is run at insignificant cost and survives under adversarial use, and that potential users as questioned responded to the concept with confidence conditional on the system doing just what it says. It also demonstrates that the prototype does not yet necessarily do what it claims: the interface campaign represented 71 various defects, one of them a critical one, and the difference between a passing automated suite and a working interface was huge. The evidence validates the hypothesis direction and its aspect of trust, partially supports adoption, and measures usefulness remains to be quantified. The corrections of the defects found and the controlled study are the two main tasks of the second phase.

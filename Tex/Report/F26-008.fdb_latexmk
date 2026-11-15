@@ -1,14 +1,14 @@
 # Fdb version 4
-["bibtex F26-008"] 1794562065.2331 "F26-008.aux" "F26-008.bbl" "F26-008" 1794562572.71533 0
+["bibtex F26-008"] 1794720914.57904 "F26-008.aux" "F26-008.bbl" "F26-008" 1794720919.79976 0
   "./fypbib.bib" 1794561259.4678 13030 24a6960e4cdc8983a6ebdc092f294639 ""
   "C:/Users/Hashir Rauf/AppData/Local/Programs/MiKTeX/bibtex/bst/bibtex/ieeetr.bst" 1291864344 18361 1a00e58565e7f19bf2b3e1bfb82254ae ""
-  "F26-008.aux" 1794562571.23274 47058 86495e3ae66bc153bc29fb8294f16cc3 "pdflatex"
+  "F26-008.aux" 1794720918.34863 51898 da59c47d8e4c3af1900d9330ffb9bfcd "pdflatex"
   (generated)
   "F26-008.bbl"
   "F26-008.blg"
   (rewritten before read)
-["pdflatex"] 1794562567.78249 "F26-008.tex" "F26-008.pdf" "F26-008" 1794562572.71698 0
-  "C:/Users/Hashir Rauf/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1794222734.30239 164858 1926c8d7bd1823f0c8393a5c0272d2d9 ""
+["pdflatex"] 1794720914.94521 "F26-008.tex" "F26-008.pdf" "F26-008" 1794720919.80164 0
+  "C:/Users/Hashir Rauf/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1794575073.28679 229827 71b31fdcfb7b254d6a7bb3641bb16ec9 ""
   "C:/Users/Hashir Rauf/AppData/Local/MiKTeX/fonts/tfm/public/rsfs/rsfs10.tfm" 1791058930.16663 688 37338d6ab346c2f1466b29e195316aa4 ""
   "C:/Users/Hashir Rauf/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1784224898.46117 13336468 6354f4100a9ff205182e0dbfb69185ca ""
   "C:/Users/Hashir Rauf/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc" 1458473887 4993 1194fb36dfcb11d9ae9802f2b00b60a3 ""
@@ -125,15 +125,14 @@
   "C:/Users/Hashir Rauf/AppData/Local/Programs/MiKTeX/tex/latex/tools/longtable.sty" 1761901070 16014 dfa4b4d4e04a78a3f05a90c19711737a ""
   "C:/Users/Hashir Rauf/AppData/Local/Programs/MiKTeX/tex/latex/tools/xspace.sty" 1761901070 4545 d7bb86d489a8ad5263e4c34304c03aee ""
   "C:/Users/Hashir Rauf/AppData/Local/Programs/MiKTeX/tex/latex/url/url.sty" 1388490452 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
-  "F26-008.aux" 1794562571.23274 47058 86495e3ae66bc153bc29fb8294f16cc3 "pdflatex"
-  "F26-008.bbl" 1794562065.54228 9266 a9cc89ef17752e9a3578eb93fef6bb43 "bibtex F26-008"
-  "F26-008.lof" 1794562571.25373 5336 423c751580aa09059d727f91363ec7fa "pdflatex"
-  "F26-008.lot" 1794562571.25473 4518 cc35dd8fb89661b34a46a53516d3d6b0 "pdflatex"
-  "F26-008.out" 1794562571.24473 25958 beffbb47111627e4d55973c503d7bcfd "pdflatex"
-  "F26-008.tex" 1794562566.81553 275295 3827671c481e5b5ee7045436903431b5 ""
-  "F26-008.toc" 1794562571.25373 12249 f4189b2d266e82859775f6d9379fbdb5 "pdflatex"
+  "F26-008.aux" 1794720918.34863 51898 da59c47d8e4c3af1900d9330ffb9bfcd "pdflatex"
+  "F26-008.bbl" 1794720914.86803 9266 a9cc89ef17752e9a3578eb93fef6bb43 "bibtex F26-008"
+  "F26-008.lof" 1794720918.36659 5209 b3011f8a547fc3286bb6bd121f4db871 "pdflatex"
+  "F26-008.lot" 1794720918.36659 5424 2b2b6c50eb8062b83576730b9ef30c9d "pdflatex"
+  "F26-008.out" 1794720918.3596 28167 7a620cd81866a65f598ca477ab7fb5a1 "pdflatex"
+  "F26-008.tex" 1794720909.03012 278025 a8b024bf132c6993b9922683f1e977f0 ""
+  "F26-008.toc" 1794720918.36659 13994 793a2f6c9bcd484b6483d31151288b64 "pdflatex"
   "FastFyp.cls" 1794561259.4528 2744 236b484b06ff1192c593375985032962 ""
-  "Figures/Picture1.png" 1794561259.66877 101626 9eb7ad15c710909c2a9bfce843fc12fb ""
   "Figures/fast.png" 1794561259.67479 4406 bda51d09ab811defe1fa156aea173892 ""
   "Figures/fastlogo.png" 1794561259.68278 141750 5c932fc808406681f3432ce4c6af3a58 ""
   "Figures/fig_approval.pdf" 1794561259.68978 84669 755a494f632cbbd9c5f4f56de2c6eb40 ""
@@ -180,6 +179,9 @@
   "Figures/s_settings.png" 1794561259.64678 73655 5e210ce6f5d5676fe3e4a15cb57d2eff ""
   "Figures/s_undo.png" 1794561259.64078 62098 3e38a2de8f2500356e37384fe37975b4 ""
   "Figures/s_work.png" 1794561259.60481 93780 1edafbaa674d743164481a7e94a0d2d4 ""
+  "Figures/sig_doureesha.png" 1794720873.98436 16264 62196090cbb57641931ed7ce38a36fb9 ""
+  "Figures/sig_hashir.png" 1794720873.96796 15363 88ff9ca34d895bc782fc02f8a2c7964e ""
+  "Figures/sig_hira.png" 1794720873.97591 13848 31a927dc5d4f5b9bae1f467671a70d09 ""
   (generated)
   "F26-008.aux"
   "F26-008.lof"

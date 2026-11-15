@@ -1,11 +1,12 @@
 \section{Design}
 \label{sec:design}
 
-Every structural decision follows from one sentence: the system is local-first, cloud-optional and never in possession of scope the user has not explicitly granted. If the hypothesis is to be tested honestly, the restriction has to be structural rather than behavioural, impossible by construction rather than discouraged by instruction. This section describes the components that carry that requirement. Figure~\ref{fig:lifecycle} shows the path every request takes.
+Every structural decision follows from one sentence: the system is local-first, cloud-optional, and holds no scope the user has not explicitly granted. If the hypothesis is to be tested honestly, the restriction has to be structural rather than behavioural, impossible by construction rather than discouraged by instruction. This section describes the components that carry that requirement. Figure~\ref{fig:lifecycle} shows the path every request takes.
 
 \begin{figure*}[t]
   \centering
   \includegraphics[width=0.78\textwidth]{figures/fig_lifecycle}
+  \Description{Flow diagram: input is normalised, context is assembled within workspace bounds, a model tier is chosen, the planner produces a plan, the policy engine classifies each call; auto-approved calls go to the undo journal, dispatcher, capability service and audit log, while gated calls go through the approval broker and user decision first.}
   \caption{The request lifecycle. Modality is erased at the turn normaliser, so every stage below it is identical for voice and text. The gated branch returns beneath the undo journal, so an approved action is snapshotted before it is dispatched.}
   \label{fig:lifecycle}
 \end{figure*}
@@ -22,6 +23,7 @@ Every proposed tool call is classified into exactly one of four tiers (Figure~\r
 \begin{figure}[t]
   \centering
   \includegraphics[width=\linewidth]{figures/fig_tiers}
+  \Description{Four boxes labelled T0 read, T1 reversible, T2 outward and T3 destructive, with their handling: auto-execute, configurable with full undo, always gated, refused with no code path.}
   \caption{The four risk tiers. Only the reversible tier is user-configurable; outward actions are always gated, and destructive actions are refused structurally.}
   \label{fig:tiers}
 \end{figure}
