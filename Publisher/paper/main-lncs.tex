@@ -1,0 +1,43 @@
+% ---------------------------------------------------------------------------
+% Springer LNCS wrapper (llncs). Targets: any Springer-proceedings venue.
+% Build: .\build.ps1 main-lncs
+% ---------------------------------------------------------------------------
+\documentclass[runningheads]{llncs}
+
+\newif\ifanon
+\anonfalse   % \anontrue for double-blind review, and blank the author block
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\input{content/macros}
+\usepackage[hidelinks]{hyperref}
+
+\begin{document}
+
+\title{Bounded by Construction: Design and First-Phase Evaluation of a Workspace-Scoped, Approval-Gated Desktop Assistant}
+\titlerunning{Bounded by Construction}
+
+\ifanon
+  \author{Anonymous authors}
+  \authorrunning{Anonymous}
+  \institute{Anonymous institution}
+\else
+  \author{Hashir Rauf \and Hira Khalid \and Syeda Doureesha Batool \and Mubasher Hussain}
+  \authorrunning{H. Rauf et al.}
+  \institute{National University of Computer and Emerging Sciences (FAST NUCES), Lahore, Pakistan\\
+  \email{l232572@lhr.nu.edu.pk, l232594@lhr.nu.edu.pk, l232651@lhr.nu.edu.pk, mubashar.hussain@nu.edu.pk}}
+  % TODO (team): confirm author list and order with the supervisor.
+\fi
+
+\maketitle
+
+\begin{abstract}
+\input{content/abstract}
+\keywords{AI assistants \and human-AI interaction \and trust \and bounded agents \and human-in-the-loop \and local-first \and undo}
+\end{abstract}
+
+\input{content/sections}
+
+\bibliographystyle{splncs04}
+\bibliography{references}
+\end{document}

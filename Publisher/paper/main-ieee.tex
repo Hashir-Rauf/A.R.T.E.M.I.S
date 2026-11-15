@@ -1,0 +1,47 @@
+% ---------------------------------------------------------------------------
+% IEEE wrapper (IEEEtran, conference). Targets: AGENT'27 at ICSE, ICOSST,
+% FIT, and other IEEE-published conferences.
+%   IEEE Access (journal): \documentclass{ieeeaccess} and follow its own
+%   template; the content/ files still drop in unchanged.
+% Build: .\build.ps1 main-ieee
+% ---------------------------------------------------------------------------
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+\newif\ifanon
+\anonfalse   % \anontrue for double-blind review, and blank the author block
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{cite}
+\input{content/macros}
+\usepackage[hidelinks]{hyperref}
+
+\title{Bounded by Construction: Design and First-Phase Evaluation of a Workspace-Scoped, Approval-Gated Desktop Assistant}
+
+\ifanon
+  \author{\IEEEauthorblockN{Anonymous authors}}
+\else
+  \author{%
+    \IEEEauthorblockN{Hashir Rauf, Hira Khalid, Syeda Doureesha Batool and Mubasher Hussain}
+    \IEEEauthorblockA{National University of Computer and Emerging Sciences (FAST NUCES), Lahore, Pakistan\\
+    l232572@lhr.nu.edu.pk, l232594@lhr.nu.edu.pk, l232651@lhr.nu.edu.pk, mubashar.hussain@nu.edu.pk}}
+  % TODO (team): confirm author list and order with the supervisor.
+\fi
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\input{content/abstract}
+\end{abstract}
+
+\begin{IEEEkeywords}
+AI assistants, human-AI interaction, trust, bounded agents, human-in-the-loop, local-first, undo, LLM agents
+\end{IEEEkeywords}
+
+\input{content/sections}
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+\end{document}

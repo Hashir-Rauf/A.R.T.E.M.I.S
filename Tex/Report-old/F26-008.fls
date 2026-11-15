@@ -1,4 +1,4 @@
-PWD E:\Education\FAST-NUCES\Final Year Project\A.R.T.E.M.I.S\Report-Copy
+PWD E:\Education\FAST-NUCES\Final Year Project\A.R.T.E.M.I.S\Tex\Report
 INPUT C:\Users\Hashir Rauf\AppData\Local\MiKTeX\miktex\data\le\pdftex\pdflatex.fmt
 INPUT F26-008.tex
 OUTPUT F26-008.log
@@ -501,6 +501,7 @@ INPUT .\Figures\fig_class.pdf
 INPUT .\Figures\fig_class.pdf
 INPUT .\Figures\fig_class.pdf
 INPUT .\Figures\fig_class.pdf
+INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmtt10.tfm
 INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\vf\adobe\times\zptmcm7t.vf
 INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\symbol\psyr.tfm
 INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\vf\adobe\times\zptmcm7y.vf
@@ -525,7 +526,6 @@ INPUT .\Figures\fig_obs_trust.pdf
 INPUT .\F26-008.bbl
 INPUT .\F26-008.bbl
 INPUT F26-008.bbl
-INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmtt10.tfm
 INPUT C:\Users\Hashir Rauf\AppData\Local\Programs\MiKTeX\fonts\vf\adobe\times\ptmri7t.vf
 INPUT .\Figures\fig_interview.pdf
 INPUT .\Figures\fig_interview.pdf

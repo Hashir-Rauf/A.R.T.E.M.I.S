@@ -1,0 +1,50 @@
+\section{First-Phase Evaluation}
+\label{sec:evaluation}
+
+The controlled study that measures task time, workload, usability and trust with participants belongs to the second phase and is described in Section~\ref{sec:study}. The first phase answers a smaller set of questions: whether the guarantees hold in the prototype, whether it performs acceptably, how it fares when used as a person would use it, and how prospective users react. Six experiments address these, and we report each with its limits.
+
+\subsection{Automated tests}
+The full suite of 554 deterministic tests passed on 9 November 2026 in 42 seconds. The policy engine, approval broker, dispatcher and undo journal account for 50 tests, speech for 14 and the remote plane for 31. The properties asserted include that traversal, symbolic-link, absolute and sibling-prefix escapes are refused and logged; that the destructive tier has no approval path; that nothing executes without a verdict and an approval; that an approved plan reverses as a unit; that a claim without a real source is labelled; that voice creates no new approval path; and that a paired device cannot approve an email. The suite proves that each guarantee holds where it is applied, not that it is applied everywhere; the campaign below shows the difference.
+
+\subsection{Enforcement and retrieval cost}
+A script timed the enforcement path and retrieval on one Windows 10 machine with a throwaway store, folders of 100, 400 and 1,600 small text files, and a deterministic stand-in embedder, so the figures describe the cost of the system's own machinery excluding the language model and real embedding (Table~\ref{tab:perf}). The boundary and the policy engine add well under a millisecond to an ordinary call, and a refusal that also writes to the hash-chained log costs about a millisecond at the median. Search latency stayed near 2 milliseconds from 100 to 1,600 files. Scanning and indexing grew roughly in proportion to file count, at about 5 milliseconds per file per step: 0.62 and 0.48 seconds for 100 files, 1.96 and 2.26 for 400, 7.98 and 7.64 for 1,600. Verifying the 2,306-row audit chain took 10.9 milliseconds. Real embedding is slower than the stand-in, and local model latency, the dominant delay a user perceives, was not measured under controlled conditions.
+
+\begin{table}[t]
+  \centering
+  \small
+  \caption{Enforcement and retrieval cost in milliseconds; medians of 300 to 2,000 repetitions on one machine.}
+  \label{tab:perf}
+  \begin{tabular}{@{}lrrr@{}}
+    \toprule
+    Operation & Median & 95th pct. & Max \\
+    \midrule
+    Broker resolves a valid reference & 0.32 & 0.37 & 1.22 \\
+    Broker refuses a traversal, with audit write & 1.14 & 2.76 & 27.1 \\
+    Policy classifies a read & 0.34 & 0.40 & 0.56 \\
+    Policy refuses a delete, with audit write & 0.96 & 2.86 & 9.40 \\
+    Search over 100 files & 2.16 & 2.30 & 2.63 \\
+    Search over 400 files & 2.16 & 2.26 & 3.12 \\
+    Search over 1,600 files & 2.17 & 2.25 & 5.47 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Hands-on rounds}
+The whole system was driven through the real web interface in a headless browser and each action's result checked on disk. The first round, on a build with 359 passing unit tests, found that only 1 of 9 features worked from the interface: approval buttons were hidden after a typed request, so nothing could be approved, and several services that passed their unit tests were unreachable. The safety core held from the start: deletion was refused, reads outside the folder were refused, and tidy and undo restored files exactly. Fifteen defects were fixed, and a second round found 8 of 9 features working (speech was not yet built) with 36 of 36 interface tests passing; it also exposed seven further problems the fixes had introduced, all corrected. These rounds were scripted by one tester and show that known paths work.
+
+\subsection{Adversarial interface campaign}
+\label{sec:campaign}
+Each of nine areas of the prototype was exercised by three automated testing agents driving the real interface through a browser with different dispositions: a newcomer who follows the obvious path and makes ordinary mistakes, an impatient power user who double-clicks, refreshes and switches tabs, and an adversarial tester who supplies hostile, empty, very long and contradictory input and tries to make the system do what it promises never to do. This gave 27 sessions, each with a private copy of the application and a private data folder, verifying outcomes on disk and in the server log. No session ended with a clean pass: 23 passed with issues and 4 failed. The sessions reported 113 defects, which merged into 71 distinct defects (1 critical, 18 high, 37 medium, 15 low), together with 63 behaviours that work but that a user would not want.
+
+What held is the part the hypothesis rests on. Across many phrasings the system never deleted anything and refused every attempt to reach outside the chosen folder in plain words. Nothing left the computer, by search or mail, without an approval card, and double and stale clicks did not run a plan twice. Code questions produced only a difference and never an edit. Voice could not approve, delete or send. A paired phone could not approve emails or searches, saw only the folders ticked for it, and could be removed instantly. Tidy previewed every step, undo worked in ordinary use, and automation was offered only after exactly three repetitions.
+
+What failed lies mostly in the joins. The one critical defect is that if a tidy meets two files that would take the same destination name, undo can lose one of them while reporting that the files are back, which contradicts the promise that nothing is lost even though no deletion operation exists. High-severity defects of visibility: the record of actions exists on disk but no screen shows it in full, and status banners could be stale. High-severity defects of boundary: the microphone could stay live after voice was switched off; a plan a phone had left waiting still ran after its folder was un-shared; a conversation could carry one folder's content into another; and any drive, including the system drive, could be added as a folder. High-severity defects of trustworthy answers: an answer with no source, a false not-found, a wrong file cited, an email mentioning an attachment that did not exist; the gate that labels unsupported claims did not always fire.
+
+The pattern is informative. The single resolution point, the tiers, the dispatcher and the undo journal withstood adversarial use, and the serious defects lie in how an interface control is wired to a gate, in what a screen reports, and in situations the unit tests did not model. This supports building the enforcement first, and it also shows that enforcement correctness in isolation does not deliver the trust the hypothesis predicts, since several of these defects would damage trust in practice. The testers were agents, not people: they could not hear audio, did not see a cloud model answer or a real email leave, and ran on a machine without the embedding model, which probably inflates the retrieval failures.
+
+\subsection{Prospective users}
+Members of the team spoke with 30 prospective users, students, developers, human resources staff and non-technical users, who heard the pitch and tried the prototype. Asked whether they would trust an assistant that works as described, 10 fully agreed, 16 partly agreed and 4 did not express trust. The partial agreement was consistently conditional: participants would trust the assistant provided that it does exactly what it says. Those who tried it described the current build as a proof of concept and separated that judgement from the idea. The condition they attached is the condition the architecture exists to satisfy, and it is the condition the defects above threaten. The participants were reached through the team's contacts, responses were summarised in conversation without individual scores or recordings, and the four dissenting reasons were not recorded; this is directional evidence of stated attitude after a short trial.
+
+% CUT-FOR-SHORT: this subsection is the first to drop for a 4-page version.
+\subsection{Persona simulation as a stress test}
+To expose objections that friendly conversation might not, 15 language-model-based simulated personas, including deliberately sceptical non-adopters, were each given a neutral description and a private copy of the prototype and wrote a structured report. These are synthetic, not human-subject, results, played by one underlying model, and are reported only as a check on the reasoning. No persona disagreed that bounding scope would raise trust (6 agree, 9 partly), but only 1 of 15 said it would clearly make them more willing to use the system (14 might try, 1 would not use), 13 described a failed, wrong or partial answer, and perceived value averaged 2.8 of 5. The simulation is more reserved than the human conversations, which is its use: under a strict reading the adoption part of the hypothesis would not be supported, and that is a reason to weight the controlled study most.

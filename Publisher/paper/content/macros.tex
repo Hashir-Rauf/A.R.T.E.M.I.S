@@ -1,0 +1,15 @@
+% Shared, class-agnostic preamble for every wrapper.
+% Rule: nothing here may take package options, so it cannot clash with a
+% publisher class that has already loaded the same package.
+% Every wrapper must run \newif\ifanon and set \anontrue or \anonfalse
+% BEFORE \input{content/macros}.
+
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath}
+
+% System name. Change once here if the venue wants the long form.
+\newcommand{\sys}{ARTEMIS}
+
+% Identifying text that must disappear under double-blind review.
+\newcommand{\InstitutionName}{\ifanon a single university's\else FAST NUCES\fi}

@@ -1,0 +1,12 @@
+# LaTeX build artefacts. Keep the PDFs out of git too; rebuild with build.ps1.
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.pdf
+!figures/*.pdf

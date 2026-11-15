@@ -1,0 +1,49 @@
+% ---------------------------------------------------------------------------
+% GENERIC wrapper: plain article class, single column, A4.
+% Use this for arXiv, for circulating a draft, and as the neutral baseline.
+% Venue-specific wrappers (main-acm.tex, main-ieee.tex, main-lncs.tex) input
+% exactly the same content/ files; only this file changes per venue.
+% Build: .\build.ps1 main
+% ---------------------------------------------------------------------------
+\documentclass[11pt,a4paper]{article}
+
+\newif\ifanon
+\anonfalse   % \anontrue for double-blind review
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}   % scalable Type 1 fonts; microtype's expansion needs them
+\usepackage[margin=1in]{geometry}
+\usepackage{microtype}
+\usepackage[numbers,sort&compress]{natbib}
+\input{content/macros}
+\usepackage[hidelinks]{hyperref}
+
+\title{Bounded by Construction: Design and First-Phase Evaluation of a Workspace-Scoped, Approval-Gated Desktop Assistant}
+% Shorter alternatives if a venue caps title length:
+%   A.R.T.E.M.I.S.: Bounding a Desktop AI Assistant by Construction
+%   Does Bounding an Assistant's Scope Increase Trust? Design and Evidence from a Workspace-Scoped Desktop Agent
+
+\ifanon
+  \author{Anonymous authors}
+\else
+  \author{%
+    Hashir Rauf \and Hira Khalid \and Syeda Doureesha Batool \and Mubasher Hussain\\[0.5em]
+    \normalsize National University of Computer and Emerging Sciences (FAST NUCES), Lahore, Pakistan\\
+    \normalsize \texttt{l232572@lhr.nu.edu.pk, l232594@lhr.nu.edu.pk, l232651@lhr.nu.edu.pk, mubashar.hussain@nu.edu.pk}}
+  % TODO (team): confirm author list and order with the supervisor.
+\fi
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\input{content/abstract}
+\end{abstract}
+
+\input{content/sections}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+\end{document}

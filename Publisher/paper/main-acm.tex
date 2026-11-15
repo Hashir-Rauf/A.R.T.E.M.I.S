@@ -1,0 +1,60 @@
+% ---------------------------------------------------------------------------
+% ACM wrapper (acmart, sigconf). Targets: CHI Posters / LBW, IUI, CUI, TiiS.
+%   Review submission:  \documentclass[sigconf,review,anonymous]{acmart}
+%   Camera-ready:       \documentclass[sigconf]{acmart}  and fill the
+%                       \acmConference / \acmDOI / \acmISBN lines from the
+%                       acceptance email.
+%   TiiS (journal):     \documentclass[acmsmall]{acmart}
+% Build: .\build.ps1 main-acm
+% ---------------------------------------------------------------------------
+\documentclass[sigconf,review,anonymous]{acmart}
+
+\newif\ifanon
+\anontrue    % keep in step with the class option: anonymous -> \anontrue
+
+\input{content/macros}
+
+% Draft/review settings. Remove for camera-ready.
+\setcopyright{none}
+\settopmatter{printacmref=false}
+\acmConference[TODO Venue '27]{TODO full venue name}{TODO dates}{TODO city, country}
+\acmYear{2027}
+\copyrightyear{2027}
+
+\title{Bounded by Construction: Design and First-Phase Evaluation of a Workspace-Scoped, Approval-Gated Desktop Assistant}
+
+\author{Hashir Rauf}
+\affiliation{\institution{National University of Computer and Emerging Sciences}\city{Lahore}\country{Pakistan}}
+\email{l232572@lhr.nu.edu.pk}
+\author{Hira Khalid}
+\affiliation{\institution{National University of Computer and Emerging Sciences}\city{Lahore}\country{Pakistan}}
+\email{l232594@lhr.nu.edu.pk}
+\author{Syeda Doureesha Batool}
+\affiliation{\institution{National University of Computer and Emerging Sciences}\city{Lahore}\country{Pakistan}}
+\email{l232651@lhr.nu.edu.pk}
+\author{Mubasher Hussain}
+\affiliation{\institution{National University of Computer and Emerging Sciences}\city{Lahore}\country{Pakistan}}
+\email{mubashar.hussain@nu.edu.pk}
+% TODO (team): confirm author list and order with the supervisor.
+
+\begin{document}
+
+\begin{abstract}
+\input{content/abstract}
+\end{abstract}
+
+% CCS concepts: generate the XML at https://dl.acm.org/ccs and paste it here.
+% acmart only warns if it is missing, so the draft still builds without it.
+% \begin{CCSXML} ... \end{CCSXML}
+% \ccsdesc[500]{Human-centered computing~Interactive systems and tools}
+% \ccsdesc[300]{Security and privacy~Human and societal aspects of security and privacy}
+
+\keywords{AI assistants, human-AI interaction, trust, bounded agents, human-in-the-loop, local-first, undo, LLM agents}
+
+\maketitle
+
+\input{content/sections}
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{references}
+\end{document}
